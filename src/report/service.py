@@ -39,13 +39,19 @@ class BalanceService(Service):
         return group_id
 
     async def create_balance_report(self, data: schema.ReportCreate) -> core_types.Id_:
+        # Get source wires and group dataframe
         wire_df: DataFrame[finrep.typing.WireSchema] = await self.wire_repo().retrieve_wire_df(data.wire_base_id)
-        group_df: pd.DataFrame = await self.sheet_repo().retrieve_sheet_df(data.group_id)
+        group_df: pd.DataFrame = await self.sheet_repo().retrieve_sheet(data.group_id)
 
+        # Create report dataframe
         interval = self.interval(**data.interval.dict())
         report = self.report(wire_df, group_df, interval)
         report.create_report()
         report = report.get_report()
+
+        # Create sheet model
+
+        # Create report model
 
         logger.warning(f"\n{report.to_string()}")
         return 123

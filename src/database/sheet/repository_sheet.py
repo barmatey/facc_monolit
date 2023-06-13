@@ -13,32 +13,32 @@ class SheetCrudRepo(ABC):
         pass
 
     @abstractmethod
-    async def retrieve_sheet(self, data: schema_input.RetrieveSheetForm) -> schema_output.Sheet:
+    async def retrieve_sheet(self, sheet_id: core_types.Id_) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    async def retrieve_sheet_df(self, sheet_id: core_types.Id_) -> pd.DataFrame:
+    async def retrieve_normalized_sheet(self, data: schema_input.RetrieveSheetForm) -> schema_output.Sheet:
         pass
 
     @abstractmethod
-    async def delete_sheet(self, sheet_id: core_types.Id_) -> None:
+    async def delete_sheet(self, sheet_id: core_types.Id_) -> core_types.Id_:
         pass
 
 
 class SheetFilterRepo(ABC):
 
     @abstractmethod
-    async def sort_sheet(self, data: schema_input.SortSheetForm):
+    async def sort_sheet(self, data: schema_input.SortSheetForm) -> None:
         pass
 
     @abstractmethod
     async def retrieve_filter_items(
-            self, sheet_id: core_types.Id_, col_id: core_types.Id_) -> list[schema_output.FilterItem]:
+            self, sheet_id: core_types.Id_, col_id: core_types.Id_) -> None:
         pass
 
     @abstractmethod
     async def update_col_filter(
-            self, sheet_id: core_types.Id_, data: schema_input.UpdateColFilterForm) -> list[schema_output.FilterItem]:
+            self, sheet_id: core_types.Id_, data: schema_input.UpdateColFilterForm) -> None:
         pass
 
 
