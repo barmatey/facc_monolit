@@ -4,12 +4,13 @@ from pandera.typing import DataFrame
 import finrep
 
 from .. import core_types
+from ..database import repository_wire, repository_sheet, repository_report
 from . import schema
 
 
 class Service:
-    wire_repo: repository.IWireRepository = repository.WireRepository
-    sheet_repo: repository.ISheetRepository = repository.SheetRepository
+    wire_repo: repository_wire.WireRepo = repository_wire.WireRepoPostgres
+    sheet_repo: repository_sheet.SheetCrudRepo = repository_sheet.SheetCrudRepoPostgres
     report_repo: repository.ReportRepo = repository.ReportRepo
 
 
