@@ -10,6 +10,7 @@ from . import schema
 class Service:
     wire_repo: repository.IWireRepository = repository.WireRepository
     sheet_repo: repository.ISheetRepository = repository.SheetRepository
+    report_repo: repository.ReportRepo = repository.ReportRepo
 
 
 class BalanceService(Service):
@@ -18,13 +19,21 @@ class BalanceService(Service):
     report: finrep.Report = finrep.BalanceReport
 
     async def create_balance_group(self, data: schema.GroupCreate) -> core_types.Id_:
+        # Get source wires
         wire_df: DataFrame[finrep.typing.WireSchema] = await self.wire_repo().retrieve_wire_df(data.wire_base_id)
-        balance_group = self.group(wire_df=wire_df)
-        balance_group.create_group(ccols=data.columns)
-        balance_group = balance_group.get_group()
-        sheet_id = await self.sheet_repo().create_sheet(balance_group, drop_index=True, drop_columns=False)
-        logger.debug(f"\n{balance_group.to_string()}")
-        return sheet_id
+
+        # Create group dataframe
+        balance_group_sheet = self.group(wire_df=wire_df)
+        balance_group_sheet.create_group(ccols=data.columns)
+        balance_group_sheet = balance_group_sheet.get_group()
+
+        # Create sheet model
+        sheet_id = await self.sheet_repo().create_sheet(balance_group_sheet, drop_index=True, drop_columns=False)
+
+        # Create group model
+
+
+        return group_id
 
     async def create_balance_report(self, data: schema.ReportCreate) -> core_types.Id_:
         wire_df: DataFrame[finrep.typing.WireSchema] = await self.wire_repo().retrieve_wire_df(data.wire_base_id)
