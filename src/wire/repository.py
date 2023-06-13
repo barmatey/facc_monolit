@@ -5,14 +5,23 @@ from pandera.typing import DataFrame
 import finrep
 
 from src import core_types
+from . import schema
 
 
-class WireRepo(ABC):
+class SourceRepo(ABC):
+    @abstractmethod
+    async def create_source(self, data: schema.CreateSourceForm) -> core_types.Id_:
+        pass
+
     @abstractmethod
     async def retrieve_wire_df(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass
 
 
-class WireRepoPostgres(WireRepo):
+class SourceRepoPostgres(SourceRepo):
+
+    async def create_source(self, data: schema.CreateSourceForm) -> core_types.Id_:
+        return 12341234
+
     async def retrieve_wire_df(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass

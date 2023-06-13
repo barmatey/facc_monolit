@@ -13,8 +13,9 @@ router = APIRouter(
 
 
 @router.post("/")
-async def create_source_db():
-    pass
+async def create_source_db(data: schema.CreateSourceForm) -> core_types.Id_:
+    source_id = await service.SourceService().create_source(data)
+    return source_id
 
 
 @router.get("/{id_}")
