@@ -1,21 +1,12 @@
 import typing
 import numpy as np
 import pandas as pd
-import pandera as pa
 from copy import deepcopy
 
 from pandera.typing import DataFrame
 
 from src.report import schema
 from finrep import entities
-
-
-class WireSchema(pa.DataFrameModel):
-    date: pa.typing.Series[pd.Timestamp]
-    sender: pa.typing.Series[float]
-    receiver: pa.typing.Series[float]
-    debit: pa.typing.Series[float]
-    credit: pa.typing.Series[float]
 
 
 class BaseInterval(entities.Interval):

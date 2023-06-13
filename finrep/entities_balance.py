@@ -1,7 +1,7 @@
 import pandas as pd
 from pandera.typing import DataFrame
 
-from finrep import entities, entities_base
+from finrep import entities, entities_base, typing
 
 
 class BalanceInterval(entities_base.BaseInterval):
@@ -10,7 +10,7 @@ class BalanceInterval(entities_base.BaseInterval):
 
 class BalanceGroup(entities.Group):
 
-    def __init__(self, wire_df: DataFrame[entities_base.WireSchema]):
+    def __init__(self, wire_df: DataFrame[typing.WireSchema]):
         self.wire = wire_df.copy()
         self.group = None
 

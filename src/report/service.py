@@ -4,6 +4,7 @@ from pandera.typing import DataFrame
 import finrep
 
 from .. import core_types
+from . import schema
 
 
 class Service:
@@ -16,8 +17,8 @@ class BalanceService(Service):
     group: finrep.Group = finrep.BalanceGroup
     report: finrep.Report = finrep.BalanceReport
 
-    async def create_balance_group(self, data: schema_input.GroupCreate) -> core_types.Id_:
-        wire_df: DataFrame[entities.WireSchema] = await self.wire_repo().retrieve_wire_df(data.wire_base_id)
+    async def create_balance_group(self, data: schema.GroupCreate) -> core_types.Id_:
+        wire_df: DataFrame[finrep.typing.WireSchema] = await self.wire_repo().retrieve_wire_df(data.wire_base_id)
         balance_group = self.group(wire_df=wire_df)
         balance_group.create_group(ccols=data.columns)
         balance_group = balance_group.get_group()
@@ -25,8 +26,8 @@ class BalanceService(Service):
         logger.debug(f"\n{balance_group.to_string()}")
         return sheet_id
 
-    async def create_balance_report(self, data: schema_input.ReportCreate) -> core_types.Id_:
-        wire_df: DataFrame[entities.WireSchema] = await self.wire_repo().retrieve_wire_df(data.wire_base_id)
+    async def create_balance_report(self, data: schema.ReportCreate) -> core_types.Id_:
+        wire_df: DataFrame[finrep.typing.WireSchema] = await self.wire_repo().retrieve_wire_df(data.wire_base_id)
         group_df: pd.DataFrame = await self.sheet_repo().retrieve_sheet_df(data.group_id)
 
         interval = self.interval(**data.interval.dict())
