@@ -1,20 +1,17 @@
 from abc import abstractmethod, ABC
 
+from . import schema_input, schema_output
 from .. import core_types
 
 
 class SheetCrudRepo(ABC):
 
     @abstractmethod
-    async def create_sheet(self, data: entities_input.Sheet) -> core_types.Id_:
+    async def create_sheet(self, data: schema_input.Sheet) -> core_types.Id_:
         pass
 
     @abstractmethod
-    async def retrieve_sheet(self, data: input_schema.RetrieveSheet) -> output_schema.SheetOutput:
-        pass
-
-    @abstractmethod
-    async def retrieve_sheet_as_normalized_df(self, data: input_schema.RetrieveSheet) -> output_schema.DfOutput:
+    async def retrieve_sheet(self, data: schema_input.RetrieveSheetForm) -> schema_output.Sheet:
         pass
 
     @abstractmethod
@@ -25,17 +22,17 @@ class SheetCrudRepo(ABC):
 class SheetFilterRepo(ABC):
 
     @abstractmethod
-    async def sort_sheet(self, data: input_schema.SortSheet):
+    async def sort_sheet(self, data: schema_input.SortSheetForm):
         pass
 
     @abstractmethod
     async def retrieve_filter_items(
-            self, sheet_id: core_types.Id_, col_id: core_types.Id_) -> list[output_schema.FilterItem]:
+            self, sheet_id: core_types.Id_, col_id: core_types.Id_) -> list[schema_output.FilterItem]:
         pass
 
     @abstractmethod
     async def update_col_filter(
-            self, sheet_id: core_types.Id_, data: input_schema.UpdateColFilterData) -> list[output_schema.FilterItem]:
+            self, sheet_id: core_types.Id_, data: schema_input.UpdateColFilterForm) -> list[schema_output.FilterItem]:
         pass
 
 
