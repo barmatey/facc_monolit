@@ -4,3 +4,4 @@ numpy==1.24.3
 alembic==1.11.1
 loguru==0.7.0
 pandera==0.15.1
+psycopg2==2.9.6
