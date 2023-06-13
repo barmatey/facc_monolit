@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-class IInterval(ABC):
+class Interval(ABC):
 
     @abstractmethod
     def get_total_start_date(self) -> np.datetime64:
@@ -30,7 +30,7 @@ class IInterval(ABC):
         pass
 
 
-class IGroup(ABC):
+class Group(ABC):
     @abstractmethod
     def create_group(self, ccols: list[str]) -> None:
         pass
@@ -40,7 +40,7 @@ class IGroup(ABC):
         pass
 
 
-class IReport(ABC):
+class Report(ABC):
 
     @abstractmethod
     def create_report(self):

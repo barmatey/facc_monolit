@@ -1,14 +1,24 @@
 import typing
 import numpy as np
 import pandas as pd
+import pandera as pa
 from copy import deepcopy
 
 from pandera.typing import DataFrame
 
-from . import entities, schema
+from src.report import schema
+from finrep import entities
 
 
-class BaseInterval(entities.IInterval):
+class WireSchema(pa.DataFrameModel):
+    date: pa.typing.Series[pd.Timestamp]
+    sender: pa.typing.Series[float]
+    receiver: pa.typing.Series[float]
+    debit: pa.typing.Series[float]
+    credit: pa.typing.Series[float]
+
+
+class BaseInterval(entities.Interval):
 
     def __init__(self,
                  iyear: int,
@@ -52,7 +62,7 @@ class BaseInterval(entities.IInterval):
         return deepcopy(self)
 
 
-class ReportBase(entities.IReport):
+class ReportBase(entities.Report):
 
     def __init__(self, wire: DataFrame[schema.WireSchema], group: pd.DataFrame, interval: BaseInterval):
         self.ccols = self._find_ccols(wire.columns, group.columns)
