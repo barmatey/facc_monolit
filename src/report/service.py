@@ -4,13 +4,15 @@ from pandera.typing import DataFrame
 import finrep
 
 from .. import core_types
-from ..database import repository_wire, repository_sheet, repository_report
+from ..database import repository_wire
+from ..database.sheet import repository_sheet
+from ..database.report import repository_report
 from . import schema
 
 
 class Service:
     wire_repo: repository_wire.WireRepo = repository_wire.WireRepoPostgres
-    sheet_repo: repository_sheet.SheetCrudRepo = repository_sheet.SheetCrudRepoPostgres
+    sheet_repo: repository_sheet.SheetCrudRepo = repository_sheet.SheetCrudRepo
     report_repo: repository_report.ReportRepo = repository_report.ReportRepoPostgres
 
 
@@ -29,10 +31,10 @@ class BalanceService(Service):
         balance_group_sheet = balance_group_sheet.get_group()
 
         # Create sheet model
-        sheet_id = await self.sheet_repo().create_sheet(balance_group_sheet, drop_index=True, drop_columns=False)
+        _sheet_id = await self.sheet_repo().create_sheet(balance_group_sheet, drop_index=True, drop_columns=False)
 
         # Create group model
-
+        group_id = -1
 
         return group_id
 

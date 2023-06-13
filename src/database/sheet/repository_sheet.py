@@ -1,17 +1,23 @@
 from abc import abstractmethod, ABC
 
+import pandas as pd
+
 from . import schema_input, schema_output
-from .. import core_types
+from src import core_types
 
 
 class SheetCrudRepo(ABC):
 
     @abstractmethod
-    async def create_sheet(self, data: schema_input.Sheet) -> core_types.Id_:
+    async def create_sheet(self, data: pd.DataFrame, drop_index: bool, drop_columns: bool) -> core_types.Id_:
         pass
 
     @abstractmethod
     async def retrieve_sheet(self, data: schema_input.RetrieveSheetForm) -> schema_output.Sheet:
+        pass
+
+    @abstractmethod
+    async def retrieve_sheet_df(self, sheet_id: core_types.Id_) -> pd.DataFrame:
         pass
 
     @abstractmethod
@@ -39,47 +45,31 @@ class SheetFilterRepo(ABC):
 class SheetTableUpdateRepo(ABC):
 
     @abstractmethod
-    async def copy_rows(self, data: input_schema.CopySindexesData) -> None:
+    async def copy_rows(self, data: schema_input.CopySindexesForm) -> None:
         pass
 
     @abstractmethod
-    async def copy_cols(self, data: input_schema.CopySindexesData) -> None:
+    async def copy_cols(self, data: schema_input.CopySindexesForm) -> None:
         pass
 
     @abstractmethod
-    async def copy_cells(self, data: input_schema.CopyCellsData) -> None:
+    async def copy_cells(self, data: schema_input.CopyCellsForm) -> None:
         pass
 
     @abstractmethod
-    async def update_cells(self, data: input_schema.UpdateCellsData) -> None:
+    async def update_cells(self, data: schema_input.UpdateCellsForm) -> None:
         pass
 
     @abstractmethod
-    async def delete_rows(self, data: input_schema.DeleteSindexesData) -> None:
+    async def delete_rows(self, data: schema_input.DeleteSindexesForm) -> None:
         pass
 
     @abstractmethod
-    async def update_col_width(self, data: input_schema.UpdateColWidthData) -> output_schema.Sindex:
+    async def update_col_width(self, data: schema_input.UpdateColWidthForm) -> None:
         pass
 
 
 class SheetSupportRepo(ABC):
     @abstractmethod
-    async def get_sheet_scroll_size(self, sheet_id: core_types.Id_) -> output_schema.ScrollSize:
+    async def get_sheet_scroll_size(self, sheet_id: core_types.Id_) -> schema_output.ScrollSize:
         pass
-
-
-class SheetCrudRepoPostgres(SheetCrudRepo):
-    pass
-
-
-class SheetFilterRepoPostgres(SheetFilterRepo):
-    pass
-
-
-class SheetTableUpdateRepoPostgres(SheetTableUpdateRepo):
-    pass
-
-
-class SheetSupportRepoPostgres(SheetSupportRepo):
-    pass
