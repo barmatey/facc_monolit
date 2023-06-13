@@ -5,8 +5,7 @@ from copy import deepcopy
 
 from pandera.typing import DataFrame
 
-from src.report import schema
-from finrep import entities
+from . import entities, types
 
 
 class BaseInterval(entities.Interval):
@@ -55,7 +54,7 @@ class BaseInterval(entities.Interval):
 
 class ReportBase(entities.Report):
 
-    def __init__(self, wire: DataFrame[typing.WireSchema], group: pd.DataFrame, interval: BaseInterval):
+    def __init__(self, wire: DataFrame[types.WireSchema], group: pd.DataFrame, interval: BaseInterval):
         self.ccols = self._find_ccols(wire.columns, group.columns)
         self.gcols = self._find_gcols(wire.columns, group.columns)
         self.merged_wire = self._merge_wire_with_group(wire, group, self.ccols)
@@ -98,7 +97,7 @@ class ReportBase(entities.Report):
         return splited
 
     @staticmethod
-    def _merge_wire_with_group(wire: DataFrame[schema.WireSchema], group: pd.DataFrame, ccols: list[str]):
+    def _merge_wire_with_group(wire: DataFrame[types.WireSchema], group: pd.DataFrame, ccols: list[str]):
         wire = wire.copy()
         group = group.copy()
 
