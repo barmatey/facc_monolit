@@ -4,7 +4,7 @@ import pandas as pd
 from pandera.typing import DataFrame
 import finrep
 
-from .. import core_types
+from src import core_types
 
 
 class WireRepo(ABC):

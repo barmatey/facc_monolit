@@ -4,7 +4,7 @@ from pandera.typing import DataFrame
 import finrep
 
 from .. import core_types
-from ..database import repository_wire
+from ..database.wire import repository_wire
 from ..database.sheet import repository_sheet
 from ..database.report import repository_report
 from . import schema
@@ -50,6 +50,7 @@ class BalanceService(Service):
         report = report.get_report()
 
         # Create sheet model
+        _sheet_id = await self.sheet_repo().create_sheet(report, drop_index=False, drop_columns=False)
 
         # Create report model
 
