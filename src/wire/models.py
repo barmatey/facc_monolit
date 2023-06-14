@@ -28,8 +28,8 @@ Wire = Table(
     Column("receiver", Float, nullable=False),
     Column("debit", Float, nullable=False),
     Column("credit", Float, nullable=False),
-    Column("subconto_first", String(80), nullable=True),
-    Column("subconto_second", String(80), nullable=True),
-    Column("comment", String(80), nullable=True),
+    Column("subconto_first", String(800), nullable=True),
+    Column("subconto_second", String(800), nullable=True),
+    Column("comment", String(800), nullable=True),
     Column("source_base_id", Integer, ForeignKey("source_base.id", ondelete='CASCADE'), nullable=False),
 )

@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+import pandas as pd
+from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import JSONResponse
 from loguru import logger
 
@@ -29,5 +30,11 @@ async def delete_source_db():
 
 
 @router.post("/{id_}")
-async def bulk_append_wire():
-    pass
+async def bulk_append_wire_from_csv(id_: core_types.Id_, file: UploadFile) -> int:
+    df = pd.read_csv(file.file, parse_dates=['date'])
+    schema.WireSchema.validate(df)
+    df = await schema.WireSchema.drop_extra_columns(df)
+    df = df.head(5)
+    _ids = await service.WireService().bulk_append_wire_from_csv(id_, df)
+    logger.debug(_ids)
+    return 1
