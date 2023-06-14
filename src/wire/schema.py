@@ -13,9 +13,9 @@ class WireSchema(pa.DataFrameModel):
     receiver: pa.typing.Series[float]
     debit: pa.typing.Series[float]
     credit: pa.typing.Series[float]
-    subconto_first: pa.typing.Series[str]
-    subconto_second: pa.typing.Series[str]
-    comment: pa.typing.Series[str]
+    subconto_first: pa.typing.Series[str] = pa.Field(str_length={'max_value': 800})
+    subconto_second: pa.typing.Series[str] = pa.Field(str_length={'max_value': 800})
+    comment: pa.typing.Series[str] = pa.Field(str_length={'max_value': 800})
 
     @classmethod
     async def drop_extra_columns(cls, df: pd.DataFrame) -> pd.DataFrame:

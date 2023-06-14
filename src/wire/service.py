@@ -19,6 +19,7 @@ class WireService:
     repo: repository.WireRepo = repository.WireRepoPostgres
 
     async def bulk_append_wire_from_csv(self, source_id: core_types.Id_,
-                                        df: DataFrame[schema.WireSchema]) -> list[core_types.Id_]:
-        wire_ids: list[core_types.Id_] = await self.repo().bulk_create_wire(source_id, df.to_dict(orient='records'))
-        return wire_ids
+                                        df: DataFrame[schema.WireSchema]) -> None:
+        df = df.copy()
+        df['source_base_id'] = source_id
+        await self.repo().bulk_create_wire(df)

@@ -34,7 +34,5 @@ async def bulk_append_wire_from_csv(id_: core_types.Id_, file: UploadFile) -> in
     df = pd.read_csv(file.file, parse_dates=['date'])
     schema.WireSchema.validate(df)
     df = await schema.WireSchema.drop_extra_columns(df)
-    df = df.head(5)
-    _ids = await service.WireService().bulk_append_wire_from_csv(id_, df)
-    logger.debug(_ids)
+    await service.WireService().bulk_append_wire_from_csv(id_, df)
     return 1
