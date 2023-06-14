@@ -21,6 +21,10 @@ class SourceRepo(ABC):
         pass
 
     @abstractmethod
+    async def delete_source(self, id_: core_types.Id_) -> None:
+        pass
+
+    @abstractmethod
     async def retrieve_wire_df(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass
 
@@ -33,6 +37,12 @@ class SourceRepoPostgres(SourceRepo):
             result = await session.execute(insert)
             await session.commit()
         return result.fetchone()[0]
+
+    async def delete_source(self, id_: core_types.Id_) -> None:
+        async with db.get_async_session() as session:
+            delete = SourceBase.delete().where(SourceBase.c.id == id_)
+            _ = await session.execute(delete)
+            await session.commit()
 
     async def retrieve_wire_df(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass

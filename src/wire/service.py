@@ -14,6 +14,9 @@ class SourceService:
         source_id: core_types.Id_ = await self.repo().create_source(data)
         return source_id
 
+    async def delete_source(self, id_: core_types.Id_) -> None:
+        await self.repo().delete_source(id_)
+
 
 class WireService:
     repo: repository.WireRepo = repository.WireRepoPostgres

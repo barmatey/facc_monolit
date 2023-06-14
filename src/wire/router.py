@@ -14,18 +14,25 @@ router = APIRouter(
 
 
 @router.post("/")
-async def create_source_db(data: schema.CreateSourceForm) -> core_types.Id_:
+async def create_source(data: schema.CreateSourceForm) -> core_types.Id_:
     source_id = await service.SourceService().create_source(data)
     return source_id
 
 
 @router.get("/{id_}")
-async def retrieve_source_db(id_: core_types.Id_):
+async def retrieve_source(id_: core_types.Id_):
     pass
 
 
 @router.delete("/{id_}")
-async def delete_source_db():
+async def delete_source(id_: core_types.Id_) -> int:
+    logger.debug(id_)
+    await service.SourceService().delete_source(id_)
+    return 1
+
+
+@router.get("/")
+async def list_source():
     pass
 
 
