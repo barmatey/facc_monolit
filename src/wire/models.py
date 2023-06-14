@@ -12,7 +12,7 @@ def get_wcols():
 SourceBase = Table(
     'source_base',
     metadata,
-    Column("id", Integer, primary_key=True),
+    Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(80), nullable=False),
     Column("total_start_date", TIMESTAMP, default=datetime.utcnow, nullable=False),
     Column("total_end_date", TIMESTAMP, default=datetime.utcnow, nullable=False),
@@ -22,7 +22,7 @@ SourceBase = Table(
 Wire = Table(
     'wire',
     metadata,
-    Column("id", Integer, primary_key=True),
+    Column("id", Integer, primary_key=True, autoincrement=True),
     Column("date", TIMESTAMP, nullable=False),
     Column("sender", Float, nullable=False),
     Column("receiver", Float, nullable=False),
