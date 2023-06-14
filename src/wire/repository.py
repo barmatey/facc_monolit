@@ -26,13 +26,10 @@ class SourceRepoPostgres(SourceRepo):
 
     async def create_source(self, data: schema.CreateSourceForm) -> core_types.Id_:
         async with db.get_session() as session:
-            obj = data.dict()
-            await session.execute(
-                SourceBase.insert(), obj
-            )
+            insert = SourceBase.insert().values(**data.dict()).returning(SourceBase.c.id)
+            result = await session.execute(insert)
             await session.commit()
-            logger.debug(obj)
-        return 12341234
+        return result.fetchone()[0]
 
     async def retrieve_wire_df(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass
