@@ -21,11 +21,15 @@ class SourceRepo(ABC):
         pass
 
     @abstractmethod
+    async def retrieve_source(self, id_: core_types.Id_) -> schema.Source:
+        pass
+
+    @abstractmethod
     async def delete_source(self, id_: core_types.Id_) -> None:
         pass
 
     @abstractmethod
-    async def retrieve_wire_df(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
+    async def retrieve_source_as_dataframe(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass
 
 
@@ -38,13 +42,28 @@ class SourceRepoPostgres(SourceRepo):
             await session.commit()
         return result.fetchone()[0]
 
+    async def retrieve_source(self, id_: core_types.Id_) -> schema.Source:
+        async with db.get_async_session() as session:
+            q = SourceBase.select().where(SourceBase.c.id == id_)
+            source = await session.execute(q)
+            source = source.fetchone()
+
+        source = schema.Source(
+            id_=source[0],
+            title=source[1],
+            total_start_date=source[2],
+            total_end_date=source[3],
+            wcols=source[4],
+        )
+        return source
+
     async def delete_source(self, id_: core_types.Id_) -> None:
         async with db.get_async_session() as session:
             delete = SourceBase.delete().where(SourceBase.c.id == id_)
             _ = await session.execute(delete)
             await session.commit()
 
-    async def retrieve_wire_df(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
+    async def retrieve_source_as_dataframe(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass
 
 

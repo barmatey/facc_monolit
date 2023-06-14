@@ -14,6 +14,10 @@ class SourceService:
         source_id: core_types.Id_ = await self.repo().create_source(data)
         return source_id
 
+    async def retrieve_source(self, id_: core_types.Id_) -> schema.Source:
+        source = await self.repo().retrieve_source(id_)
+        return source
+
     async def delete_source(self, id_: core_types.Id_) -> None:
         await self.repo().delete_source(id_)
 

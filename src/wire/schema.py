@@ -2,6 +2,8 @@ import pandas as pd
 import pydantic
 import pandera as pa
 
+import core_types
+
 
 class CreateSourceForm(pydantic.BaseModel):
     title: str
@@ -21,3 +23,11 @@ class WireSchema(pa.DataFrameModel):
     async def drop_extra_columns(cls, df: pd.DataFrame) -> pd.DataFrame:
         df = df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
         return df
+
+
+class Source(pydantic.BaseModel):
+    id_: core_types.Id_
+    title: str
+    total_start_date: pd.Timestamp
+    total_end_date: pd.Timestamp
+    wcols: list[str]

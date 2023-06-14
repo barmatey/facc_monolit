@@ -20,13 +20,13 @@ async def create_source(data: schema.CreateSourceForm) -> core_types.Id_:
 
 
 @router.get("/{id_}")
-async def retrieve_source(id_: core_types.Id_):
-    pass
+async def retrieve_source(id_: core_types.Id_) -> schema.Source:
+    source = await service.SourceService().retrieve_source(id_)
+    return source
 
 
 @router.delete("/{id_}")
 async def delete_source(id_: core_types.Id_) -> int:
-    logger.debug(id_)
     await service.SourceService().delete_source(id_)
     return 1
 
