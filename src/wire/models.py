@@ -2,17 +2,21 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer, Float
 from sqlalchemy import String, JSON, TIMESTAMP
 
-
 metadata = MetaData()
+
+
+def get_wcols():
+    return ['sender', 'receiver', 'subconto_first', 'subconto_second', 'comment']
+
 
 SourceBase = Table(
     'source_base',
     metadata,
     Column("id", Integer, primary_key=True),
-    Column("title", String(80)),
-    Column("total_start_date", TIMESTAMP, default=datetime.utcnow),
-    Column("total_end_date", TIMESTAMP, default=datetime.utcnow),
-    Column("wcols", JSON, default=['sender', 'receiver', 'subconto_first', 'subconto_second', 'comment']),
+    Column("title", String(80), nullable=False),
+    Column("total_start_date", TIMESTAMP, default=datetime.utcnow, nullable=False),
+    Column("total_end_date", TIMESTAMP, default=datetime.utcnow, nullable=False),
+    Column("wcols", JSON, default=get_wcols, nullable=False),
 )
 
 Wire = Table(
