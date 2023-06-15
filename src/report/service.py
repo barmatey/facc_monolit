@@ -7,6 +7,39 @@ from .. import core_types
 from ..database.sheet import repository_sheet
 from ..database.report import repository_report
 from . import schema
+from . import repository
+
+
+class GroupService:
+    repository: repository.GroupRepo
+
+    async def create_group(self):
+        pass
+
+    async def retrieve_group(self):
+        pass
+
+    async def delete_group(self):
+        pass
+
+    async def retrieve_group_list(self):
+        pass
+
+
+class ReportService:
+    repo: repository.ReportRepo
+
+    async def create_report(self):
+        pass
+
+    async def retrieve_report(self):
+        pass
+
+    async def delete_report(self):
+        pass
+
+    async def retrieve_report_list(self):
+        pass
 
 
 class Service:

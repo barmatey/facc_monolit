@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src import wire
+from src import wire, report
 
 app = FastAPI()
 
@@ -24,6 +24,8 @@ app.add_middleware(
 )
 
 app.include_router(wire.router)
+app.include_router(report.router_group)
+app.include_router(report.router_report)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=9999)

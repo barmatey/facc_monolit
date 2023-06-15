@@ -6,13 +6,55 @@ from .. import core_types
 from . import schema
 from . import service
 
-router = APIRouter(
+router_report = APIRouter(
     prefix="/report",
     tags=['Report']
 )
 
 
-@router.post("/create-balance-group/")
-async def create_balance_group(data: schema.GroupCreate) -> JSONResponse:
-    group_id: core_types.Id_ = await service.BalanceService().create_balance_group(data)
-    return JSONResponse(content={"group_id": group_id})
+@router_report.post("/")
+async def create_report() -> core_types.Id_:
+    pass
+
+
+@router_report.get("/{id_}")
+async def retrieve_report():
+    pass
+
+
+@router_report.delete("/{id_}")
+async def delete_report():
+    pass
+
+
+@router_report.get("/")
+async def retrieve_report_list():
+    pass
+
+
+router_group = APIRouter(
+    prefix="/group",
+    tags=['Group']
+)
+
+
+@router_group.post("/")
+async def create_group():
+    pass
+
+
+@router_group.get("/{id_}")
+async def retrieve_group():
+    pass
+
+
+@router_group.delete("/{id_}")
+async def delete_group():
+    pass
+
+
+@router_group.get("/")
+async def retrieve_group_list():
+    pass
+
+
