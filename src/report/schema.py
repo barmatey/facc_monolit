@@ -41,3 +41,7 @@ class ReportCreateForm(pydantic.BaseModel):
     source_id: core_types.Id_
     group_id: core_types.Id_
     sheet_id: str
+
+
+class ReportRetrieveForm(pydantic.BaseModel):
+    id_: core_types.Id_

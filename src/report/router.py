@@ -19,7 +19,7 @@ async def create_report(data: schema.ReportCreateForm) -> core_types.Id_:
 
 
 @router_report.get("/{id_}")
-async def retrieve_report():
+async def retrieve_report(data: schema.ReportRetrieveForm) -> schema_output.Report:
     pass
 
 

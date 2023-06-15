@@ -1,7 +1,3 @@
-import loguru
-import pydantic
-from sqlalchemy import Table
-
 from .. import db
 from .. import core_types
 from .. import models as core_models
@@ -60,16 +56,15 @@ class ReportRepo:
     table_interval = report_models.Interval
 
     async def create(self, data: schema.ReportCreateForm) -> core_types.Id_:
-        report_data = {
-            "title": data.title,
-            "category_id": enums.Category[data.category].value,
-            "source_id": data.source_id,
-            "group_id": data.group_id,
-            "sheet_id": data.sheet_id,
-        }
-
         async with db.get_async_session() as session:
-            # Create report model
+            # Create Report model
+            report_data = {
+                "title": data.title,
+                "category_id": enums.Category[data.category].value,
+                "source_id": data.source_id,
+                "group_id": data.group_id,
+                "sheet_id": data.sheet_id,
+            }
             insert = self.table_report.insert().values(**report_data).returning(self.table_report.c.id)
             result = await session.execute(insert)
             report_id = result.fetchone()[0]
@@ -83,7 +78,7 @@ class ReportRepo:
             await session.commit()
             return report_id
 
-    async def retrieve(self):
+    async def retrieve(self, data: schema.ReportRetrieveForm) -> schema_output.Report:
         pass
 
     async def delete(self):
