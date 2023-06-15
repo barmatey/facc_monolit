@@ -1,0 +1,6 @@
+from .. import core_types
+from . import schema
+
+
+class Group(schema.GroupCreateForm):
+    id_: core_types.Id_

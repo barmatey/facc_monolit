@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from loguru import logger
 
 from .. import core_types
-from . import schema
+from . import schema, schema_output
 from . import service
 
 router_report = APIRouter(
@@ -39,22 +39,21 @@ router_group = APIRouter(
 
 
 @router_group.post("/")
-async def create_group():
-    pass
+async def create_group(data: schema.GroupCreateForm) -> core_types.Id_:
+    id_ = await service.GroupService().create_group(data)
+    return id_
 
 
 @router_group.get("/{id_}")
-async def retrieve_group():
+async def retrieve_group(id_: core_types.Id_) -> schema_output.Group:
     pass
 
 
 @router_group.delete("/{id_}")
-async def delete_group():
+async def delete_group(id_: core_types.Id_) -> int:
     pass
 
 
 @router_group.get("/")
-async def retrieve_group_list():
+async def retrieve_group_list() -> list[schema_output.Group]:
     pass
-
-

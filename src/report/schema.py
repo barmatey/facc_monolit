@@ -1,3 +1,5 @@
+import enum
+
 import pydantic
 import pandas as pd
 import typing
@@ -5,9 +7,19 @@ import typing
 from .. import core_types
 
 
-class GroupCreate(pydantic.BaseModel):
-    wire_base_id: core_types.Id_
-    columns: list[str]
+class GroupCreateForm(pydantic.BaseModel):
+    title: str
+    category: core_types.Id_
+    source_base: core_types.Id_
+    sheet: str
+
+
+class GroupRetrieveForm(pydantic.BaseModel):
+    id_: core_types.Id_
+
+
+class GroupDeleteForm(pydantic.BaseModel):
+    id_: core_types.Id_
 
 
 class ReportInterval(pydantic.BaseModel):
@@ -20,7 +32,7 @@ class ReportInterval(pydantic.BaseModel):
     iday: int
 
 
-class ReportCreate(pydantic.BaseModel):
+class ReportCreateForm(pydantic.BaseModel):
     wire_base_id: core_types.Id_
     group_id: core_types.Id_
     interval: ReportInterval
