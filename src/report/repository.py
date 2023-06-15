@@ -1,13 +1,16 @@
 import loguru
+import pydantic
+from sqlalchemy import Table
 
 from .. import db
 from .. import core_types
-from .. import models
+from .. import models as core_models
+from . import models as report_models
 from . import schema, schema_output, enums
 
 
 class GroupRepo:
-    table = models.Group
+    table = core_models.Group
 
     async def create(self, data: schema.GroupCreateForm) -> core_types.Id_:
         data_dict = data.dict()
@@ -41,15 +44,52 @@ class GroupRepo:
             await session.commit()
 
 
+class IntervalRepo:
+    table = report_models.Interval
+
+    async def create(self, data: schema.ReportIntervalCreateForm) -> core_types.Id_:
+        async with db.get_async_session() as session:
+            insert = self.table.insert().values(**data.dict()).returning(self.table.c.id)
+            result = await session.execute(insert)
+            await session.commit()
+        result = result.fetchone()[0]
+        return result
+
+
 class ReportRepo:
-    async def create_report(self):
+    table_report = core_models.Report
+    table_interval = report_models.Interval
+
+    async def create(self, data: schema.ReportCreateForm) -> core_types.Id_:
+        report_data = {
+            "title": data.title,
+            "category": enums.Category[data.category].value,
+            "source_base": data.source_base,
+            "group": data.group,
+            "sheet": data.sheet,
+        }
+
+        async with db.get_async_session() as session:
+            # Create report model
+            insert = self.table_report.insert().values(report_data).returning(self.table_report.c.id)
+            result = await session.execute(insert)
+            report_id = result.fetchone()[0]
+
+            # Create Interval model
+            interval_data = data.interval.dict()
+            interval_data['report'] = report_id
+            insert = self.table_interval.insert().values(interval_data)
+            _ = await session.execute(insert)
+
+            await session.commit()
+
+        return report_id
+
+    async def retrieve(self):
         pass
 
-    async def retrieve_report(self):
+    async def delete(self):
         pass
 
-    async def delete_report(self):
-        pass
-
-    async def retrieve_report_list(self):
+    async def retrieve_list(self):
         pass

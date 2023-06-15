@@ -27,10 +27,10 @@ class GroupService:
 
 
 class ReportService:
-    repo: repository.ReportRepo
+    repo = repository.ReportRepo
 
-    async def create_report(self):
-        pass
+    async def create_report(self, data: schema.ReportCreateForm) -> core_types.Id_:
+        return await self.repo().create(data)
 
     async def retrieve_report(self):
         pass

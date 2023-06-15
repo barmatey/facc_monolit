@@ -13,8 +13,9 @@ router_report = APIRouter(
 
 
 @router_report.post("/")
-async def create_report() -> core_types.Id_:
-    pass
+async def create_report(data: schema.ReportCreateForm) -> core_types.Id_:
+    id_ = await service.ReportService().create_report(data)
+    return id_
 
 
 @router_report.get("/{id_}")

@@ -9,10 +9,12 @@ Interval = Table(
     'interval',
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("total_start_date", TIMESTAMP, nullable=True),
+    Column("total_end_date", TIMESTAMP, nullable=True),
     Column("start_date", TIMESTAMP, nullable=False),
     Column("end_date", TIMESTAMP, nullable=False),
     Column("period_year", Integer, nullable=False),
     Column("period_month", Integer, nullable=False),
     Column("period_day", Integer, nullable=False),
-    Column("report", Integer, ForeignKey(models.Report.c.id, ondelete='CASCADE'), nullable=False),
+    Column("report_id", Integer, ForeignKey(models.Report.c.id, ondelete='CASCADE'), nullable=False),
 )

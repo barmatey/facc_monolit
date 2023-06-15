@@ -10,7 +10,7 @@ def get_wcols():
 
 
 SourceBase = Table(
-    'source_base',
+    'source',
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(80), nullable=False),
@@ -31,7 +31,7 @@ Wire = Table(
     Column("subconto_first", String(800), nullable=True),
     Column("subconto_second", String(800), nullable=True),
     Column("comment", String(800), nullable=True),
-    Column("source_base_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
+    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
 )
 
 Category = Table(
@@ -46,9 +46,9 @@ Group = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(80), nullable=False),
-    Column("category", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
-    Column("source_base", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet", String(30), nullable=False, unique=True),
+    Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
+    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
+    Column("sheet_id", String(30), nullable=False, unique=True),
 )
 
 Report = Table(
@@ -56,8 +56,8 @@ Report = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(80), nullable=False),
-    Column("category", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
-    Column("group", Integer, ForeignKey(Group.c.id, ondelete='CASCADE'), nullable=False),
-    Column("source_base", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
+    Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
+    Column("group_id", Integer, ForeignKey(Group.c.id, ondelete='CASCADE'), nullable=False),
+    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
     Column("sheet", String(30), nullable=False, unique=True),
 )
