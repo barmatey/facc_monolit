@@ -59,5 +59,5 @@ Report = Table(
     Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
     Column("group_id", Integer, ForeignKey(Group.c.id, ondelete='CASCADE'), nullable=False),
     Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet", String(30), nullable=False, unique=True),
+    Column("sheet_id", String(30), nullable=False, unique=True),
 )

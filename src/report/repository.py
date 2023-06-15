@@ -14,28 +14,27 @@ class GroupRepo:
 
     async def create(self, data: schema.GroupCreateForm) -> core_types.Id_:
         data_dict = data.dict()
-        data_dict['category'] = enums.Category[data.category].value
+        data_dict['category_id'] = enums.Category[data_dict['category_id']].value
         async with db.get_async_session() as session:
             insert = self.table.insert().values(**data_dict).returning(self.table.c.id)
             result = await session.execute(insert)
             await session.commit()
-        result = result.fetchone()[0]
-        return result
+            result = result.fetchone()[0]
+            return result
 
     async def retrieve(self, data: schema.GroupRetrieveForm) -> schema_output.Group:
         async with db.get_async_session() as session:
             select = self.table.select().where(self.table.c.id == data.id_)
             cursor = await session.execute(select)
             result = {col.key: value for col, value in zip(self.table.columns, cursor.fetchone())}
-
-        result = schema_output.Group(
-            id_=result['id'],
-            title=result['title'],
-            category=enums.Category(result['category']).name,
-            sheet=result['sheet'],
-            source_base=result['source_base'],
-        )
-        return result
+            result = schema_output.Group(
+                id_=result['id'],
+                title=result['title'],
+                category_id=enums.Category(result['category']).name,
+                sheet_id=result['sheet'],
+                source_id=result['source_base'],
+            )
+            return result
 
     async def delete(self, data: schema.GroupDeleteForm) -> None:
         async with db.get_async_session() as session:
@@ -52,8 +51,8 @@ class IntervalRepo:
             insert = self.table.insert().values(**data.dict()).returning(self.table.c.id)
             result = await session.execute(insert)
             await session.commit()
-        result = result.fetchone()[0]
-        return result
+            result = result.fetchone()[0]
+            return result
 
 
 class ReportRepo:
@@ -63,27 +62,26 @@ class ReportRepo:
     async def create(self, data: schema.ReportCreateForm) -> core_types.Id_:
         report_data = {
             "title": data.title,
-            "category": enums.Category[data.category].value,
-            "source_base": data.source_base,
-            "group": data.group,
-            "sheet": data.sheet,
+            "category_id": enums.Category[data.category].value,
+            "source_id": data.source_id,
+            "group_id": data.group_id,
+            "sheet_id": data.sheet_id,
         }
 
         async with db.get_async_session() as session:
             # Create report model
-            insert = self.table_report.insert().values(report_data).returning(self.table_report.c.id)
+            insert = self.table_report.insert().values(**report_data).returning(self.table_report.c.id)
             result = await session.execute(insert)
             report_id = result.fetchone()[0]
 
             # Create Interval model
             interval_data = data.interval.dict()
-            interval_data['report'] = report_id
-            insert = self.table_interval.insert().values(interval_data)
+            interval_data['report_id'] = report_id
+            insert = self.table_interval.insert().values(**interval_data)
             _ = await session.execute(insert)
 
             await session.commit()
-
-        return report_id
+            return report_id
 
     async def retrieve(self):
         pass
