@@ -34,6 +34,12 @@ class GroupRepo:
         )
         return result
 
+    async def delete(self, data: schema.GroupDeleteForm) -> None:
+        async with db.get_async_session() as session:
+            delete = self.table.delete().where(self.table.c.id == data.id_)
+            await session.execute(delete)
+            await session.commit()
+
 
 class ReportRepo:
     async def create_report(self):

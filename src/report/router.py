@@ -53,7 +53,9 @@ async def retrieve_group(id_: core_types.Id_) -> schema_output.Group:
 
 @router_group.delete("/{id_}")
 async def delete_group(id_: core_types.Id_) -> int:
-    pass
+    data = schema.GroupDeleteForm(id_=id_)
+    await service.GroupService().delete_group(data)
+    return 1
 
 
 @router_group.get("/")
