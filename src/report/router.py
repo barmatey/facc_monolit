@@ -46,7 +46,9 @@ async def create_group(data: schema.GroupCreateForm) -> core_types.Id_:
 
 @router_group.get("/{id_}")
 async def retrieve_group(id_: core_types.Id_) -> schema_output.Group:
-    pass
+    data = schema.GroupRetrieveForm(id_=id_)
+    group = await service.GroupService().retrieve_group(data)
+    return group
 
 
 @router_group.delete("/{id_}")

@@ -17,7 +17,7 @@ class GroupService:
         return await self.repo().create(data)
 
     async def retrieve_group(self, data: schema.GroupRetrieveForm) -> schema_output.Group:
-        pass
+        return await self.repo().retrieve(data)
 
     async def delete_group(self, data: schema.GroupDeleteForm) -> None:
         pass

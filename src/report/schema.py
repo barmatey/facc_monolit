@@ -5,11 +5,12 @@ import pandas as pd
 import typing
 
 from .. import core_types
+from . import enums
 
 
 class GroupCreateForm(pydantic.BaseModel):
     title: str
-    category: core_types.Id_
+    category: enums.CategoryLiteral
     source_base: core_types.Id_
     sheet: str
 

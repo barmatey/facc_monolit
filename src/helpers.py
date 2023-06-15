@@ -16,4 +16,3 @@ def split_dataframe(df: pd.DataFrame, chunk: int) -> list[pd.DataFrame]:
         end += chunk
 
     return result
-
