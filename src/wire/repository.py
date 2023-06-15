@@ -1,10 +1,6 @@
 import math
 from abc import ABC, abstractmethod
-from loguru import logger
-import pandas as pd
-import numpy as np
 from pandera.typing import DataFrame
-from sqlalchemy.sql import select
 
 import finrep
 
@@ -12,7 +8,7 @@ from src import core_types
 from .. import db
 from .. import helpers
 from . import schema
-from .models import SourceBase, Wire
+from models import SourceBase, Wire
 
 
 class SourceRepo(ABC):

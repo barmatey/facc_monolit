@@ -2,7 +2,7 @@ import pandas as pd
 import pydantic
 import pandera as pa
 
-import core_types
+from .. import core_types
 
 
 class CreateSourceForm(pydantic.BaseModel):
