@@ -1,6 +1,6 @@
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
 
-from .. import models, core_types
+from .. import entities, core_types
 from . import db
 from .category import Category
 from .group import Group
@@ -23,7 +23,7 @@ Report = Table(
 class ReportRepo:
     table_report = Report
 
-    async def create(self, data: models.Report) -> core_types.Id_:
+    async def create(self, data: entities.Report) -> core_types.Id_:
         async with db.get_async_session() as session:
             insert = self.table_report.insert().values(**data.dict()).returning(self.table_report.c.id)
             result = await session.execute(insert)
@@ -32,7 +32,7 @@ class ReportRepo:
             await session.commit()
             return report_id
 
-    async def retrieve(self, id_: core_types.Id_) -> models.Report:
+    async def retrieve(self, id_: core_types.Id_) -> entities.Report:
         pass
 
     async def delete(self):

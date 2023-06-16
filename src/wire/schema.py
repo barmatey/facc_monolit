@@ -1,8 +1,8 @@
 import pydantic
-from .. import models
+from .. import entities
 
 
-class Source(models.Source):
+class Source(entities.Source):
     pass
 
 
