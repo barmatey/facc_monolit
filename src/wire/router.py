@@ -3,6 +3,7 @@ from fastapi import APIRouter, File, UploadFile, Depends
 from fastapi.responses import JSONResponse
 from loguru import logger
 
+from ..  import models
 from ..repository.source import SourceRepo
 from ..repository.wire import WireRepo
 from .. import core_types
@@ -16,20 +17,20 @@ router = APIRouter(
 
 
 @router.post("/")
-async def create_source(data: schema.CreateSourceForm, repo=SourceRepo) -> core_types.Id_:
-    source_id = await repo().create_source(data)
+async def create_source(data: models.SourceCreateData, repo: SourceRepo = Depends(SourceRepo)) -> core_types.Id_:
+    source_id = await repo.create_source(data)
     return source_id
 
 
 @router.get("/{id_}")
-async def retrieve_source(id_: core_types.Id_, repo=SourceRepo) -> schema.Source:
-    source = await repo().retrieve_source(id_)
+async def retrieve_source(id_: core_types.Id_, repo: SourceRepo = Depends(SourceRepo)) -> schema.Source:
+    source = await repo.retrieve_source(id_)
     return source
 
 
 @router.delete("/{id_}")
-async def delete_source(id_: core_types.Id_, repo=SourceRepo) -> int:
-    await repo().delete_source(id_)
+async def delete_source(id_: core_types.Id_, repo: SourceRepo = Depends(SourceRepo)) -> int:
+    await repo.delete_source(id_)
     return 1
 
 
@@ -39,8 +40,8 @@ async def list_source():
 
 
 @router.post("/{id_}")
-async def bulk_append_wire_from_csv(id_: core_types.Id_, file: UploadFile, repo=WireRepo) -> int:
+async def bulk_append_wire_from_csv(id_: core_types.Id_, file: UploadFile, repo: WireRepo = Depends(WireRepo)) -> int:
     df = pd.read_csv(file.file, parse_dates=['date'])
     df['source_id'] = id_
-    await repo().bulk_create_wire(df)
+    await repo.bulk_create_wire(df)
     return 1

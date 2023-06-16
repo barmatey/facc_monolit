@@ -29,7 +29,7 @@ SourceBase = Table(
 class SourceRepo:
     table = SourceBase
 
-    async def create_source(self, data: models.Source) -> core_types.Id_:
+    async def create_source(self, data: models.SourceCreateData) -> core_types.Id_:
         async with db.get_async_session() as session:
             insert = self.table.insert().values(**data.dict()).returning(SourceBase.c.id)
             result = await session.execute(insert)
