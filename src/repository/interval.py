@@ -27,6 +27,6 @@ Interval = Table(
 class IntervalRepo(BaseRepo):
     table = Interval
 
-    async def create(self, data: entities.IntervalCreate) -> core_types.Id_:
+    async def create(self, data: entities.ReportIntervalCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
             return await super()._create(data.dict(), session, commit=True)

@@ -9,7 +9,6 @@ from .group import Group
 from .source import SourceBase
 from .base import BaseRepo
 from .sheet import SheetRepo
-from .interval import IntervalRepo
 
 metadata = MetaData()
 
@@ -25,10 +24,14 @@ Report = Table(
 )
 
 
+class InnerIntervalRepo:
+    pass
+
+
 class ReportRepo(BaseRepo):
     table_report = Report
     sheet_repo = SheetRepo
-    interval_repo = IntervalRepo
+    interval_repo = InnerIntervalRepo
 
     async def create(self, report: e_report.ReportCreate, interval: e_report.ReportIntervalCreate) -> core_types.Id_:
         async with db.get_async_session() as session:

@@ -39,6 +39,6 @@ Cell = Table(
 
 class SheetRepo(BaseRepo):
 
-    async def create(self, data: entities.SheetCreateData) -> core_types.MongoId:
+    async def create(self, data: entities.SheetCreate) -> core_types.MongoId:
         id_ = str(pd.Timestamp.now().timestamp())
         return id_
