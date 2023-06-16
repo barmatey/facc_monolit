@@ -1,21 +1,25 @@
 from fastapi import APIRouter, Depends
 
 from .. import core_types
-from sheet import entities
 from ..repository.group import GroupRepo
+from ..repository.report import ReportRepo
+from . import entities
 from . import schema
 from . import enums
 
-router_report = APIRouter(
-    prefix="/report",
-    tags=['Report']
-)
+# router_report = APIRouter(
+#     prefix="/report",
+#     tags=['Report']
+# )
+
 
 # @router_report.post("/")
-# async def create_report(data: schema.ReportCreateForm, repo=ReportRepo) -> core_types.Id_:
-#     id_ = await repo().create(data)
+# async def create_report(report_data: entities.ReportCreate, interval_data: entities.ReportIntervalCreate,
+#                         repo: ReportRepo = Depends(ReportRepo)) -> core_types.Id_:
+#     id_ = await repo.create(report_data, interval_data)
 #     return id_
-#
+
+
 #
 # @router_report.get("/{id_}")
 # async def retrieve_report(data: schema.ReportRetrieveForm, repo=ReportRepo) -> schema_output.Report:
@@ -40,7 +44,7 @@ router_group = APIRouter(
 
 @router_group.post("/")
 async def create_group(data: schema.GroupCreateForm, repo: GroupRepo = Depends(GroupRepo)) -> core_types.Id_:
-    data = entities.GroupCreateData(
+    data = entities.GroupCreate(
         title=data.title,
         category_id=enums.Category[data.category].value,
         sheet_id='',

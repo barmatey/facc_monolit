@@ -27,7 +27,7 @@ Group = Table(
 class GroupRepo(BaseRepo):
     table = Group
 
-    async def create(self, data: entities_report.GroupCreateData) -> core_types.Id_:
+    async def create(self, data: entities_report.GroupCreate) -> core_types.Id_:
         data = data.copy()
         async with db.get_async_session() as session:
             data.sheet_id = await self._create_sheet()

@@ -1,11 +1,15 @@
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
 
 from .. import core_types
-from sheet import entities
+from ..report import entities as e_report
+from ..sheet import entities as e_sheet
 from . import db
 from .category import Category
 from .group import Group
 from .source import SourceBase
+from .base import BaseRepo
+from .sheet import SheetRepo
+from .interval import IntervalRepo
 
 metadata = MetaData()
 
@@ -21,19 +25,29 @@ Report = Table(
 )
 
 
-class ReportRepo:
+class ReportRepo(BaseRepo):
     table_report = Report
+    sheet_repo = SheetRepo
+    interval_repo = IntervalRepo
 
-    async def create(self, data: entities.Report) -> core_types.Id_:
+    async def create(self, report: e_report.ReportCreate, interval: e_report.ReportIntervalCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
-            insert = self.table_report.insert().values(**data.dict()).returning(self.table_report.c.id)
-            result = await session.execute(insert)
-            report_id = result.fetchone()[0]
+            # Create sheet first because report has foreign key "sheet_id"
+            sheet_data = e_sheet.SheetCreate()
+            _sheet_id = self.sheet_repo().create(sheet_data)
 
-            await session.commit()
+            # Create report model
+            report_data = report.dict()
+            report_id = await super()._create(report_data, session, commit=False)
+
+            # Create interval
+            interval_data = interval.dict()
+            interval_data['report_id'] = report_id
+            _ = await super(self.interval_repo, self.interval_repo())._create(interval_data, session, commit=False)
+
             return report_id
 
-    async def retrieve(self, id_: core_types.Id_) -> entities.Report:
+    async def retrieve(self, id_: core_types.Id_) -> e_report.Report:
         pass
 
     async def delete(self):

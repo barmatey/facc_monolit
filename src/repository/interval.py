@@ -1,9 +1,11 @@
 from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer
 from sqlalchemy import TIMESTAMP
 
-from .. import models, core_types
+from .. import core_types
+from ..report import entities
 from . import db
 from .report import Report
+from .base import BaseRepo
 
 metadata = MetaData()
 
@@ -22,13 +24,9 @@ Interval = Table(
 )
 
 
-class IntervalRepo:
+class IntervalRepo(BaseRepo):
     table = Interval
 
-    async def create(self, data: models.Interval, session=None, commit=False, close=False) -> core_types.Id_:
+    async def create(self, data: entities.IntervalCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
-            insert = self.table.insert().values(**data.dict()).returning(self.table.c.id)
-            result = await session.execute(insert)
-            await session.commit()
-            result = result.fetchone()[0]
-            return result
+            return await super()._create(data.dict(), session, commit=True)

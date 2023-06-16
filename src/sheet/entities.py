@@ -6,11 +6,11 @@ from pydantic import BaseModel
 from src import core_types
 
 
-class SheetCreateData(BaseModel):
+class SheetCreate(BaseModel):
     pass
 
 
-class Sheet(SheetCreateData):
+class Sheet(SheetCreate):
     pass
 
 

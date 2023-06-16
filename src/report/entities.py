@@ -10,18 +10,18 @@ class Category(BaseModel):
     pass
 
 
-class GroupCreateData(BaseModel):
+class GroupCreate(BaseModel):
     title: str
     category_id: core_types.Id_
     source_id: core_types.Id_
     sheet_id: str
 
 
-class Group(GroupCreateData):
+class Group(GroupCreate):
     id: core_types.Id_
 
 
-class Interval(BaseModel):
+class ReportIntervalCreate(BaseModel):
     period_year: int
     period_month: int
     period_day: int
@@ -31,9 +31,13 @@ class Interval(BaseModel):
     total_end_date: typing.Optional[pd.Timestamp]
 
 
-class Report(BaseModel):
+class ReportCreate(BaseModel):
     title: str
     category_id: core_types.Id_
     source_id: core_types.Id_
     group_id: core_types.Id_
-    sheet_id: core_types.Id_
+
+
+class Report(BaseModel):
+    id: core_types
+    sheet_id: core_types.MongoId
