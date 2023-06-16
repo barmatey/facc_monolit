@@ -34,7 +34,7 @@ class SourceRepo:
             insert = self.table.insert().values(**data.dict()).returning(SourceBase.c.id)
             result = await session.execute(insert)
             await session.commit()
-        return result.fetchone()[0]
+            return result.fetchone()[0]
 
     async def retrieve_source(self, id_: core_types.Id_) -> models.Source:
         async with db.get_async_session() as session:

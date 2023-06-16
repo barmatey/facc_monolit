@@ -4,6 +4,7 @@ import pandera as pa
 from pandera.typing import DataFrame
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData, TIMESTAMP, Float
 
+from .. import core_types
 from . import db, helpers
 from .source import SourceBase
 
@@ -26,6 +27,7 @@ Wire = Table(
 
 
 class WireSchema(pa.DataFrameModel):
+    source_id: pa.typing.Series[core_types.Id_]
     date: pa.typing.Series[pd.Timestamp]
     sender: pa.typing.Series[float]
     receiver: pa.typing.Series[float]
@@ -37,7 +39,8 @@ class WireSchema(pa.DataFrameModel):
 
     @classmethod
     async def drop_extra_columns(cls, df: pd.DataFrame) -> pd.DataFrame:
-        df = df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
+        df = df[['source_id', 'date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second',
+                 'comment']]
         return df
 
 
