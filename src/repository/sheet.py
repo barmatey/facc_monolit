@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer
 
 from .. import core_types
-from sheet import entities
+from ..sheet import entities
 from .base import BaseRepo
 
 metadata = MetaData()

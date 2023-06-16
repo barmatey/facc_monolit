@@ -2,7 +2,7 @@ import loguru
 from sqlalchemy import Table, inspect, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import core_types
+from .. import core_types
 
 
 class BaseRepo:

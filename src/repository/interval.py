@@ -4,7 +4,6 @@ from sqlalchemy import TIMESTAMP
 from .. import core_types
 from ..report import entities
 from . import db
-from .report import Report
 from .base import BaseRepo
 
 metadata = MetaData()
@@ -20,7 +19,6 @@ Interval = Table(
     Column("period_year", Integer, nullable=False),
     Column("period_month", Integer, nullable=False),
     Column("period_day", Integer, nullable=False),
-    Column("report_id", Integer, ForeignKey(Report.c.id, ondelete='CASCADE'), nullable=False),
 )
 
 

@@ -4,9 +4,12 @@ from .. import core_types
 from ..report import entities as e_report
 from ..sheet import entities as e_sheet
 from . import db
+
 from .category import Category
 from .group import Group
 from .source import SourceBase
+from .interval import Interval, IntervalRepo
+
 from .base import BaseRepo
 from .sheet import SheetRepo
 
@@ -21,17 +24,14 @@ Report = Table(
     Column("group_id", Integer, ForeignKey(Group.c.id, ondelete='CASCADE'), nullable=False),
     Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
     Column("sheet_id", String(30), nullable=False, unique=True),
+    Column("interval_id", Integer, ForeignKey(Interval.c.id, ondelete='RESTRICT'), nullable=False, unique=True, )
 )
-
-
-class InnerIntervalRepo:
-    pass
 
 
 class ReportRepo(BaseRepo):
     table_report = Report
     sheet_repo = SheetRepo
-    interval_repo = InnerIntervalRepo
+    interval_repo = IntervalRepo
 
     async def create(self, report: e_report.ReportCreate, interval: e_report.ReportIntervalCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
