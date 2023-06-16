@@ -42,14 +42,14 @@ class SourceRepo:
             source = await session.execute(q)
             source = source.fetchone()
 
-        source = models.Source(
-            id_=source[0],
-            title=source[1],
-            total_start_date=source[2],
-            total_end_date=source[3],
-            wcols=source[4],
-        )
-        return source
+            source = models.Source(
+                id=source[0],
+                title=source[1],
+                total_start_date=source[2],
+                total_end_date=source[3],
+                wcols=source[4],
+            )
+            return source
 
     async def delete_source(self, id_: core_types.Id_) -> None:
         async with db.get_async_session() as session:
