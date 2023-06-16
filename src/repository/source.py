@@ -36,16 +36,13 @@ class SourceRepo(BaseRepo):
 
     async def retrieve(self, id_: core_types.Id_) -> entities.Source:
         async with db.get_async_session() as session:
-            data_dict = await super()._retrieve(id_, session)
-            source = entities.Source(**data_dict)
+            data = await super()._retrieve(id_, session)
+            source = entities.Source(**data)
             return source
-
 
     async def delete(self, id_: core_types.Id_) -> None:
         async with db.get_async_session() as session:
-            delete = self.table.delete().where(SourceBase.c.id == id_)
-            _ = await session.execute(delete)
-            await session.commit()
+            await super()._delete(id_, session, commit=True)
 
     async def retrieve_source_as_dataframe(self, wire_base_id: core_types.Id_) -> DataFrame[finrep.typing.WireSchema]:
         pass

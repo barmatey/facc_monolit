@@ -21,3 +21,8 @@ class BaseRepo:
         result = dict(Result.mappings(result).fetchone())
         return result
 
+    async def _delete(self, id_: core_types.Id_, session: AsyncSession, commit=True) -> None:
+        delete = self.table.delete().where(self.table.c.id == id_)
+        _ = await session.execute(delete)
+        if commit:
+            await session.commit()
