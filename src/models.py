@@ -1,63 +1,50 @@
-from datetime import datetime
-from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer, Float
-from sqlalchemy import String, JSON, TIMESTAMP
+import typing
 
-metadata = MetaData()
+import pandas as pd
+from pydantic import BaseModel
 
-
-def get_wcols():
-    return ['sender', 'receiver', 'subconto_first', 'subconto_second', 'comment']
+from . import core_types
 
 
-SourceBase = Table(
-    'source',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("title", String(80), nullable=False),
-    Column("total_start_date", TIMESTAMP, default=datetime.utcnow, nullable=False),
-    Column("total_end_date", TIMESTAMP, default=datetime.utcnow, nullable=False),
-    Column("wcols", JSON, default=get_wcols, nullable=False),
-)
+class Source(BaseModel):
+    title: str
+    total_start_date: pd.Timestamp
+    total_end_date: pd.Timestamp
+    wcols: list[str]
 
-Wire = Table(
-    'wire',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("date", TIMESTAMP, nullable=False),
-    Column("sender", Float, nullable=False),
-    Column("receiver", Float, nullable=False),
-    Column("debit", Float, nullable=False),
-    Column("credit", Float, nullable=False),
-    Column("subconto_first", String(800), nullable=True),
-    Column("subconto_second", String(800), nullable=True),
-    Column("comment", String(800), nullable=True),
-    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-)
 
-Category = Table(
-    'category',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("value", String(80), nullable=False, unique=True),
-)
+class Wire(BaseModel):
+    pass
 
-Group = Table(
-    'group',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("title", String(80), nullable=False),
-    Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
-    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet_id", String(30), nullable=False, unique=True),
-)
 
-Report = Table(
-    'report',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("title", String(80), nullable=False),
-    Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
-    Column("group_id", Integer, ForeignKey(Group.c.id, ondelete='CASCADE'), nullable=False),
-    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet_id", String(30), nullable=False, unique=True),
-)
+class Category(BaseModel):
+    pass
+
+
+class Group(BaseModel):
+    title: str
+    category_id: core_types.Id_
+    source_id: core_types.Id_
+    sheet_id: str
+
+
+class Interval(BaseModel):
+    period_year: int
+    period_month: int
+    period_day: int
+    start_date: pd.Timestamp
+    end_date: pd.Timestamp
+    total_start_date: typing.Optional[pd.Timestamp]
+    total_end_date: typing.Optional[pd.Timestamp]
+
+
+class Sheet(BaseModel):
+    pass
+
+
+class Report(BaseModel):
+    title: str
+    category_id: core_types.Id_
+    source_id: core_types.Id_
+    group_id: core_types.Id_
+    sheet_id: core_types.Id_
