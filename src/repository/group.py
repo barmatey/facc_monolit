@@ -2,6 +2,7 @@ from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
 
 from .. import core_types, entities
 from . import db
+from .base import BaseRepo
 from .category import Category
 from .source import SourceBase
 
@@ -18,34 +19,20 @@ Group = Table(
 )
 
 
-class GroupRepo:
+class GroupRepo(BaseRepo):
     table = Group
 
     async def create(self, data: entities.Group) -> core_types.Id_:
-        data_dict = data.dict()
         async with db.get_async_session() as session:
-            insert = self.table.insert().values(**data_dict).returning(self.table.c.id)
-            result = await session.execute(insert)
-            await session.commit()
-            result = result.fetchone()[0]
-            return result
+            group_id = await super()._create(data.dict(), session, commit=True)
+            return group_id
 
     async def retrieve(self, id_: core_types.Id_) -> entities.Group:
         async with db.get_async_session() as session:
-            select = self.table.select().where(self.table.c.id == id_)
-            cursor = await session.execute(select)
-            result = {col.key: value for col, value in zip(self.table.columns, cursor.fetchone())}
-            result = entities.Group(
-                id_=result['id'],
-                title=result['title'],
-                category_id='TEMP',
-                sheet_id=result['sheet'],
-                source_id=result['source_base'],
-            )
-            return result
+            data = await super()._retrieve(id_, session)
+            group = entities.Group(**data)
+            return group
 
     async def delete(self, id_: core_types.Id_) -> None:
         async with db.get_async_session() as session:
-            delete = self.table.delete().where(self.table.c.id == id_)
-            await session.execute(delete)
-            await session.commit()
+            await super()._delete(id_, session, commit=True)

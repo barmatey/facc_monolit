@@ -6,6 +6,7 @@ from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData, TIM
 
 from .. import core_types
 from . import db, helpers
+from .base import BaseRepo
 from .source import SourceBase
 
 metadata = MetaData()
@@ -44,7 +45,7 @@ class WireSchema(pa.DataFrameModel):
         return df
 
 
-class WireRepo:
+class WireRepo(BaseRepo):
     table = Wire
 
     async def bulk_create_wire(self, wires: DataFrame[WireSchema]) -> None:
