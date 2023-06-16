@@ -1,8 +1,11 @@
+import typing
+
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
 
 from .. import core_types, entities
 from . import db
 from .base import BaseRepo
+from .sheet import SheetRepo
 from .category import Category
 from .source import SourceBase
 
@@ -22,10 +25,17 @@ Group = Table(
 class GroupRepo(BaseRepo):
     table = Group
 
-    async def create(self, data: entities.Group) -> core_types.Id_:
+    async def create(self, data: entities.GroupCreateData) -> core_types.Id_:
+        data = data.copy()
         async with db.get_async_session() as session:
+            data.sheet_id = await self._create_sheet()
             group_id = await super()._create(data.dict(), session, commit=True)
             return group_id
+
+    @staticmethod
+    async def _create_sheet(sheet_repo: typing.Type[SheetRepo] = SheetRepo) -> core_types.MongoId:
+        data = entities.SheetCreateData()
+        return await sheet_repo().create(data)
 
     async def retrieve(self, id_: core_types.Id_) -> entities.Group:
         async with db.get_async_session() as session:

@@ -10,7 +10,9 @@ from . import enums
 
 
 class GroupCreateForm(pydantic.BaseModel):
-    pass
+    title: str
+    category_id: str
+    source_id: core_types.Id_
 
 
 class GroupRetrieveForm(pydantic.BaseModel):

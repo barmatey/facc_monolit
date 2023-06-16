@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 app.include_router(wire.router)
-# app.include_router(report.router_group)
+app.include_router(report.router_group)
 # app.include_router(report.router_report)
 
 if __name__ == "__main__":

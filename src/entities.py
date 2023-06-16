@@ -26,11 +26,15 @@ class Category(BaseModel):
     pass
 
 
-class Group(BaseModel):
+class GroupCreateData(BaseModel):
     title: str
     category_id: core_types.Id_
     source_id: core_types.Id_
     sheet_id: str
+
+
+class Group(GroupCreateData):
+    id: core_types.Id_
 
 
 class Interval(BaseModel):
@@ -43,7 +47,11 @@ class Interval(BaseModel):
     total_end_date: typing.Optional[pd.Timestamp]
 
 
-class Sheet(BaseModel):
+class SheetCreateData(BaseModel):
+    pass
+
+
+class Sheet(SheetCreateData):
     pass
 
 
