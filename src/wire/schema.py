@@ -1,5 +1,5 @@
 import pydantic
-from .. import entities
+from . import entities
 
 
 class Source(entities.Source):

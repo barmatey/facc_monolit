@@ -7,6 +7,7 @@ from ..repository.group import GroupRepo
 from ..repository.report import ReportRepo
 from . import schema
 from . import service
+from . import enums
 
 router_report = APIRouter(
     prefix="/report",
@@ -44,7 +45,7 @@ router_group = APIRouter(
 async def create_group(data: schema.GroupCreateForm, repo: GroupRepo = Depends(GroupRepo)) -> core_types.Id_:
     data = entities.GroupCreateData(
         title=data.title,
-        category_id=1,
+        category_id=enums.Category[data.category].value,
         sheet_id='',
         source_id=data.source_id,
     )
@@ -53,8 +54,14 @@ async def create_group(data: schema.GroupCreateForm, repo: GroupRepo = Depends(G
 
 
 @router_group.get("/{id_}")
-async def retrieve_group(id_: core_types.Id_, repo: GroupRepo = Depends(GroupRepo)) -> entities.Group:
+async def retrieve_group(id_: core_types.Id_, repo: GroupRepo = Depends(GroupRepo)) -> schema.GroupResponse:
     group = await repo.retrieve(id_)
+    group = schema.GroupResponse(
+        id=group.id,
+        title=group.title,
+        category=enums.Category(group.category_id).name,
+        source_id=group.source_id,
+    )
     return group
 
 
@@ -62,5 +69,3 @@ async def retrieve_group(id_: core_types.Id_, repo: GroupRepo = Depends(GroupRep
 async def delete_group(id_: core_types.Id_, repo: GroupRepo = Depends(GroupRepo)) -> int:
     await repo.delete(id_)
     return 1
-
-

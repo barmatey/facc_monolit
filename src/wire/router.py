@@ -3,10 +3,10 @@ from fastapi import APIRouter, File, UploadFile, Depends
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from .. import entities
 from ..repository.source import SourceRepo
 from ..repository.wire import WireRepo
 from .. import core_types
+from . import entities
 from . import schema
 
 router = APIRouter(

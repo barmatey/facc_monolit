@@ -5,7 +5,8 @@ from sqlalchemy import MetaData, Table, Column, Integer
 from sqlalchemy import String, JSON, TIMESTAMP
 
 import finrep
-from .. import entities, core_types
+from .. import core_types
+from ..wire import entities
 from . import db
 from .base import BaseRepo
 
