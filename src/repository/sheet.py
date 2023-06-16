@@ -1,11 +1,8 @@
-import random
-from datetime import datetime
-
 import pandas as pd
-from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer, Float
-from sqlalchemy import String, JSON, TIMESTAMP
+from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer
 
-from .. import core_types, entities
+from .. import core_types
+from sheet import entities
 from .base import BaseRepo
 
 metadata = MetaData()

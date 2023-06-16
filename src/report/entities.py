@@ -3,7 +3,8 @@ import typing
 import pandas as pd
 from pydantic import BaseModel
 
-from . import core_types
+from .. import core_types
+
 
 class Category(BaseModel):
     pass
@@ -28,14 +29,6 @@ class Interval(BaseModel):
     end_date: pd.Timestamp
     total_start_date: typing.Optional[pd.Timestamp]
     total_end_date: typing.Optional[pd.Timestamp]
-
-
-class SheetCreateData(BaseModel):
-    pass
-
-
-class Sheet(SheetCreateData):
-    pass
 
 
 class Report(BaseModel):

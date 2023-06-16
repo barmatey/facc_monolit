@@ -1,6 +1,7 @@
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
 
-from .. import entities, core_types
+from .. import core_types
+from sheet import entities
 from . import db
 from .category import Category
 from .group import Group
