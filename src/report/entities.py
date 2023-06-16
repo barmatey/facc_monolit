@@ -39,5 +39,5 @@ class ReportCreate(BaseModel):
 
 
 class Report(BaseModel):
-    id: core_types
+    id: core_types.Id_
     sheet_id: core_types.MongoId
