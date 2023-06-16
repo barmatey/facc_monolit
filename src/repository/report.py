@@ -29,25 +29,27 @@ Report = Table(
 
 
 class ReportRepo(BaseRepo):
-    table_report = Report
+    table = Report
     sheet_repo = SheetRepo
     interval_repo = IntervalRepo
 
     async def create(self, report: e_report.ReportCreate, interval: e_report.ReportIntervalCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
-            # Create sheet first because report has foreign key "sheet_id"
+            # Create sheet
             sheet_data = e_sheet.SheetCreate()
-            _sheet_id = self.sheet_repo().create(sheet_data)
-
-            # Create report model
-            report_data = report.dict()
-            report_id = await super()._create(report_data, session, commit=False)
+            sheet_id = await self.sheet_repo().create(sheet_data)
 
             # Create interval
             interval_data = interval.dict()
-            interval_data['report_id'] = report_id
-            _ = await super(self.interval_repo, self.interval_repo())._create(interval_data, session, commit=False)
+            interval_id = await super(self.interval_repo, self.interval_repo())._create(interval_data, session, commit=False)
 
+            # Create report model
+            report_data = report.dict()
+            report_data['sheet_id'] = sheet_id
+            report_data['interval_id'] = interval_id
+            report_id = await super()._create(report_data, session, commit=False)
+
+            _ = await session.commit()
             return report_id
 
     async def retrieve(self, id_: core_types.Id_) -> e_report.Report:
