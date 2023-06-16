@@ -8,7 +8,7 @@ from .. import core_types
 class BaseRepo:
     table: Table
 
-    async def _create(self, data: dict, session: AsyncSession, commit=True) -> core_types.Id_:
+    async def _create(self, data: dict, session: AsyncSession, commit=False) -> core_types.Id_:
         insert = self.table.insert().values(**data).returning(self.table.c.id)
         result = await session.execute(insert)
         if commit:
@@ -21,7 +21,7 @@ class BaseRepo:
         result = dict(Result.mappings(result).fetchone())
         return result
 
-    async def _delete(self, id_: core_types.Id_, session: AsyncSession, commit=True) -> None:
+    async def _delete(self, id_: core_types.Id_, session: AsyncSession, commit=False) -> None:
         delete = self.table.delete().where(self.table.c.id == id_)
         _ = await session.execute(delete)
         if commit:

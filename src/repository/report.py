@@ -41,7 +41,8 @@ class ReportRepo(BaseRepo):
 
             # Create interval
             interval_data = interval.dict()
-            interval_id = await super(self.interval_repo, self.interval_repo())._create(interval_data, session, commit=False)
+            interval_id = await super(self.interval_repo, self.interval_repo())._create(
+                interval_data, session, commit=False)
 
             # Create report model
             report_data = report.dict()

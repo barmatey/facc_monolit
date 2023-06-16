@@ -13,11 +13,10 @@ router_group = APIRouter(
 
 
 @router_group.post("/")
-async def create_group(data: schema.GroupCreateForm, repo: GroupRepo = Depends(GroupRepo)) -> core_types.Id_:
+async def create_group(data: schema.GroupCreateSchema, repo: GroupRepo = Depends(GroupRepo)) -> core_types.Id_:
     data = entities.GroupCreate(
         title=data.title,
         category_id=enums.Category[data.category].value,
-        sheet_id='',
         source_id=data.source_id,
     )
     id_ = await repo.create(data)
@@ -25,9 +24,9 @@ async def create_group(data: schema.GroupCreateForm, repo: GroupRepo = Depends(G
 
 
 @router_group.get("/{id_}")
-async def retrieve_group(id_: core_types.Id_, repo: GroupRepo = Depends(GroupRepo)) -> schema.GroupResponse:
+async def retrieve_group(id_: core_types.Id_, repo: GroupRepo = Depends(GroupRepo)) -> schema.GroupRetrieveSchema:
     group = await repo.retrieve(id_)
-    group = schema.GroupResponse(
+    group = schema.GroupRetrieveSchema(
         id=group.id,
         title=group.title,
         category=enums.Category(group.category_id).name,

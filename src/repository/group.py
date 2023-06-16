@@ -26,18 +26,22 @@ Group = Table(
 
 class GroupRepo(BaseRepo):
     table = Group
+    sheet_repo = SheetRepo
 
     async def create(self, data: entities_report.GroupCreate) -> core_types.Id_:
         data = data.copy()
         async with db.get_async_session() as session:
-            data.sheet_id = await self._create_sheet()
-            group_id = await super()._create(data.dict(), session, commit=True)
-            return group_id
+            # Create sheet
+            sheet_data = entities_sheet.SheetCreate()
+            sheet_id = await self.sheet_repo().create(sheet_data)
 
-    @staticmethod
-    async def _create_sheet(sheet_repo: typing.Type[SheetRepo] = SheetRepo) -> core_types.MongoId:
-        data = entities_sheet.SheetCreateData()
-        return await sheet_repo().create(data)
+            # Create group
+            group_data = data.dict()
+            group_data['sheet_id'] = sheet_id
+            group_id = await super()._create(group_data, session, commit=False)
+
+            _ = await session.commit()
+            return group_id
 
     async def retrieve(self, id_: core_types.Id_) -> entities_report.Group:
         async with db.get_async_session() as session:

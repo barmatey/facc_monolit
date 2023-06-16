@@ -6,19 +6,15 @@ from pydantic import BaseModel
 from .. import core_types
 
 
-class Category(BaseModel):
-    pass
-
-
 class GroupCreate(BaseModel):
     title: str
     category_id: core_types.Id_
     source_id: core_types.Id_
-    sheet_id: str
 
 
 class Group(GroupCreate):
     id: core_types.Id_
+    sheet_id: str
 
 
 class ReportIntervalCreate(BaseModel):
@@ -31,6 +27,10 @@ class ReportIntervalCreate(BaseModel):
     total_end_date: typing.Optional[pd.Timestamp]
 
 
+class ReportInterval(ReportIntervalCreate):
+    id: core_types.Id_
+
+
 class ReportCreate(BaseModel):
     title: str
     category_id: core_types.Id_
@@ -38,6 +38,6 @@ class ReportCreate(BaseModel):
     group_id: core_types.Id_
 
 
-class Report(BaseModel):
+class Report(ReportCreate):
     id: core_types.Id_
     sheet_id: core_types.MongoId

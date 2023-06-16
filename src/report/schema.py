@@ -4,13 +4,13 @@ from .. import core_types
 from . import enums
 
 
-class GroupCreateForm(pydantic.BaseModel):
+class GroupCreateSchema(pydantic.BaseModel):
     title: str
     category: enums.CategoryLiteral
     source_id: core_types.Id_
 
 
-class GroupResponse(pydantic.BaseModel):
+class GroupRetrieveSchema(pydantic.BaseModel):
     id: core_types.Id_
     title: str
     category: enums.CategoryLiteral
