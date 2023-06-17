@@ -62,6 +62,7 @@ class WireRepo(BaseRepo):
                 await session.execute(insert)
             await session.commit()
 
+    # todo обработать запрос с несуществующим sheet_id
     async def retrieve_wire_df(self, source_id: core_types.Id_) -> DataFrame[WireSchema]:
         async with db.get_async_session() as session:
             select = self.table.select().where(self.table.c.source_id == source_id)
