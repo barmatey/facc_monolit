@@ -13,6 +13,7 @@ from src.repository.group import metadata as metadata_group
 from src.repository.interval import metadata as metadata_interval
 from src.repository.source import metadata as metadata_source
 from src.repository.wire import metadata as metadata_wire
+from src.repository.sheet import metadata as metadata_sheet
 
 config = context.config
 
@@ -31,6 +32,7 @@ target_metadata = [
     metadata_group,
     metadata_report,
     metadata_interval,
+    metadata_sheet,
 ]
 
 
