@@ -1,3 +1,4 @@
+from loguru import logger
 import pandas as pd
 from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer, Boolean, String
 
@@ -49,8 +50,26 @@ Cell = Table(
 )
 
 
+class SindexRepo(BaseRepo):
+
+    async def create_bulk(self, data: list[entities.SindexCreate]) -> list[core_types.Id_]:
+        pass
+
+
+class RowRepo(SindexRepo):
+    table = Row
+
+
+class ColRepo(SindexRepo):
+    table = Col
+
+
+class CellRepo(BaseRepo):
+    table = Cell
+
+
 class SheetRepo(BaseRepo):
 
-    async def create(self, data: entities.SheetCreate) -> core_types.MongoId:
-        id_ = str(pd.Timestamp.now().timestamp())
-        return id_
+    async def create(self, data: entities.SheetCreate) -> core_types.Id_:
+        logger.debug(f"{data.df}")
+        return 111

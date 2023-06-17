@@ -7,10 +7,6 @@ from .. import core_types
 from . import enums
 
 
-class SheetCreate(typing.TypedDict):
-    pass
-
-
 class SindexCreate(typing.TypedDict):
     size: int
     is_freeze: bool
@@ -33,6 +29,12 @@ class CellCreate(typing.TypedDict):
 
 class Cell(CellCreate):
     id: core_types.Id_
+
+
+class SheetCreate(BaseModel):
+    df: pd.DataFrame
+    drop_index: bool
+    drop_columns: bool
 
 
 class Sheet(BaseModel):

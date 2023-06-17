@@ -50,7 +50,7 @@ class ReportRepo(BaseRepo):
             report_data['interval_id'] = interval_id
             report_id = await super()._create(report_data, session, commit=False)
 
-            _ = await session.commit()
+            # _ = await session.commit()
             return report_id
 
     async def retrieve(self, id_: core_types.Id_) -> e_report.Report:
