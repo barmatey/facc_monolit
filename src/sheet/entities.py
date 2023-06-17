@@ -3,16 +3,15 @@ import typing
 import pandas as pd
 from pydantic import BaseModel
 
-from src import core_types
+from .. import core_types
+from . import enums
 
-Dtype = typing.Literal['NUMBER', 'TEXT', 'BOOLEAN']
 
-
-class SheetCreate(BaseModel):
+class SheetCreate(typing.TypedDict):
     pass
 
 
-class SindexCreate(BaseModel):
+class SindexCreate(typing.TypedDict):
     size: int
     is_freeze: bool
     is_filtred: bool
@@ -23,9 +22,9 @@ class Sindex(SindexCreate):
     id: core_types.Id_
 
 
-class CellCreate(BaseModel):
+class CellCreate(typing.TypedDict):
     value: str
-    dtype: Dtype
+    dtype: enums.Dtype
     is_index: bool
     is_readonly: bool
     is_filtred: bool
