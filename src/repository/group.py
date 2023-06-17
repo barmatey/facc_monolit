@@ -1,4 +1,5 @@
 import typing
+from loguru import logger
 
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
 
@@ -7,7 +8,7 @@ from ..sheet import entities as entities_sheet
 from .. import core_types
 from . import db
 from .base import BaseRepo
-from .sheet import SheetRepo
+from .sheet import SheetCrudRepo
 from .category import Category
 from .source import SourceBase
 
@@ -26,21 +27,24 @@ Group = Table(
 
 class GroupRepo(BaseRepo):
     table = Group
-    sheet_repo = SheetRepo
+    sheet_repo = SheetCrudRepo
 
     async def create(self, data: entities_report.GroupCreate) -> core_types.Id_:
-        data = data.copy()
         async with db.get_async_session() as session:
-            # Create sheet
-            sheet_data = entities_sheet.SheetCreate()
-            sheet_id = await self.sheet_repo().create(sheet_data)
+            # Create sheet model
+            sheet_data = entities_sheet.SheetCreate(
+                df=data.dataframe,
+                drop_index=data.drop_index,
+                drop_columns=data.drop_columns,
+            )
+            sheet_id = await self.sheet_repo().create_with_session(sheet_data, session)
 
             # Create group
-            group_data = data.dict()
-            group_data['sheet_id'] = sheet_id
-            group_id = await super()._create(group_data, session, commit=False)
+            # group_data = data.dict()
+            # group_data['sheet_id'] = sheet_id
+            # group_id = await super()._create(group_data, session, commit=False)
 
-            _ = await session.commit()
+            # _ = await session.commit()
             return group_id
 
     async def retrieve(self, id_: core_types.Id_) -> entities_report.Group:

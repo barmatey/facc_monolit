@@ -31,10 +31,13 @@ class Cell(CellCreate):
     id: core_types.Id_
 
 
-class SheetCreate(typing.TypedDict):
+class SheetCreate(BaseModel):
     df: pd.DataFrame
     drop_index: bool
     drop_columns: bool
+
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class Sheet(BaseModel):

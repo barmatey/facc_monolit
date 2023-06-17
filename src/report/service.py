@@ -9,19 +9,18 @@ from finrep.types import WireSchema
 from .. import core_types
 from ..repository.group import GroupRepo
 from ..repository.report import ReportRepo
-from ..repository.sheet import SheetRepo
+from ..repository.sheet import SheetCrudRepo
 from ..repository.wire import WireRepo
-from .entities import GroupCreate, ReportCreate
+from . import entities, schema
 
 
 class Service(ABC):
     wire_repo = WireRepo
-    sheet_repo = SheetRepo
     group_repo = GroupRepo
     report_repo = ReportRepo
 
     @abstractmethod
-    async def create_group(self, data: GroupCreate) -> core_types.Id_:
+    async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
         pass
 
     @abstractmethod
@@ -32,7 +31,7 @@ class Service(ABC):
 class BalanceService(Service):
     group = finrep.BalanceGroup
 
-    async def create_group(self, data: GroupCreate) -> core_types.Id_:
+    async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
         # Get source base
         wire: DataFrame[WireSchema] = await self.wire_repo().retrieve_wire_df(data.source_id)
 
@@ -41,9 +40,18 @@ class BalanceService(Service):
         balance.create_group(data.columns)
         balance_group: pd.DataFrame = balance.get_group()
 
-        # Create sheet from group df and save result into database
-        sheet_id = await self.sheet_repo().create_from_dataframe(balance_group, drop_index=True, drop_columns=False)
-        return sheet_id
+        # Create group model
+        group_create_data = entities.GroupCreate(
+            title=data.title,
+            source_id=data.source_id,
+            columns=data.columns,
+            dataframe=balance_group,
+            drop_index=True,
+            drop_columns=False,
+            category='BALANCE'
+        )
+        group_id = await self.group_repo().create(group_create_data)
+        return group_id
 
     async def create_report(self) -> core_types.Id_:
         pass
