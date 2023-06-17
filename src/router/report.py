@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 
 from .. import core_types
 from ..repository.report import ReportRepo
-from ..report import entities
+from ..report.entities import ReportCreate, ReportIntervalCreate
+from ..report.service import Service, BalanceService
 from ..report import schema
 from ..report import enums
 
@@ -13,8 +14,11 @@ router_report = APIRouter(
 
 
 @router_report.post("/")
-async def create_report(report_data: entities.ReportCreate, interval_data: entities.ReportIntervalCreate,
-                        repo: ReportRepo = Depends(ReportRepo)) -> core_types.Id_:
+async def create_report(
+        report_data: ReportCreate,
+        interval_data: ReportIntervalCreate,
+        repo: ReportRepo = Depends(ReportRepo)
+) -> core_types.Id_:
     id_ = await repo.create(report_data, interval_data)
     return id_
 

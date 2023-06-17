@@ -33,11 +33,15 @@ class ReportRepo(BaseRepo):
     sheet_repo = SheetRepo
     interval_repo = IntervalRepo
 
-    async def create(self, report: e_report.ReportCreate, interval: e_report.ReportIntervalCreate) -> core_types.Id_:
+    async def create(
+            self,
+            report: e_report.ReportCreate,
+            interval: e_report.ReportIntervalCreate,
+            sheet: e_sheet.SheetCreate,
+    ) -> core_types.Id_:
         async with db.get_async_session() as session:
             # Create sheet
-            sheet_data = e_sheet.SheetCreate()
-            sheet_id = await self.sheet_repo().create(sheet_data)
+            sheet_id = await self.sheet_repo().create(sheet)
 
             # Create interval
             interval_data = interval.dict()

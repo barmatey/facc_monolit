@@ -1,3 +1,4 @@
+from loguru import logger
 import math
 import pandas as pd
 import pandera as pa
@@ -60,3 +61,12 @@ class WireRepo(BaseRepo):
                 insert = self.table.insert().values(part.to_dict(orient='records'))
                 await session.execute(insert)
             await session.commit()
+
+    async def retrieve_wire_df(self, source_id: core_types.Id_) -> DataFrame[WireSchema]:
+        async with db.get_async_session() as session:
+            select = self.table.select().where(self.table.c.source_id == source_id)
+            result = await session.execute(select)
+            df: DataFrame[WireSchema] = pd.DataFrame(result.fetchall())
+            WireSchema.validate(df)
+            df = df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
+            return df

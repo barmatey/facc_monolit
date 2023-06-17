@@ -8,12 +8,13 @@ from .. import core_types
 
 class GroupCreate(BaseModel):
     title: str
-    category_id: core_types.Id_
     source_id: core_types.Id_
+    columns: list[str]
 
 
 class Group(GroupCreate):
     id: core_types.Id_
+    category_id: core_types.Id_
     sheet_id: str
 
 

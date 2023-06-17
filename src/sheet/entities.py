@@ -31,7 +31,7 @@ class Cell(CellCreate):
     id: core_types.Id_
 
 
-class SheetCreate(BaseModel):
+class SheetCreate(typing.TypedDict):
     df: pd.DataFrame
     drop_index: bool
     drop_columns: bool
