@@ -9,7 +9,7 @@ from alembic import context
 # access to the values within the .ini file in use.
 from src.repository.report import metadata as metadata_report
 from src.repository.category import metadata as metadata_category
-from src.repository.group import metadata as metadata_group
+from src.repository.group import Group
 from src.repository.interval import metadata as metadata_interval
 from src.repository.source import metadata as metadata_source
 from src.repository.wire import metadata as metadata_wire
@@ -30,7 +30,7 @@ target_metadata = [
     metadata_wire,
     metadata_sheet,
     metadata_category,
-    metadata_group,
+    Group.metadata,
     metadata_interval,
     metadata_report,
 ]

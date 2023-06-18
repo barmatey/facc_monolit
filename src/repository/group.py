@@ -2,6 +2,7 @@ import typing
 from loguru import logger
 
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, JSON, MetaData, Result
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from ..report import entities as entities_report
 from ..sheet import entities as entities_sheet
@@ -12,18 +13,32 @@ from .sheet import Sheet, SheetRepo
 from .category import Category
 from .source import SourceBase
 
-metadata = MetaData()
 
-Group = Table(
-    'group',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("title", String(80), nullable=False),
-    Column("columns", JSON, nullable=False),
-    Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
-    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='RESTRICT'), nullable=False, unique=True),
-)
+class Base(DeclarativeBase):
+    pass
+
+
+class Group(Base):
+    __tablename__ = "group"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(30), nullable=False)
+    columns: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.c.id, ondelete='RESTRICT'), nullable=False,
+                                          unique=True)
+
+
+# Group = Table(
+#     'group',
+#     metadata,
+#     Column("id", Integer, primary_key=True, autoincrement=True),
+#     Column("title", String(80), nullable=False),
+#     Column("columns", JSON, nullable=False),
+#     Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
+#     Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
+#     Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='RESTRICT'), nullable=False, unique=True),
+# )
 
 
 class GroupRepo(BaseRepo):

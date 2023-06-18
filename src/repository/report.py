@@ -21,7 +21,7 @@ Report = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(80), nullable=False),
     Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
-    Column("group_id", Integer, ForeignKey(Group.c.id, ondelete='CASCADE'), nullable=False),
+    Column("group_id", Integer, ForeignKey(Group.id, ondelete='CASCADE'), nullable=False),
     Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
     Column("sheet_id", String(30), nullable=False, unique=True),
     Column("interval_id", Integer, ForeignKey(Interval.c.id, ondelete='RESTRICT'), nullable=False, unique=True, )
