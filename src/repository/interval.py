@@ -11,7 +11,6 @@ from .base import BaseRepo, BaseModel
 
 class Interval(BaseModel):
     __tablename__ = 'interval'
-    id: Mapped[int] = mapped_column(primary_key=True)
     total_start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     total_end_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
@@ -22,8 +21,7 @@ class Interval(BaseModel):
 
 
 class IntervalRepo(BaseRepo):
-    table = Interval
+    model = Interval
 
     async def create(self, data: entities.ReportIntervalCreate) -> core_types.Id_:
-        async with db.get_async_session() as session:
-            return await super()._create(data.dict(), session, commit=True)
+        return await super().create(data.dict())

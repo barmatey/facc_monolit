@@ -19,7 +19,6 @@ def get_wcols():
 
 class Source(BaseModel):
     __tablename__ = "source"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[int] = mapped_column(String(80), nullable=False)
     total_start_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow, nullable=False)
     total_end_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow, nullable=False)
@@ -27,7 +26,7 @@ class Source(BaseModel):
 
 
 class SourceRepo(BaseRepo):
-    table = Source
+    model = Source
 
     async def create(self, data: entities.SourceCreateData) -> core_types.Id_:
         return await super().create(data.dict())

@@ -15,7 +15,6 @@ from .source import Source
 
 class Group(BaseModel):
     __tablename__ = "group"
-    id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(30), nullable=False)
     columns: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey(Category.id, ondelete='CASCADE'), nullable=False)
@@ -25,7 +24,7 @@ class Group(BaseModel):
 
 
 class GroupRepo(BaseRepo):
-    table = Group
+    model = Group
     sheet_repo = SheetRepo
 
     async def create(self, data: entities_report.GroupCreate) -> core_types.Id_:
@@ -36,7 +35,7 @@ class GroupRepo(BaseRepo):
                 drop_index=data.drop_index,
                 drop_columns=data.drop_columns,
             )
-            sheet_id = await self.sheet_repo().create_with_session(sheet_data, session)
+            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
 
             # Create group model
             group_data = dict(

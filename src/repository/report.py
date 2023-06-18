@@ -18,7 +18,6 @@ from .sheet import SheetRepo
 
 class Report(BaseModel):
     __tablename__ = 'report'
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String(80), nullable=False)
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey(Category.id, ondelete='CASCADE'), nullable=False)
     group_id: Mapped[int] = mapped_column(Integer, ForeignKey(Group.id, ondelete='CASCADE'), nullable=False)
@@ -30,7 +29,7 @@ class Report(BaseModel):
 
 
 class ReportRepo(BaseRepo):
-    table = Report
+    model = Report
     sheet_repo = SheetRepo
     interval_repo = IntervalRepo
 

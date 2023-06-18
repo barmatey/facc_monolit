@@ -1,8 +1,9 @@
 import math
 import pandas as pd
 import pandera as pa
+from loguru import logger
 from pandera.typing import DataFrame
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData, TIMESTAMP, Float
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData, TIMESTAMP, Float, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from datetime import datetime
@@ -16,7 +17,6 @@ from .source import Source
 
 class Wire(BaseModel):
     __tablename__ = "wire"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     date: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=False)
     sender: Mapped[float] = mapped_column(Float, nullable=False)
     receiver: Mapped[float] = mapped_column(Float, nullable=False)
@@ -47,27 +47,20 @@ class WireSchema(pa.DataFrameModel):
 
 
 class WireRepo(BaseRepo):
-    table = Wire
+    model = Wire
 
     async def bulk_create_wire(self, wires: DataFrame[WireSchema]) -> None:
         WireSchema.validate(wires)
         wires = await WireSchema.drop_extra_columns(wires)
+        _ = await super().create_bulk(wires.to_dict(orient='records'))
 
-        chunksize = math.ceil(10_000 / len(wires.columns))
-        splited = helpers.split_dataframe(wires, chunksize)
-
-        async with db.get_async_session() as session:
-            for part in splited:
-                insert = self.table.insert().values(part.to_dict(orient='records'))
-                await session.execute(insert)
-            await session.commit()
-
-    # todo обработать запрос с несуществующим sheet_id
     async def retrieve_wire_df(self, source_id: core_types.Id_) -> DataFrame[WireSchema]:
-        async with db.get_async_session() as session:
-            select = self.table.select().where(self.table.c.source_id == source_id)
-            result = await session.execute(select)
-            df: DataFrame[WireSchema] = pd.DataFrame(result.fetchall())
-            WireSchema.validate(df)
-            df = df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
-            return df
+        wires: list[Wire] = await self.retrieve_bulk({"source_id": source_id})
+        if len(wires) == 0:
+            raise LookupError(f'source with id={source_id} is not found')
+
+        records = pd.Series(wires).apply(lambda x: x.__dict__).to_list()
+        df = pd.DataFrame.from_records(records)
+        WireSchema.validate(df)
+        df = df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
+        return df

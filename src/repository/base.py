@@ -1,8 +1,10 @@
+import typing
+
 import pandas as pd
 from loguru import logger
-from sqlalchemy import Table, Column, Result
+from sqlalchemy import Result, select, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from .. import core_types
 from . import db
@@ -10,43 +12,57 @@ from .service import helpers
 
 
 class BaseModel(DeclarativeBase):
-    pass
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
 
 class BaseRepo:
-    table: Table
+    model: typing.Type[BaseModel]
 
     async def create(self, data: dict) -> core_types.Id_:
         async with db.get_async_session() as session:
-            insert = self.table.insert().values(**data).returning(self.table.c.id)
-            result = await session.execute(insert)
+            model = self.model(**data)
+            session.add(model)
+            await session.flush()
             _ = await session.commit()
-            return result.fetchone()[0]
+            return model.id
 
     async def create_with_session(self, data: dict, session: AsyncSession) -> core_types.Id_:
-        insert = self.table.insert().values(**data).returning(self.table.c.id)
-        result = await session.execute(insert)
-        return result.fetchone()[0]
+        model = self.model(**data)
+        session.add(model)
+        await session.flush()
+        return model.id
 
-    async def create_bulk_with_session(self, data: list[dict], session: AsyncSession,
-                                       chunksize=10_000) -> list[core_types.Id_]:
-        ids: list[core_types.Id_] = []
+    async def create_bulk(self, data: list[dict]) -> list[core_types.Id_]:
+        async with db.get_async_session() as session:
+            result = await self.create_bulk_with_session(session, data)
+            await session.commit()
+            return result
 
-        splited = helpers.split_list(data, chunksize)
-        for part in splited:
-            insert = self.table.insert().values(part).returning(self.table.c.id)
-            result = await session.execute(insert)
-            result = result.fetchall()
-            result = pd.Series(result).apply(lambda x: x[0]).tolist()
-            ids.extend(result)
+    # noinspection PyTypeChecker
+    async def create_bulk_with_session(self, session: AsyncSession,  data: list[dict]) -> list[core_types.Id_]:
+        result = await session.scalars(
+            insert(self.model).returning(self.model.id),
+            data
+        )
+        result = list(result)
+        return result
 
-        return ids
+    async def retrieve_bulk(self, filter_: dict) -> list:
+        async with db.get_async_session() as session:
+            return await self.retrieve_bulk_with_session(session, filter_)
 
-    async def retrieve_and_delete(self, **kwargs) -> dict:
+    async def retrieve_bulk_with_session(self, session: AsyncSession, filter_: dict) -> list:
+        result = await session.scalars(
+            select(self.model).filter_by(**filter_)
+        )
+        result = list(result)
+        return result
+
+    async def retrieve_and_delete(self, **kwargs) -> BaseModel:
         raise NotImplemented
 
-    async def retrieve_and_delete_with_session(self, session: AsyncSession, **kwargs) -> dict:
-        delete = self.table.delete().filter_by(**kwargs).returning(self.table.columns)
+    async def retrieve_and_delete_with_session(self, session: AsyncSession, **kwargs) -> BaseModel:
+        delete = self.model.delete().filter_by(**kwargs).returning(self.model.columns)
         result = await session.execute(delete)
         result = Result.mappings(result).fetchall()
 

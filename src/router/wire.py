@@ -1,3 +1,4 @@
+import loguru
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
 
