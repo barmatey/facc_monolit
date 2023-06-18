@@ -11,7 +11,7 @@ from .source import SourceBase
 from .interval import Interval, IntervalRepo
 
 from .base import BaseRepo
-from .sheet import SheetCrudRepo
+from .sheet import SheetRepo
 
 metadata = MetaData()
 
@@ -30,7 +30,7 @@ Report = Table(
 
 class ReportRepo(BaseRepo):
     table = Report
-    sheet_repo = SheetCrudRepo
+    sheet_repo = SheetRepo
     interval_repo = IntervalRepo
 
     async def create(

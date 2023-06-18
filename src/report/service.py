@@ -9,7 +9,7 @@ from finrep.types import WireSchema
 from .. import core_types
 from ..repository.group import GroupRepo
 from ..repository.report import ReportRepo
-from ..repository.sheet import SheetCrudRepo
+from ..repository.sheet import SheetRepo
 from ..repository.wire import WireRepo
 from . import entities, schema
 

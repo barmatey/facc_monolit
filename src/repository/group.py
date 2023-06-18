@@ -8,7 +8,7 @@ from ..sheet import entities as entities_sheet
 from .. import core_types
 from . import db
 from .base import BaseRepo
-from .sheet import SheetCrudRepo
+from .sheet import SheetRepo
 from .category import Category
 from .source import SourceBase
 
@@ -27,7 +27,7 @@ Group = Table(
 
 class GroupRepo(BaseRepo):
     table = Group
-    sheet_repo = SheetCrudRepo
+    sheet_repo = SheetRepo
 
     async def create(self, data: entities_report.GroupCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
@@ -40,11 +40,16 @@ class GroupRepo(BaseRepo):
             sheet_id = await self.sheet_repo().create_with_session(sheet_data, session)
 
             # Create group
-            # group_data = data.dict()
-            # group_data['sheet_id'] = sheet_id
-            # group_id = await super()._create(group_data, session, commit=False)
+            group_data = dict(
+                title=data.title,
+                category=data.category,
+                columns=data.columns,
+                source_id=data.source_id,
+                sheet_id=sheet_id,
+            )
+            group_id = await self.create_with_session(group_data, session)
 
-            # _ = await session.commit()
+            _ = await session.commit()
             return group_id
 
     async def retrieve(self, id_: core_types.Id_) -> entities_report.Group:

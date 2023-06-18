@@ -49,6 +49,10 @@ Cell = Table(
     Column("dtype", String(30), nullable=False),
     Column("is_readonly", Boolean, nullable=False),
     Column("is_filtred", Boolean, nullable=False),
+    Column("is_index", Boolean, nullable=False),
+    Column("color", String(16), nullable=True),
+    Column("row_id", Integer, ForeignKey(Row.c.id, ondelete='CASCADE'), nullable=False),
+    Column("col_id", Integer, ForeignKey(Col.c.id, ondelete='CASCADE'), nullable=False),
     Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='CASCADE'), nullable=False),
 )
 
@@ -73,21 +77,35 @@ class CellRepo(BaseRepo):
     table = Cell
 
 
-class SheetCrudRepo(BaseRepo):
+class SheetRepo(BaseRepo):
+    table = Sheet
     row_repo = RowRepo
     col_repo = ColRepo
     cell_repo = CellRepo
     normalizer = Normalizer
 
-    async def create_with_session(self, data: entities.SheetCreate, session: AsyncSession):
+    async def create_with_session(self, data: entities.SheetCreate, session: AsyncSession) -> core_types.Id_:
+        sheet_id = await super().create_with_session({}, session)
+
+        # Create sheet from denormalized dataframe
         normalizer = self.normalizer(**data.dict())
         normalizer.normalize()
-        rows = normalizer.get_normalized_rows()
-        cols = normalizer.get_normalized_cols()
-        cells = normalizer.get_normalized_cells()
+
+        # Create sindexes, save created ids for following create cells
+        rows = normalizer.get_normalized_rows().assign(sheet_id=sheet_id).to_dict(orient='records')
+        cols = normalizer.get_normalized_cols().assign(sheet_id=sheet_id).to_dict(orient='records')
 
         row_ids = await self.row_repo().create_bulk_with_session(rows, session)
-        logger.debug(f"{row_ids}")
+        col_ids = await self.col_repo().create_bulk_with_session(cols, session)
+
+        # Create cells
+        repeated_row_ids = np.repeat(row_ids, len(col_ids))
+        repeated_col_ids = col_ids * len(row_ids)
+        cells = normalizer.get_normalized_cells().assign(
+            sheet_id=sheet_id, row_id=repeated_row_ids, col_id=repeated_col_ids).to_dict(orient='records')
+        _ = await self.cell_repo().create_bulk_with_session(cells, session)
+
+        return sheet_id
 
     async def create(self, data: entities.SheetCreate) -> core_types.Id_:
         normalizer = self.normalizer(**data.dict())

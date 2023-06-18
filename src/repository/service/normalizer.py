@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from ...sheet import entities, enums
+from ...sheet import enums
 
 
 class Normalizer:
@@ -11,17 +11,17 @@ class Normalizer:
         self.drop_index = drop_index
         self.drop_columns = drop_columns
 
-        self.rows: list[entities.SindexCreate] = []
-        self.cols: list[entities.SindexCreate] = []
-        self.cells: list[entities.CellCreate] = []
+        self.rows: pd.DataFrame = pd.DataFrame([])
+        self.cols: pd.DataFrame = pd.DataFrame([])
+        self.cells: pd.DataFrame = pd.DataFrame([])
 
-    def get_normalized_rows(self) -> list[entities.SindexCreate]:
+    def get_normalized_rows(self) -> pd.DataFrame:
         return self.rows
 
-    def get_normalized_cols(self) -> list[entities.SindexCreate]:
+    def get_normalized_cols(self) -> pd.DataFrame:
         return self.cols
 
-    def get_normalized_cells(self) -> list[entities.CellCreate]:
+    def get_normalized_cells(self) -> pd.DataFrame:
         return self.cells
 
     def normalize(self):
@@ -34,48 +34,37 @@ class Normalizer:
         vertical_difference = len(table) - len(self.df)
         horizontal_difference = len(table.columns) - len(self.df.columns)
 
-        height = 24
-        rows = pd.DataFrame(
-            [],
-            index=range(0, len(table.index)),
-            columns=['size', 'is_freeze', "is_filtred"],
-        )
-        rows['size'] = height
-        rows['is_freeze'] = False
-        rows['is_filtred'] = True
-
-        width = 120
-        cols = pd.DataFrame(
-            [],
-            index=range(0, len(table.columns)),
-            columns=['size', 'is_freeze', "is_filtred"],
-        )
-        cols['size'] = width
-        cols['is_freeze'] = False
-        cols['is_filtred'] = True
-
-        if vertical_difference > 0:
-            rows.iloc[0:vertical_difference, 1] = True
-
-        if horizontal_difference > 0:
-            cols.iloc[0:horizontal_difference, 1] = True
-
-        cells = self.to_table_cells(rows, cols, table)
-        rows = rows.to_dict(orient='records')
-        cols = cols.to_dict(orient='records')
+        rows: pd.DataFrame = self.create_sindex_df(len(table.index), vertical_difference, 24)
+        cols: pd.DataFrame = self.create_sindex_df(len(table.columns), horizontal_difference, 120)
+        cells: pd.DataFrame = self.create_cell_df(rows, cols, table)
 
         self.rows = rows
         self.cols = cols
         self.cells = cells
 
     @staticmethod
-    def to_table_cells(
-            row_df: pd.DataFrame,
-            col_df: pd.DataFrame,
-            cell_df: pd.DataFrame) -> list[entities.CellCreate]:
+    def create_sindex_df(total_item_count: int, freeze_item_count: int, item_size: int) -> pd.DataFrame:
+        sindex = pd.DataFrame(
+            [],
+            index=range(0, total_item_count),
+            columns=['size', 'is_freeze', 'is_filtred', 'index', 'scroll_pos']
+        )
+        sindex['size'] = item_size
+        sindex['is_freeze'] = False
+        sindex['is_filtred'] = True
+        sindex['index'] = sindex.index
+        sindex['scroll_pos'] = sindex['size'].cumsum() - item_size * total_item_count
+        sindex['scroll_pos'] = np.where(sindex['scroll_pos'] < 0, -1, sindex['scroll_pos'])
 
-        col_is_freeze = col_df['is_freeze'].tolist() * len(row_df.index)
-        row_is_freeze = np.repeat(row_df['is_freeze'].tolist(), len(col_df.index))
+        if freeze_item_count > 0:
+            sindex.iloc[0:freeze_item_count, 1] = True
+
+        return sindex
+
+    @staticmethod
+    def create_cell_df(rows: pd.DataFrame, cols: pd.DataFrame, table: pd.DataFrame) -> pd.DataFrame:
+        col_is_freeze = cols['is_freeze'].tolist() * len(rows.index)
+        row_is_freeze = np.repeat(rows['is_freeze'].tolist(), len(cols.index))
         readonly_flag = np.where(
             np.logical_or(row_is_freeze, col_is_freeze), True, False
         )
@@ -88,12 +77,11 @@ class Normalizer:
                 return enums.CellDtype.BOOLEAN.value
             return enums.CellDtype.TEXT.value
 
-        flatten = pd.DataFrame(cell_df.stack().values, columns=['value'])
+        flatten = pd.DataFrame(table.stack().values, columns=['value'])
         flatten['is_index'] = readonly_flag
         flatten['is_readonly'] = readonly_flag
         flatten['is_filtred'] = True
         flatten['dtype'] = flatten['value'].apply(get_dtype)
         flatten['color'] = np.where(flatten['is_index'], '#f8fafd', 'white')
 
-        cells: list[entities.CellCreate] = flatten.to_dict(orient='records')
-        return cells
+        return flatten
