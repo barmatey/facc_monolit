@@ -1,4 +1,5 @@
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
+from sqlalchemy import Integer, ForeignKey, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from .. import core_types
 from ..report import entities as e_report
@@ -6,26 +7,26 @@ from ..sheet import entities as e_sheet
 from . import db
 
 from .category import Category
+from .sheet import Sheet
 from .group import Group
-from .source import SourceBase
+from .source import Source
 from .interval import Interval, IntervalRepo
 
-from .base import BaseRepo
+from .base import BaseRepo, BaseModel
 from .sheet import SheetRepo
 
-metadata = MetaData()
 
-Report = Table(
-    'report',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("title", String(80), nullable=False),
-    Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
-    Column("group_id", Integer, ForeignKey(Group.id, ondelete='CASCADE'), nullable=False),
-    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet_id", String(30), nullable=False, unique=True),
-    Column("interval_id", Integer, ForeignKey(Interval.c.id, ondelete='RESTRICT'), nullable=False, unique=True, )
-)
+class Report(BaseModel):
+    __tablename__ = 'report'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String(80), nullable=False)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey(Category.id, ondelete='CASCADE'), nullable=False)
+    group_id: Mapped[int] = mapped_column(Integer, ForeignKey(Group.id, ondelete='CASCADE'), nullable=False)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey(Source.id, ondelete='CASCADE'), nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False,
+                                          unique=True)
+    interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(Interval.id, ondelete='RESTRICT'), nullable=False,
+                                             unique=True)
 
 
 class ReportRepo(BaseRepo):
@@ -59,8 +60,6 @@ class ReportRepo(BaseRepo):
 
     async def retrieve(self, id_: core_types.Id_) -> e_report.Report:
         pass
-
-
 
     async def retrieve_list(self):
         pass

@@ -7,13 +7,14 @@ from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-from src.repository.report import metadata as metadata_report
-from src.repository.category import metadata as metadata_category
+from src.repository.base import BaseModel
+from src.repository.report import Report
+from src.repository.category import Category
 from src.repository.group import Group
-from src.repository.interval import metadata as metadata_interval
-from src.repository.source import metadata as metadata_source
-from src.repository.wire import metadata as metadata_wire
-from src.repository.sheet import metadata as metadata_sheet
+from src.repository.interval import Interval
+from src.repository.source import Source
+from src.repository.wire import Wire
+from src.repository.sheet import Sheet
 
 config = context.config
 
@@ -26,13 +27,14 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # Order is matter!
 target_metadata = [
-    metadata_source,
-    metadata_wire,
-    metadata_sheet,
-    metadata_category,
-    Group.metadata,
-    metadata_interval,
-    metadata_report,
+    BaseModel.metadata
+    # Source.metadata,
+    # Wire.metadata,
+    # Sheet.metadata,
+    # Category.metadata,
+    # Group.metadata,
+    # Interval.metadata,
+    # Report.metadata,
 ]
 
 

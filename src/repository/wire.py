@@ -3,29 +3,29 @@ import pandas as pd
 import pandera as pa
 from pandera.typing import DataFrame
 from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData, TIMESTAMP, Float
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+from datetime import datetime
 
 from .. import core_types
 from . import db
 from .service import helpers
-from .base import BaseRepo
-from .source import SourceBase
+from .base import BaseRepo, BaseModel
+from .source import Source
 
-metadata = MetaData()
 
-Wire = Table(
-    'wire',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("date", TIMESTAMP, nullable=False),
-    Column("sender", Float, nullable=False),
-    Column("receiver", Float, nullable=False),
-    Column("debit", Float, nullable=False),
-    Column("credit", Float, nullable=False),
-    Column("subconto_first", String(800), nullable=True),
-    Column("subconto_second", String(800), nullable=True),
-    Column("comment", String(800), nullable=True),
-    Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-)
+class Wire(BaseModel):
+    __tablename__ = "wire"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    date: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=False)
+    sender: Mapped[float] = mapped_column(Float, nullable=False)
+    receiver: Mapped[float] = mapped_column(Float, nullable=False)
+    debit: Mapped[float] = mapped_column(Float, nullable=False)
+    credit: Mapped[float] = mapped_column(Float, nullable=False)
+    subconto_first: Mapped[str] = mapped_column(String(800), nullable=True)
+    subconto_second: Mapped[str] = mapped_column(String(800), nullable=True)
+    comment: Mapped[str] = mapped_column(String(800), nullable=True)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey(Source.id, ondelete='CASCADE'), nullable=False)
 
 
 class WireSchema(pa.DataFrameModel):

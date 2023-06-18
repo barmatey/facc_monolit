@@ -2,10 +2,15 @@ import pandas as pd
 from loguru import logger
 from sqlalchemy import Table, Column, Result
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase
 
 from .. import core_types
 from . import db
 from .service import helpers
+
+
+class BaseModel(DeclarativeBase):
+    pass
 
 
 class BaseRepo:
@@ -53,5 +58,3 @@ class BaseRepo:
                               f"Change filter or use bulk method to delete many entities")
         result = dict(result[0])
         return result
-
-

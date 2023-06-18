@@ -1,10 +1,12 @@
-from sqlalchemy import Table, Column, Integer, String, MetaData
+from sqlalchemy import String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-metadata = MetaData()
+from .base import BaseModel
 
-Category = Table(
-    'category',
-    metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("value", String(80), nullable=False, unique=True),
-)
+
+class Category(BaseModel):
+    __tablename__ = "category"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    value: Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
+
+

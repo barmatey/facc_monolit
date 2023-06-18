@@ -3,58 +3,53 @@ from loguru import logger
 import pandas as pd
 from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer, Boolean, String
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from .. import core_types
 from ..sheet import entities
-from .base import BaseRepo
+from .base import BaseRepo, BaseModel
 from .service.normalizer import Normalizer
 
-metadata = MetaData()
 
-Sheet = Table(
-    'sheet',
-    metadata,
-    Column("id", Integer, primary_key=True),
-)
+class Sheet(BaseModel):
+    __tablename__ = "sheet"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-Row = Table(
-    'sheet_row',
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("size", Integer, nullable=False),
-    Column("is_freeze", Boolean, nullable=False),
-    Column("is_filtred", Boolean, nullable=False),
-    Column("index", Integer, nullable=False),
-    Column("scroll_pos", Integer, nullable=False),
-    Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='CASCADE'), nullable=False),
-)
 
-Col = Table(
-    'sheet_col',
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("size", Integer, nullable=False),
-    Column("is_freeze", Boolean, nullable=False),
-    Column("is_filtred", Boolean, nullable=False),
-    Column("index", Integer, nullable=False),
-    Column("scroll_pos", Integer, nullable=False),
-    Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='CASCADE'), nullable=False),
-)
+class Row(BaseModel):
+    __tablename__ = "sheet_row"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    index: Mapped[int] = mapped_column(Integer, nullable=False)
+    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False)
 
-Cell = Table(
-    'sheet_cell',
-    metadata,
-    Column("id", Integer, primary_key=True),
-    Column("value", String(1000), nullable=True),
-    Column("dtype", String(30), nullable=False),
-    Column("is_readonly", Boolean, nullable=False),
-    Column("is_filtred", Boolean, nullable=False),
-    Column("is_index", Boolean, nullable=False),
-    Column("color", String(16), nullable=True),
-    Column("row_id", Integer, ForeignKey(Row.c.id, ondelete='CASCADE'), nullable=False),
-    Column("col_id", Integer, ForeignKey(Col.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='CASCADE'), nullable=False),
-)
+
+class Col(BaseModel):
+    __tablename__ = "sheet_col"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    index: Mapped[int] = mapped_column(Integer, nullable=False)
+    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False)
+
+
+class Cell(BaseModel):
+    __tablename__ = "sheet_cell"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    value: Mapped[str] = mapped_column(String(1000), nullable=True)
+    dtype: Mapped[str] = mapped_column(String(30), nullable=False)
+    is_readonly: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_index: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    color: Mapped[str] = mapped_column(String(16), nullable=True)
+    row_id: Mapped[int] = mapped_column(Integer, ForeignKey(Row.id, ondelete='CASCADE'), nullable=False)
+    col_id: Mapped[int] = mapped_column(Integer, ForeignKey(Col.id, ondelete='CASCADE'), nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False)
 
 
 class SindexRepo(BaseRepo):
