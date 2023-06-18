@@ -1,14 +1,12 @@
 import typing
 
-import pandas as pd
 from loguru import logger
-from sqlalchemy import Result, select, insert, delete
+from sqlalchemy import select, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from .. import core_types
 from . import db
-from .service import helpers
 
 
 class BaseModel(DeclarativeBase):
@@ -23,10 +21,10 @@ class BaseRepo:
             model = self.model(**data)
             session.add(model)
             await session.flush()
-            _ = await session.commit()
+            await session.commit()
             return model.id
 
-    async def create_with_session(self, data: dict, session: AsyncSession) -> core_types.Id_:
+    async def create_with_session(self, session: AsyncSession, data: dict) -> core_types.Id_:
         model = self.model(**data)
         session.add(model)
         await session.flush()

@@ -2,12 +2,16 @@ from fastapi import APIRouter, Depends
 
 from .. import core_types
 from .service import Service, BalanceService
-from . import schema
+from . import schema, enums
 
 router_report = APIRouter(
     prefix="/report",
     tags=['Report']
 )
+
+
+def get_service(category: enums.Category) -> Service:
+    pass
 
 
 @router_report.post("/create-balance-group")

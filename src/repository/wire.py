@@ -1,16 +1,13 @@
-import math
 import pandas as pd
 import pandera as pa
 from loguru import logger
 from pandera.typing import DataFrame
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData, TIMESTAMP, Float, select
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Integer, ForeignKey, String, TIMESTAMP, Float
+from sqlalchemy.orm import Mapped, mapped_column
 
 from datetime import datetime
 
 from .. import core_types
-from . import db
-from .service import helpers
 from .base import BaseRepo, BaseModel
 from .source import Source
 
@@ -57,7 +54,7 @@ class WireRepo(BaseRepo):
     async def retrieve_wire_df(self, source_id: core_types.Id_) -> DataFrame[WireSchema]:
         wires: list[Wire] = await self.retrieve_bulk({"source_id": source_id})
         if len(wires) == 0:
-            raise LookupError(f'source with id={source_id} is not found')
+            raise LookupError(f'wires with source_id={source_id} is not found')
 
         records = pd.Series(wires).apply(lambda x: x.__dict__).to_list()
         df = pd.DataFrame.from_records(records)

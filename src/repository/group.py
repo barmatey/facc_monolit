@@ -1,7 +1,7 @@
 from loguru import logger
 
 from sqlalchemy import Integer, ForeignKey, String, JSON
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from ..report import entities as entities_report
 from ..sheet import entities as entities_sheet
@@ -45,9 +45,9 @@ class GroupRepo(BaseRepo):
                 source_id=data.source_id,
                 sheet_id=sheet_id,
             )
-            group_id = await self.create_with_session(group_data, session)
+            group_id = await self.create_with_session(session, group_data)
 
-            _ = await session.commit()
+            await session.commit()
             return group_id
 
     async def delete_by_id(self, id_: core_types.Id_) -> None:
@@ -55,4 +55,3 @@ class GroupRepo(BaseRepo):
             group: Group = await self.retrieve_and_delete_with_session(session, filter_={"id": id_})
             await self.sheet_repo().delete_with_session(session, filter_={"id": group.sheet_id})
             await session.commit()
-
