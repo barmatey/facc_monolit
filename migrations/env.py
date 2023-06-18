@@ -28,11 +28,11 @@ if config.config_file_name is not None:
 target_metadata = [
     metadata_source,
     metadata_wire,
+    metadata_sheet,
     metadata_category,
     metadata_group,
-    metadata_report,
     metadata_interval,
-    metadata_sheet,
+    metadata_report,
 ]
 
 

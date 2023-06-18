@@ -3,19 +3,20 @@ from loguru import logger
 from sqlalchemy import Table, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .service import helpers
 from .. import core_types
+from . import db
+from .service import helpers
 
 
 class BaseRepo:
     table: Table
 
-    async def _create(self, data: dict, session: AsyncSession, commit=False) -> core_types.Id_:
-        insert = self.table.insert().values(**data).returning(self.table.c.id)
-        result = await session.execute(insert)
-        if commit:
-            await session.commit()
-        return result.fetchone()[0]
+    async def create(self, data: dict) -> core_types.Id_:
+        async with db.get_async_session() as session:
+            insert = self.table.insert().values(**data).returning(self.table.c.id)
+            result = await session.execute(insert)
+            _ = await session.commit()
+            return result.fetchone()[0]
 
     async def create_with_session(self, data: dict, session: AsyncSession) -> core_types.Id_:
         insert = self.table.insert().values(**data).returning(self.table.c.id)
@@ -35,15 +36,3 @@ class BaseRepo:
             ids.extend(result)
 
         return ids
-
-    async def _retrieve(self, id_: core_types.Id_, session: AsyncSession) -> dict:
-        q = self.table.select().where(self.table.c.id == id_)
-        result = await session.execute(q)
-        result = dict(Result.mappings(result).fetchone())
-        return result
-
-    async def _delete(self, id_: core_types.Id_, session: AsyncSession, commit=False) -> None:
-        delete = self.table.delete().where(self.table.c.id == id_)
-        _ = await session.execute(delete)
-        if commit:
-            await session.commit()

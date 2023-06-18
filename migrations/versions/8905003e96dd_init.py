@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 59f2f14c4ac2
+Revision ID: 8905003e96dd
 Revises: 
-Create Date: 2023-06-18 11:46:35.432145
+Create Date: 2023-06-18 11:57:57.098701
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '59f2f14c4ac2'
+revision = '8905003e96dd'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -38,52 +38,6 @@ def upgrade() -> None:
     sa.Column('comment', sa.String(length=800), nullable=True),
     sa.Column('source_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['source_id'], ['source.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id')
-    )
-    op.create_table('category',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('value', sa.String(length=80), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('value')
-    )
-    op.create_table('group',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('title', sa.String(length=80), nullable=False),
-    sa.Column('columns', sa.JSON(), nullable=False),
-    sa.Column('category_id', sa.Integer(), nullable=False),
-    sa.Column('source_id', sa.Integer(), nullable=False),
-    sa.Column('sheet_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['category_id'], ['category.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['sheet_id'], ['sheet.id'], ondelete='RESTRICT'),
-    sa.ForeignKeyConstraint(['source_id'], ['source.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('sheet_id')
-    )
-    op.create_table('report',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('title', sa.String(length=80), nullable=False),
-    sa.Column('category_id', sa.Integer(), nullable=False),
-    sa.Column('group_id', sa.Integer(), nullable=False),
-    sa.Column('source_id', sa.Integer(), nullable=False),
-    sa.Column('sheet_id', sa.String(length=30), nullable=False),
-    sa.Column('interval_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['category_id'], ['category.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['group_id'], ['group.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['interval_id'], ['interval.id'], ondelete='RESTRICT'),
-    sa.ForeignKeyConstraint(['source_id'], ['source.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('interval_id'),
-    sa.UniqueConstraint('sheet_id')
-    )
-    op.create_table('interval',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('total_start_date', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.Column('total_end_date', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.Column('start_date', sa.TIMESTAMP(timezone=True), nullable=False),
-    sa.Column('end_date', sa.TIMESTAMP(timezone=True), nullable=False),
-    sa.Column('period_year', sa.Integer(), nullable=False),
-    sa.Column('period_month', sa.Integer(), nullable=False),
-    sa.Column('period_day', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('sheet',
@@ -128,19 +82,65 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['sheet_id'], ['sheet.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('category',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('value', sa.String(length=80), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('value')
+    )
+    op.create_table('group',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('title', sa.String(length=80), nullable=False),
+    sa.Column('columns', sa.JSON(), nullable=False),
+    sa.Column('category_id', sa.Integer(), nullable=False),
+    sa.Column('source_id', sa.Integer(), nullable=False),
+    sa.Column('sheet_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['category_id'], ['category.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['sheet_id'], ['sheet.id'], ondelete='RESTRICT'),
+    sa.ForeignKeyConstraint(['source_id'], ['source.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('sheet_id')
+    )
+    op.create_table('interval',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('total_start_date', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('total_end_date', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('start_date', sa.TIMESTAMP(timezone=True), nullable=False),
+    sa.Column('end_date', sa.TIMESTAMP(timezone=True), nullable=False),
+    sa.Column('period_year', sa.Integer(), nullable=False),
+    sa.Column('period_month', sa.Integer(), nullable=False),
+    sa.Column('period_day', sa.Integer(), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('report',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('title', sa.String(length=80), nullable=False),
+    sa.Column('category_id', sa.Integer(), nullable=False),
+    sa.Column('group_id', sa.Integer(), nullable=False),
+    sa.Column('source_id', sa.Integer(), nullable=False),
+    sa.Column('sheet_id', sa.String(length=30), nullable=False),
+    sa.Column('interval_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['category_id'], ['category.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['group_id'], ['group.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['interval_id'], ['interval.id'], ondelete='RESTRICT'),
+    sa.ForeignKeyConstraint(['source_id'], ['source.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('interval_id'),
+    sa.UniqueConstraint('sheet_id')
+    )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table('report')
+    op.drop_table('interval')
+    op.drop_table('group')
+    op.drop_table('category')
     op.drop_table('sheet_cell')
     op.drop_table('sheet_row')
     op.drop_table('sheet_col')
     op.drop_table('sheet')
-    op.drop_table('interval')
-    op.drop_table('report')
-    op.drop_table('group')
-    op.drop_table('category')
     op.drop_table('wire')
     op.drop_table('source')
     # ### end Alembic commands ###
