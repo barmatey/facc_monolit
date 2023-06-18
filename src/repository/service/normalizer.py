@@ -78,11 +78,11 @@ class Normalizer:
             return enums.CellDtype.TEXT.value
 
         flatten = pd.DataFrame(table.stack().values, columns=['value'])
-        flatten['value'] = flatten['value'].astype(str)
         flatten['is_index'] = readonly_flag
         flatten['is_readonly'] = readonly_flag
         flatten['is_filtred'] = True
         flatten['dtype'] = flatten['value'].apply(get_dtype)
+        flatten['value'] = flatten['value'].astype(str)
         flatten['color'] = np.where(flatten['is_index'], '#f8fafd', 'white')
 
         return flatten

@@ -41,7 +41,7 @@ class GroupRepo(BaseRepo):
             )
             sheet_id = await self.sheet_repo().create_with_session(sheet_data, session)
 
-            # Create group
+            # Create group model
             group_data = dict(
                 title=data.title,
                 category_id=data.category.value,
