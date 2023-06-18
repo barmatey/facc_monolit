@@ -3,12 +3,13 @@ import typing
 import pandas as pd
 from pydantic import BaseModel
 
+from . import enums
 from .. import core_types
 
 
 class GroupCreate(BaseModel):
     title: str
-    category: str
+    category: enums.Category
     source_id: int
     columns: list[str]
     dataframe: pd.DataFrame

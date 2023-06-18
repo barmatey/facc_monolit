@@ -9,9 +9,8 @@ from finrep.types import WireSchema
 from .. import core_types
 from ..repository.group import GroupRepo
 from ..repository.report import ReportRepo
-from ..repository.sheet import SheetRepo
 from ..repository.wire import WireRepo
-from . import entities, schema
+from . import entities, schema, enums
 
 
 class Service(ABC):
@@ -48,7 +47,7 @@ class BalanceService(Service):
             dataframe=balance_group,
             drop_index=True,
             drop_columns=False,
-            category='BALANCE'
+            category=enums.Category.BALANCE,
         )
         group_id = await self.group_repo().create(group_create_data)
         return group_id

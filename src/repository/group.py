@@ -1,14 +1,14 @@
 import typing
 from loguru import logger
 
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, MetaData
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, JSON, MetaData
 
 from ..report import entities as entities_report
 from ..sheet import entities as entities_sheet
 from .. import core_types
 from . import db
 from .base import BaseRepo
-from .sheet import SheetRepo
+from .sheet import Sheet, SheetRepo
 from .category import Category
 from .source import SourceBase
 
@@ -19,9 +19,11 @@ Group = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("title", String(80), nullable=False),
+    Column("columns", JSON, nullable=False),
     Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
     Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
-    Column("sheet_id", String(30), nullable=False, unique=True),
+    Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='RESTRICT'), nullable=False, unique=True),
+
 )
 
 
@@ -42,7 +44,7 @@ class GroupRepo(BaseRepo):
             # Create group
             group_data = dict(
                 title=data.title,
-                category=data.category,
+                category_id=data.category.value,
                 columns=data.columns,
                 source_id=data.source_id,
                 sheet_id=sheet_id,

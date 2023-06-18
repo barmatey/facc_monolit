@@ -78,6 +78,7 @@ class Normalizer:
             return enums.CellDtype.TEXT.value
 
         flatten = pd.DataFrame(table.stack().values, columns=['value'])
+        flatten['value'] = flatten['value'].astype(str)
         flatten['is_index'] = readonly_flag
         flatten['is_readonly'] = readonly_flag
         flatten['is_filtred'] = True
