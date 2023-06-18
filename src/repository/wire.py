@@ -52,7 +52,7 @@ class WireRepo(BaseRepo):
     async def bulk_create_wire(self, wires: DataFrame[WireSchema]) -> None:
         WireSchema.validate(wires)
         wires = await WireSchema.drop_extra_columns(wires)
-        _ = await super().create_bulk(wires.to_dict(orient='records'))
+        _ = await self.create_bulk(wires.to_dict(orient='records'))
 
     async def retrieve_wire_df(self, source_id: core_types.Id_) -> DataFrame[WireSchema]:
         wires: list[Wire] = await self.retrieve_bulk({"source_id": source_id})

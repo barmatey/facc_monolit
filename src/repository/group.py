@@ -52,6 +52,7 @@ class GroupRepo(BaseRepo):
 
     async def delete_by_id(self, id_: core_types.Id_) -> None:
         async with db.get_async_session() as session:
-            group: dict = await self.retrieve_and_delete_with_session(session, id=id_)
-            logger.debug(f"\n{group}, "
-                         f"\ntype: {type(group)}")
+            group: Group = await self.retrieve_and_delete_with_session(session, filter_={"id": id_})
+            await self.sheet_repo().delete_with_session(session, filter_={"id": group.sheet_id})
+            await session.commit()
+
