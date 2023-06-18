@@ -23,6 +23,10 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    async def delete_group(self, id_: core_types.Id_) -> None:
+        pass
+
+    @abstractmethod
     async def create_report(self) -> core_types.Id_:
         pass
 
@@ -51,6 +55,9 @@ class BalanceService(Service):
         )
         group_id = await self.group_repo().create(group_create_data)
         return group_id
+
+    async def delete_group(self, id_: core_types.Id_) -> None:
+        _ = await self.group_repo().delete_by_id(id_)
 
     async def create_report(self) -> core_types.Id_:
         pass

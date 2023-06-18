@@ -60,8 +60,7 @@ class ReportRepo(BaseRepo):
     async def retrieve(self, id_: core_types.Id_) -> e_report.Report:
         pass
 
-    async def delete(self):
-        pass
+
 
     async def retrieve_list(self):
         pass

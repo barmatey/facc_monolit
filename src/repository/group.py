@@ -1,7 +1,7 @@
 import typing
 from loguru import logger
 
-from sqlalchemy import Table, Column, Integer, ForeignKey, String, JSON, MetaData
+from sqlalchemy import Table, Column, Integer, ForeignKey, String, JSON, MetaData, Result
 
 from ..report import entities as entities_report
 from ..sheet import entities as entities_sheet
@@ -23,7 +23,6 @@ Group = Table(
     Column("category_id", Integer, ForeignKey(Category.c.id, ondelete='CASCADE'), nullable=False),
     Column("source_id", Integer, ForeignKey(SourceBase.c.id, ondelete='CASCADE'), nullable=False),
     Column("sheet_id", Integer, ForeignKey(Sheet.c.id, ondelete='RESTRICT'), nullable=False, unique=True),
-
 )
 
 
@@ -54,12 +53,8 @@ class GroupRepo(BaseRepo):
             _ = await session.commit()
             return group_id
 
-    async def retrieve(self, id_: core_types.Id_) -> entities_report.Group:
+    async def delete_by_id(self, id_: core_types.Id_) -> None:
         async with db.get_async_session() as session:
-            data = await super()._retrieve(id_, session)
-            group = entities_report.Group(**data)
-            return group
-
-    async def delete(self, id_: core_types.Id_) -> None:
-        async with db.get_async_session() as session:
-            await super()._delete(id_, session, commit=True)
+            group: dict = await self.retrieve_and_delete_with_session(session, id=id_)
+            logger.debug(f"\n{group}, "
+                         f"\ntype: {type(group)}")

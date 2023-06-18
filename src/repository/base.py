@@ -1,6 +1,6 @@
 import pandas as pd
 from loguru import logger
-from sqlalchemy import Table, Result
+from sqlalchemy import Table, Column, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .. import core_types
@@ -36,3 +36,22 @@ class BaseRepo:
             ids.extend(result)
 
         return ids
+
+    async def retrieve_and_delete(self, **kwargs) -> dict:
+        raise NotImplemented
+
+    async def retrieve_and_delete_with_session(self, session: AsyncSession, **kwargs) -> dict:
+        delete = self.table.delete().filter_by(**kwargs).returning(self.table.columns)
+        result = await session.execute(delete)
+        result = Result.mappings(result).fetchall()
+
+        if len(result) == 0:
+            raise LookupError(f"there is not entity with following filter: {kwargs}")
+
+        if len(result) > 1:
+            raise LookupError(f"there are to many entities with following filter: {kwargs}. "
+                              f"Change filter or use bulk method to delete many entities")
+        result = dict(result[0])
+        return result
+
+
