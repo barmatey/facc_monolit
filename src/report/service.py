@@ -19,11 +19,15 @@ class Service(ABC):
     report_repo = ReportRepo
 
     @abstractmethod
-    async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
+    async def create_group(self, data: entities.GroupCreate) -> core_types.Id_:
         pass
 
     @abstractmethod
-    async def delete_group(self, id_: core_types.Id_) -> None:
+    async def retrieve_group(self, id_: core_types.Id_) -> entities.GroupRetrieve:
+        pass
+
+    @abstractmethod
+    async def delete_group(self, id_: core_types.Id_) -> core_types.Id_:
         pass
 
     @abstractmethod
@@ -31,7 +35,24 @@ class Service(ABC):
         pass
 
 
-class BalanceService(Service):
+class BaseService(Service):
+
+    async def create_group(self, data: entities.GroupCreate) -> core_types.Id_:
+        raise NotImplemented
+
+    async def create_report(self) -> core_types.Id_:
+        raise NotImplemented
+
+    async def retrieve_group(self, id_: core_types.Id_) -> entities.GroupRetrieve:
+        group: entities.GroupRetrieve = await self.group_repo().retrieve_by_id(id_)
+        return group
+
+    async def delete_group(self, id_: core_types.Id_) -> core_types.Id_:
+        deleted_id = await self.group_repo().delete_by_id(id_)
+        return deleted_id
+
+
+class BalanceService(BaseService):
     group = finrep.BalanceGroup
 
     async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
@@ -55,9 +76,6 @@ class BalanceService(Service):
         )
         group_id = await self.group_repo().create(group_create_data)
         return group_id
-
-    async def delete_group(self, id_: core_types.Id_) -> None:
-        _ = await self.group_repo().delete_by_id(id_)
 
     async def create_report(self) -> core_types.Id_:
         pass

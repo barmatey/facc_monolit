@@ -36,14 +36,25 @@ class BaseRepo:
             await session.commit()
             return result
 
-    # noinspection PyTypeChecker
     async def create_bulk_with_session(self, session: AsyncSession, data: list[dict]) -> list[core_types.Id_]:
+        # noinspection PyTypeChecker
         result = await session.scalars(
             insert(self.model).returning(self.model.id),
             data
         )
         result = list(result)
         return result
+
+    async def retrieve(self, filter_: dict) -> BaseModel:
+        async with db.get_async_session() as session:
+            return await self.retrieve_with_session(session, filter_)
+
+    async def retrieve_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
+        result = await session.execute(select(self.model).filter_by(**filter_))
+        result = result.fetchone()
+        if result is None:
+            raise LookupError(f"there is no model with filter_={filter_}")
+        return result[0]
 
     async def retrieve_bulk(self, filter_: dict) -> list[BaseModel]:
         async with db.get_async_session() as session:

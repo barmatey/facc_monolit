@@ -20,8 +20,12 @@ class GroupCreate(BaseModel):
         arbitrary_types_allowed = True
 
 
-class Group(BaseModel):
-    pass
+class GroupRetrieve(BaseModel):
+    id: core_types.Id_
+    title: str
+    category: enums.Category
+    source_id: core_types.Id_
+    sheet_id: core_types.Id_
 
 
 class ReportIntervalCreate(BaseModel):
