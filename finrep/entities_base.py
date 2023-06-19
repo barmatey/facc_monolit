@@ -45,7 +45,7 @@ class BaseInterval(entities.Interval):
     def get_total_end_date(self) -> np.datetime64:
         return self.total_end_date
 
-    def get_periods(self) -> pd.DatetimeIndex:
+    def get_intervals(self) -> pd.DatetimeIndex:
         return self.intervals
 
     def copy(self) -> typing.Self:

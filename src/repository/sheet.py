@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from loguru import logger
 from sqlalchemy import ForeignKey, Integer, Boolean, String
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -95,3 +96,11 @@ class SheetRepo(BaseRepo):
             sheet_id = await self.create_with_session(session, data)
             await session.commit()
             return sheet_id
+
+    async def retrieve_as_dataframe_with_session(self, session: AsyncSession, id_: core_types.Id_) -> pd.DataFrame:
+        return pd.DataFrame()
+
+    async def retrieve_as_dataframe(self, id_: core_types.Id_) -> pd.DataFrame:
+        async with db.get_async_session() as session:
+            df = await self.retrieve_as_dataframe_with_session(session, id_)
+            return df

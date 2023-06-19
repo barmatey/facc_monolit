@@ -41,7 +41,7 @@ class BalanceGroup(entities.Group):
 class BalanceReport(entities_base.ReportBase):
     def create_report(self):
         df = self.merged_wire
-        df["interval"] = pd.cut(df['date'], self.interval.get_periods(), right=True)
+        df["interval"] = pd.cut(df['date'], self.interval.get_intervals(), right=True)
 
         gcols_assets = [x for x in self.gcols if 'assets' in x.lower()]
         assets = self._create_balance_side(df, gcols_assets)

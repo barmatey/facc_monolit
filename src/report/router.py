@@ -40,3 +40,10 @@ async def retrieve_group(group_id: core_types.Id_,
 async def delete_group(group_id: core_types.Id_, service: Service = Depends(BaseService)) -> core_types.Id_:
     deleted_id = await service.delete_group(group_id)
     return deleted_id
+
+
+@router_report.post("/finrep")
+async def create_finrep(data: schema.ReportCreateSchema) -> core_types.Id_:
+    service = get_service(data.category)
+    report_id = await service.create_report(data)
+    return report_id

@@ -1,3 +1,5 @@
+import pandas as pd
+from loguru import logger
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -71,5 +73,15 @@ class GroupRepo(BaseRepo):
             group: Group = await self.retrieve_and_delete_with_session(session, filter_={"id": id_})
             await self.sheet_repo().delete_with_session(session, filter_={"id": group.sheet_id})
             await session.commit()
-            # todo удаляет нормально, далтше ошибка
+            # todo удаляет нормально, дальше ошибка
             return group.id
+
+    async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
+        async with db.get_async_session() as session:
+            # noinspection PyTypeChecker
+            group: Group = await self.retrieve_with_session(session, filter_={"id": group_id})
+            df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, group.sheet_id)
+
+            logger.debug(f"{df}")
+
+            return pd.DataFrame()

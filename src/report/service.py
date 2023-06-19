@@ -10,13 +10,11 @@ from .. import core_types
 from ..repository.group import GroupRepo
 from ..repository.report import ReportRepo
 from ..repository.wire import WireRepo
+from ..repository.sheet import SheetRepo
 from . import entities, schema, enums
 
 
 class Service(ABC):
-    wire_repo = WireRepo
-    group_repo = GroupRepo
-    report_repo = ReportRepo
 
     @abstractmethod
     async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
@@ -31,16 +29,19 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    async def create_report(self) -> core_types.Id_:
+    async def create_report(self, data: schema.ReportCreateSchema) -> core_types.Id_:
         pass
 
 
 class BaseService(Service):
+    wire_repo = WireRepo
+    group_repo = GroupRepo
+    report_repo = ReportRepo
 
     async def create_group(self, data: entities.GroupCreate) -> core_types.Id_:
         raise NotImplemented
 
-    async def create_report(self) -> core_types.Id_:
+    async def create_report(self, data: schema.ReportCreateSchema) -> core_types.Id_:
         raise NotImplemented
 
     async def retrieve_group(self, id_: core_types.Id_) -> entities.GroupRetrieve:
@@ -54,6 +55,8 @@ class BaseService(Service):
 
 class BalanceService(BaseService):
     group = finrep.BalanceGroup
+    report = finrep.BalanceReport
+    interval = finrep.BalanceInterval
 
     async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
         # Get source base
@@ -77,5 +80,16 @@ class BalanceService(BaseService):
         group_id = await self.group_repo().create(group_create_data)
         return group_id
 
-    async def create_report(self) -> core_types.Id_:
-        pass
+    async def create_report(self, data: schema.ReportCreateSchema) -> core_types.Id_:
+        # Get source base
+        wire: DataFrame[WireSchema] = await self.wire_repo().retrieve_wire_df(data.source_id)
+
+        # Get group df
+        group_df: pd.DataFrame = await self.group_repo().retrieve_linked_sheet_as_dataframe(data.group_id)
+
+        # Create report df
+        interval = self.interval(**data.interval.dict())
+
+        # Create report model
+
+        return 321

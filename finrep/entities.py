@@ -22,7 +22,7 @@ class Interval(ABC):
     def get_end_date(self) -> np.datetime64:
         pass
 
-    def get_periods(self) -> pd.DatetimeIndex:
+    def get_intervals(self) -> pd.DatetimeIndex:
         pass
 
     @abstractmethod

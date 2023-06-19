@@ -1,5 +1,6 @@
 import typing
 
+import pandas as pd
 import pydantic
 
 from .. import core_types
@@ -31,3 +32,19 @@ class GroupRetrieveSchema(pydantic.BaseModel):
             'sheet_id': data.sheet_id,
         }
         return cls(**params)
+
+
+class ReportIntervalCreateSchema(pydantic.BaseModel):
+    start_date: pd.Timestamp
+    end_date: pd.Timestamp
+    iyear: int
+    imonth: int
+    iday: int
+
+
+class ReportCreateSchema(pydantic.BaseModel):
+    title: str
+    category: enums.CategoryLiteral
+    interval: ReportIntervalCreateSchema
+    group_id: core_types.Id_
+    source_id: core_types.Id_

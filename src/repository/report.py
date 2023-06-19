@@ -1,4 +1,6 @@
+from loguru import logger
 from sqlalchemy import Integer, ForeignKey, String
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from .. import core_types
@@ -33,32 +35,28 @@ class ReportRepo(BaseRepo):
     sheet_repo = SheetRepo
     interval_repo = IntervalRepo
 
-    async def create(
-            self,
-            report: e_report.ReportCreate,
-            interval: e_report.ReportIntervalCreate,
-            sheet: e_sheet.SheetCreate,
-    ) -> core_types.Id_:
+    async def create(self, data: e_report.ReportCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
-            # Create sheet
-            sheet_id = await self.sheet_repo().create(sheet)
+            # Create sheet model
+            sheet_data = e_sheet.SheetCreate(
+                df=data.sheet.dataframe,
+                drop_index=data.sheet.drop_index,
+                drop_columns=data.sheet.drop_columns,
+            )
+            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
 
-            # Create interval
-            interval_data = interval.dict()
-            interval_id = await super(self.interval_repo, self.interval_repo())._create(
-                interval_data, session, commit=False)
+            # Create interval model
+            interval_id = await self.interval_repo().create_with_session(session, data.interval.dict())
 
             # Create report model
-            report_data = report.dict()
-            report_data['sheet_id'] = sheet_id
-            report_data['interval_id'] = interval_id
-            report_id = await super()._create(report_data, session, commit=False)
-
-            # _ = await session.commit()
+            report_data = dict(
+                title=data.title,
+                category_id=data.category.value,
+                source_id=data.source_id,
+                group_id=data.group_id,
+                interval_id=interval_id,
+                sheet_id=sheet_id,
+            )
+            report_id = await self.create_with_session(session, report_data)
+            logger.debug(f"{report_id}")
             return report_id
-
-    async def retrieve(self, id_: core_types.Id_) -> e_report.Report:
-        pass
-
-    async def retrieve_list(self):
-        pass

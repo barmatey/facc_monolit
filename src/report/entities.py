@@ -7,6 +7,15 @@ from . import enums
 from .. import core_types
 
 
+class SheetCreate(BaseModel):
+    dataframe: pd.DataFrame
+    drop_index: bool
+    drop_columns: bool
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
 class GroupCreate(BaseModel):
     title: str
     category: enums.Category
@@ -44,9 +53,11 @@ class ReportInterval(ReportIntervalCreate):
 
 class ReportCreate(BaseModel):
     title: str
-    category_id: core_types.Id_
+    category: enums.Category
     source_id: core_types.Id_
     group_id: core_types.Id_
+    interval: ReportIntervalCreate
+    sheet: SheetCreate
 
 
 class Report(ReportCreate):
