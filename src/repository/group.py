@@ -71,4 +71,5 @@ class GroupRepo(BaseRepo):
             group: Group = await self.retrieve_and_delete_with_session(session, filter_={"id": id_})
             await self.sheet_repo().delete_with_session(session, filter_={"id": group.sheet_id})
             await session.commit()
+            # todo удаляет нормально, далтше ошибка
             return group.id

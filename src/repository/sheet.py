@@ -1,10 +1,10 @@
 import numpy as np
 from loguru import logger
-import pandas as pd
-from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer, Boolean, String
+from sqlalchemy import ForeignKey, Integer, Boolean, String
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
+from . import db
 from .. import core_types
 from ..sheet import entities
 from .base import BaseRepo, BaseModel
@@ -13,7 +13,6 @@ from .service.normalizer import Normalizer
 
 class Sheet(BaseModel):
     __tablename__ = "sheet"
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
 
 class Row(BaseModel):
@@ -69,9 +68,9 @@ class SheetRepo(BaseRepo):
     normalizer = Normalizer
 
     async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
-        sheet_id = await super().create_with_session({}, session)
+        sheet_id = await super().create_with_session(session, {})
 
-        # Create sheet from denormalized dataframe
+        # Create row, col and cell data from denormalized dataframe
         normalizer = self.normalizer(**data.dict())
         normalizer.normalize()
 
@@ -92,12 +91,7 @@ class SheetRepo(BaseRepo):
         return sheet_id
 
     async def create(self, data: entities.SheetCreate) -> core_types.Id_:
-        normalizer = self.normalizer(**data.dict())
-        normalizer.normalize()
-        rows = normalizer.get_normalized_rows()
-        cols = normalizer.get_normalized_cols()
-        cells = normalizer.get_normalized_cells()
-
-        logger.debug(f"\n{cells[0:3]}")
-
-        return 321
+        async with db.get_async_session() as session:
+            sheet_id = await self.create_with_session(session, data)
+            await session.commit()
+            return sheet_id

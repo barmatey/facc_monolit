@@ -19,7 +19,7 @@ class Service(ABC):
     report_repo = ReportRepo
 
     @abstractmethod
-    async def create_group(self, data: entities.GroupCreate) -> core_types.Id_:
+    async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
         pass
 
     @abstractmethod
