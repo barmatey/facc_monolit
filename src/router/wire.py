@@ -23,19 +23,17 @@ async def create_source(data: entities.SourceCreateData, repo: SourceRepo = Depe
 
 @router_wire.get("/{id_}")
 async def retrieve_source(id_: core_types.Id_, repo: SourceRepo = Depends(SourceRepo)) -> schema.Source:
-    source = await repo.retrieve(id_)
-    return source
+    raise NotImplemented
 
 
 @router_wire.delete("/{id_}")
 async def delete_source(id_: core_types.Id_, repo: SourceRepo = Depends(SourceRepo)) -> int:
-    await repo.delete(id_)
-    return 1
+    raise NotImplemented
 
 
 @router_wire.get("/")
 async def list_source():
-    pass
+    raise NotImplemented
 
 
 @router_wire.post("/{id_}")

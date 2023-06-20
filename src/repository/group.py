@@ -81,7 +81,4 @@ class GroupRepo(BaseRepo):
             # noinspection PyTypeChecker
             group: Group = await self.retrieve_with_session(session, filter_={"id": group_id})
             df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, group.sheet_id)
-
-            logger.debug(f"{df}")
-
-            return pd.DataFrame()
+            return df

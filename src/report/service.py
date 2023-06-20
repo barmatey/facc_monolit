@@ -82,14 +82,32 @@ class BalanceService(BaseService):
 
     async def create_report(self, data: schema.ReportCreateSchema) -> core_types.Id_:
         # Get source base
-        wire: DataFrame[WireSchema] = await self.wire_repo().retrieve_wire_df(data.source_id)
+        wire_df: DataFrame[WireSchema] = await self.wire_repo().retrieve_wire_df(data.source_id)
 
         # Get group df
         group_df: pd.DataFrame = await self.group_repo().retrieve_linked_sheet_as_dataframe(data.group_id)
 
         # Create report df
         interval = self.interval(**data.interval.dict())
+        report = self.report(wire_df, group_df, interval)
+        report.create_report()
+        report_df = report.get_report()
 
         # Create report model
-
-        return 321
+        interval_create_data = entities.ReportIntervalCreate(
+            start_date=data.interval.start_date,
+            end_date=data.interval.end_date,
+            period_year=data.interval.iyear,
+            period_month=data.interval.imonth,
+            period_day=data.interval.iday,
+        )
+        report_create_data = entities.ReportCreate(
+            title=data.title,
+            category=enums.Category.BALANCE,
+            source_id=data.source_id,
+            group_id=data.group_id,
+            interval=interval_create_data,
+            sheet=entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False)
+        )
+        report_id = await self.report_repo().create(report_create_data)
+        return report_id

@@ -9,7 +9,7 @@ from . import db
 from .. import core_types
 from ..sheet import entities
 from .base import BaseRepo, BaseModel
-from .service.normalizer import Normalizer
+from .service.normalizer import Normalizer, Denormalizer
 
 
 class Sheet(BaseModel):
@@ -67,6 +67,7 @@ class SheetRepo(BaseRepo):
     col_repo = ColRepo
     cell_repo = CellRepo
     normalizer = Normalizer
+    denormalizer = Denormalizer
 
     async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
         sheet_id = await super().create_with_session(session, {})
@@ -98,7 +99,19 @@ class SheetRepo(BaseRepo):
             return sheet_id
 
     async def retrieve_as_dataframe_with_session(self, session: AsyncSession, id_: core_types.Id_) -> pd.DataFrame:
-        return pd.DataFrame()
+        cells: list[tuple] = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
+        rows: list[tuple] = await self.row_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
+        cols: list[tuple] = await self.col_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
+
+        rows: pd.DataFrame = pd.DataFrame.from_records(rows, columns=Row.get_columns())
+        cols: pd.DataFrame = pd.DataFrame.from_records(cols, columns=Col.get_columns())
+        cells: pd.DataFrame = pd.DataFrame.from_records(cells, columns=Cell.get_columns())
+
+        denormalizer = self.denormalizer(rows, cols, cells)
+        denormalizer.denormalize()
+        df = denormalizer.get_denormalized()
+
+        return df
 
     async def retrieve_as_dataframe(self, id_: core_types.Id_) -> pd.DataFrame:
         async with db.get_async_session() as session:

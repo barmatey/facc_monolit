@@ -86,3 +86,50 @@ class Normalizer:
         flatten['color'] = np.where(flatten['is_index'], '#f8fafd', 'white')
 
         return flatten
+
+
+class Denormalizer:
+    def __init__(self, rows: pd.DataFrame, cols: pd.DataFrame, cells: pd.DataFrame):
+        self.rows = rows.copy()
+        self.cols = cols.copy()
+        self.cells = cells.copy()
+
+        self.df = pd.DataFrame([])
+
+    def get_denormalized(self) -> pd.DataFrame:
+        return self.df
+
+    def denormalize(self):
+        top_index = self.rows['is_freeze'].sum()
+        left_index = self.cols['is_freeze'].sum()
+        self.df = self.cells_to_table(self.cells, count_rows=len(self.rows), top_index=top_index, left_index=left_index)
+
+    @staticmethod
+    def cells_to_table(cells: pd.DataFrame, count_rows: int, top_index: int, left_index: int) -> pd.DataFrame:
+        # todo I need processing boolean dtypes adn left index
+        text_type = enums.CellDtype.TEXT.value
+        number_type = enums.CellDtype.NUMBER.value
+
+        value = cells['value'].copy()
+        value.loc[cells['dtype'] == text_type] = value.loc[cells['dtype'] == text_type].astype(str)
+        value.loc[cells['dtype'] == number_type] = value.loc[cells['dtype'] == number_type].astype(float)
+
+        values_list = value.tolist()
+        table = np.array_split(values_list, count_rows)
+        table = pd.DataFrame(table)
+
+        def create_index(data: pd.DataFrame) -> pd.Index:
+            if len(data) == 1:
+                index = pd.Index(data.iloc[0], name='index')
+                return index
+            elif len(data) > 1:
+                names = [f"lvl_{i}" for i in range(0, len(data))]
+                index = pd.MultiIndex.from_frame(data.transpose(), names=names)
+                return index
+            raise Exception
+
+        if top_index > 0:
+            table.columns = create_index(table.head(top_index))
+            table = table[:][top_index:].reset_index(drop=True)
+
+        return table
