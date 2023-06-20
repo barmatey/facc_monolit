@@ -97,6 +97,22 @@ class SheetRepo(BaseRepo):
             await session.commit()
             return sheet_id
 
+    async def retrieve_as_sheet_with_session(self, session: AsyncSession, id_: core_types.Id_) -> entities.Sheet:
+        cells: list[tuple] = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
+        rows: list[tuple] = await self.row_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
+        cols: list[tuple] = await self.col_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
+        sheet = entities.Sheet(
+            id=id_,
+            rows=pd.DataFrame.from_records(rows, columns=Row.get_columns()).to_dict(orient='records'),
+            cols=pd.DataFrame.from_records(cols, columns=Col.get_columns()).to_dict(orient='records'),
+            cells=pd.DataFrame.from_records(cells, columns=Cell.get_columns()).to_dict(orient='records'),
+        )
+        return sheet
+
+    async def retrieve_as_sheet(self, id_: core_types.Id_) -> entities.Sheet:
+        async with db.get_async_session() as session:
+            return await self.retrieve_as_sheet_with_session(session, id_)
+
     async def retrieve_as_dataframe_with_session(self, session: AsyncSession, id_: core_types.Id_) -> pd.DataFrame:
         cells: list[tuple] = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
         rows: list[tuple] = await self.row_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})

@@ -1,6 +1,6 @@
 import typing
 
-from sqlalchemy import select, insert, delete
+from sqlalchemy import select, insert, delete, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 

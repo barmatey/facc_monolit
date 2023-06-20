@@ -1,4 +1,5 @@
 import typing
+from typing import TypedDict
 
 import pandas as pd
 from pydantic import BaseModel
@@ -7,28 +8,33 @@ import core_types
 from . import enums
 
 
-class SindexCreate(typing.TypedDict):
+class SindexCreate(TypedDict):
+    index: int
+    scroll_pos: int
     size: int
     is_freeze: bool
-    is_filtred: bool
+    sheet_id: bool
+
+
+class Sindex(TypedDict):
+    id: core_types.Id_
     sheet_id: core_types.Id_
 
 
-class Sindex(SindexCreate):
-    id: core_types.Id_
-
-
-class CellCreate(typing.TypedDict):
+class CellCreate(TypedDict):
     value: str
     dtype: enums.Dtype
-    is_index: bool
     is_readonly: bool
     is_filtred: bool
-    sheet_id: core_types.Id_
+    is_index: bool
+    color: str
 
 
-class Cell(CellCreate):
+class Cell(TypedDict):
     id: core_types.Id_
+    row_id: core_types.Id_
+    col_id: core_types.Id_
+    sheet_id: core_types.Id_
 
 
 class SheetCreate(BaseModel):
@@ -40,7 +46,13 @@ class SheetCreate(BaseModel):
         arbitrary_types_allowed = True
 
 
-class Sheet(BaseModel):
+class SheetRetrieve(BaseModel):
+    sheet_id: core_types.Id_
+    from_scroll: typing.Optional[int]
+    to_scroll: typing.Optional[int]
+
+
+class Sheet(TypedDict):
     id: core_types.Id_
     rows: list[Sindex]
     cols: list[Sindex]
