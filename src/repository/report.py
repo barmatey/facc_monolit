@@ -58,5 +58,5 @@ class ReportRepo(BaseRepo):
                 sheet_id=sheet_id,
             )
             report_id = await self.create_with_session(session, report_data)
-            logger.debug(f"{report_id}")
+            await session.commit()
             return report_id
