@@ -22,6 +22,10 @@ class Service(ABC):
         pass
 
     @abstractmethod
+    async def retrieve_group_list(self) -> list[schema.GroupRetrieveSchema]:
+        pass
+
+    @abstractmethod
     async def delete_group(self, id_: core_types.Id_) -> core_types.Id_:
         pass
 
@@ -42,6 +46,11 @@ class BaseService(Service):
     async def retrieve_group(self, id_: core_types.Id_) -> entities.Group:
         group: entities.Group = await self.repo().retrieve_group(id_)
         return group
+
+    async def retrieve_group_list(self) -> list[schema.GroupRetrieveSchema]:
+        groups: list[entities.Group] = await self.repo().retrieve_group_list()
+        groups: list[schema.GroupRetrieveSchema] = [schema.GroupRetrieveSchema.from_group_entity(g) for g in groups]
+        return groups
 
     async def delete_group(self, id_: core_types.Id_) -> core_types.Id_:
         deleted_id = await self.repo().delete_group(id_)

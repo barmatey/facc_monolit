@@ -61,6 +61,16 @@ class GroupRepo(BaseRepo):
             await session.commit()
             return group_id
 
+    async def retrieve_bulk(self, filter_: dict = None) -> list[entities_report.Group]:
+        if filter_ is None:
+            filter_ = {}
+
+        async with db.get_async_session() as session:
+            # noinspection PyTypeChecker
+            groups: list[Group] = await super().retrieve_bulk_with_session(session, filter_)
+            groups: list[entities_report.Group] = [g.to_group_entity() for g in groups]
+            return groups
+
     async def retrieve_by_id(self, id_: core_types.Id_) -> entities_report.Group:
         # noinspection PyTypeChecker
         group: Group = await self.retrieve({"id": id_})

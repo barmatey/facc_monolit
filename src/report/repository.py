@@ -68,7 +68,7 @@ class PostgresRepo(Repository):
         return await self.group_repo().retrieve_by_id(id_=group_id)
 
     async def retrieve_group_list(self) -> list[entities.Group]:
-        raise NotImplemented
+        return await self.group_repo().retrieve_bulk()
 
     async def delete_group(self, group_id: core_types.Id_) -> core_types.Id_:
         return await self.group_repo().delete_by_id(id_=group_id)

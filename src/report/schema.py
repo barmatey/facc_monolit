@@ -23,7 +23,7 @@ class GroupRetrieveSchema(pydantic.BaseModel):
     sheet_id: core_types.Id_
 
     @classmethod
-    def from_group_retrieve_entity(cls, data: entities.Group) -> typing.Self:
+    def from_group_entity(cls, data: entities.Group) -> typing.Self:
         params = {
             'id': data.id,
             'title': data.title,
