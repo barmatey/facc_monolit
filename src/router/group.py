@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from .. import core_types
-from ..repository.group import GroupRepo
+from ..repository_postgres.group import GroupRepo
 from ..report import entities
 from ..report import schema
 from ..report import enums

@@ -7,10 +7,10 @@ import finrep
 from finrep.types import WireSchema
 
 from .. import core_types
-from ..repository.group import GroupRepo
-from ..repository.report import ReportRepo
-from ..repository.wire import WireRepo
-from ..repository.sheet import SheetRepo
+from ..repository_postgres.group import GroupRepo
+from ..repository_postgres.report import ReportRepo
+from ..repository_postgres.wire import WireRepo
+from ..repository_postgres.sheet import SheetRepo
 from . import entities, schema, enums
 
 

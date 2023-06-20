@@ -3,8 +3,8 @@ import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
 
 
-from ..repository.source import SourceRepo
-from ..repository.wire import WireRepo
+from ..repository_postgres.source import SourceRepo
+from ..repository_postgres.wire import WireRepo
 from .. import core_types
 from ..wire import entities
 from ..wire import schema

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from .. import core_types
-from ..repository.report import ReportRepo
+from ..repository_postgres.report import ReportRepo
 from ..report.entities import ReportCreate, ReportIntervalCreate
 from ..report.service import Service, BalanceService
 from ..report import schema

@@ -29,6 +29,9 @@ class Report(BaseModel):
     interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(Interval.id, ondelete='RESTRICT'), nullable=False,
                                              unique=True)
 
+    def to_report_entity(self) -> e_report.Report:
+        raise NotImplemented
+
 
 class ReportRepo(BaseRepo):
     model = Report
@@ -60,3 +63,9 @@ class ReportRepo(BaseRepo):
             report_id = await self.create_with_session(session, report_data)
             await session.commit()
             return report_id
+
+    async def retrieve_by_id(self, id_: core_types.Id_) -> e_report.Report:
+        # noinspection PyTypeChecker
+        report: Report = await self.retrieve({"id": id_})
+        report: e_report.Report = report.to_report_entity()
+        return report

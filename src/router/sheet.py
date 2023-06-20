@@ -2,7 +2,7 @@ from loguru import logger
 from fastapi import APIRouter, Depends
 
 from .. import core_types
-from ..repository.report import ReportRepo
+from ..repository_postgres.report import ReportRepo
 from ..sheet import entities
 from ..sheet import schema
 
