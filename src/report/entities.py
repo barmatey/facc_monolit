@@ -3,8 +3,9 @@ import typing
 import pandas as pd
 from pydantic import BaseModel
 
+import core_types
+
 from . import enums
-from .. import core_types
 
 
 class SheetCreate(BaseModel):

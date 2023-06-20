@@ -1,11 +1,10 @@
 import typing
 
-from loguru import logger
 from sqlalchemy import select, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from .. import core_types
+import core_types
 from . import db
 
 
@@ -14,6 +13,7 @@ class BaseModel(DeclarativeBase):
 
     @classmethod
     def get_columns(cls) -> list[str]:
+        # noinspection PyTypeChecker
         return [str(col.key) for col in cls.__table__.columns]
 
 

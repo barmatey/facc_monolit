@@ -1,15 +1,10 @@
 from datetime import datetime
-
-from pandera.typing import DataFrame
-from sqlalchemy import MetaData, Table, Column, Integer
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from sqlalchemy import String, JSON, TIMESTAMP
 
-import finrep
-from .. import core_types
-from ..wire import entities
-from . import db
+import core_types
+from wire import entities
 from .base import BaseRepo, BaseModel
 
 

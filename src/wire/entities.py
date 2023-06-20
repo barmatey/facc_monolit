@@ -1,7 +1,7 @@
 import pandas as pd
 from pydantic import BaseModel
 
-from .. import core_types
+import core_types
 
 
 class SourceCreateData(BaseModel):

@@ -1,13 +1,12 @@
 import pandas as pd
 import pandera as pa
-from loguru import logger
 from pandera.typing import DataFrame
 from sqlalchemy import Integer, ForeignKey, String, TIMESTAMP, Float
 from sqlalchemy.orm import Mapped, mapped_column
 
 from datetime import datetime
 
-from .. import core_types
+import core_types
 from .base import BaseRepo, BaseModel
 from .source import Source
 
@@ -52,6 +51,7 @@ class WireRepo(BaseRepo):
         _ = await self.create_bulk(wires.to_dict(orient='records'))
 
     async def retrieve_wire_df(self, source_id: core_types.Id_) -> DataFrame[WireSchema]:
+        # noinspection PyTypeChecker
         wires: list[Wire] = await self.retrieve_bulk({"source_id": source_id})
         if len(wires) == 0:
             raise LookupError(f'wires with source_id={source_id} is not found')

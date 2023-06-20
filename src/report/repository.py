@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import pandas as pd
 
-from .. import core_types
-from .. import repository_postgres
+import core_types
+import repository_postgres
 from . import entities
 
 

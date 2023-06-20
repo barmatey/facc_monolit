@@ -3,8 +3,8 @@ from sqlalchemy import TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import datetime
 
-from .. import core_types
-from ..report import entities
+import core_types
+from report import entities
 from . import db
 from .base import BaseRepo, BaseModel
 

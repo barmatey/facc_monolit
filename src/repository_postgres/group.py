@@ -1,12 +1,12 @@
 import pandas as pd
-from loguru import logger
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ..report import entities as entities_report
-from ..report import enums as enums_report
-from ..sheet import entities as entities_sheet
-from .. import core_types
+from report import entities as entities_report
+from report import enums as enums_report
+from sheet import entities as entities_sheet
+import core_types
+
 from . import db
 from .base import BaseRepo, BaseModel
 from .sheet import Sheet, SheetRepo

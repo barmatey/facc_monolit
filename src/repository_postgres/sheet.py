@@ -4,8 +4,8 @@ from sqlalchemy import ForeignKey, Integer, Boolean, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .. import core_types
-from ..sheet import entities
+import core_types
+from sheet import entities
 from . import db
 from .base import BaseRepo, BaseModel
 from .normalizer import Normalizer, Denormalizer
