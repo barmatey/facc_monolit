@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.router.wire import router_wire
+from wire.wire import router_wire
 from src.report.router import router_report
 
 app = FastAPI()
