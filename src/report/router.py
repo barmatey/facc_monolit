@@ -31,7 +31,7 @@ async def create_group(data: schema.GroupCreateSchema) -> core_types.Id_:
 @router_report.get("/group/{group_id}")
 async def retrieve_group(group_id: core_types.Id_,
                          service: Service = Depends(BaseService)) -> schema.GroupRetrieveSchema:
-    group: entities.GroupRetrieve = await service.retrieve_group(group_id)
+    group: entities.Group = await service.retrieve_group(group_id)
     group: schema.GroupRetrieveSchema = schema.GroupRetrieveSchema.from_group_retrieve_entity(group)
     return group
 

@@ -23,8 +23,8 @@ class Group(BaseModel):
     sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='RESTRICT'), nullable=False,
                                           unique=True)
 
-    def to_group_retrieve_entity(self) -> entities_report.GroupRetrieve:
-        converted = entities_report.GroupRetrieve(
+    def to_group_retrieve_entity(self) -> entities_report.Group:
+        converted = entities_report.Group(
             id=self.id,
             title=self.title,
             category=enums_report.Category(self.category_id),
@@ -61,10 +61,10 @@ class GroupRepo(BaseRepo):
             await session.commit()
             return group_id
 
-    async def retrieve_by_id(self, id_: core_types.Id_) -> entities_report.GroupRetrieve:
+    async def retrieve_by_id(self, id_: core_types.Id_) -> entities_report.Group:
         # noinspection PyTypeChecker
         group: Group = await self.retrieve({"id": id_})
-        group: entities_report.GroupRetrieve = group.to_group_retrieve_entity()
+        group: entities_report.Group = group.to_group_retrieve_entity()
         return group
 
     async def delete_by_id(self, id_: core_types.Id_) -> core_types.Id_:

@@ -21,7 +21,7 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    async def retrieve_group(self, id_: core_types.Id_) -> entities.GroupRetrieve:
+    async def retrieve_group(self, id_: core_types.Id_) -> entities.Group:
         pass
 
     @abstractmethod
@@ -44,8 +44,8 @@ class BaseService(Service):
     async def create_report(self, data: schema.ReportCreateSchema) -> core_types.Id_:
         raise NotImplemented
 
-    async def retrieve_group(self, id_: core_types.Id_) -> entities.GroupRetrieve:
-        group: entities.GroupRetrieve = await self.group_repo().retrieve_by_id(id_)
+    async def retrieve_group(self, id_: core_types.Id_) -> entities.Group:
+        group: entities.Group = await self.group_repo().retrieve_by_id(id_)
         return group
 
     async def delete_group(self, id_: core_types.Id_) -> core_types.Id_:

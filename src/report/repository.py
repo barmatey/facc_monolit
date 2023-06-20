@@ -16,11 +16,11 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def retrieve_group(self, group_id: core_types.Id_) -> entities.GroupRetrieve:
+    async def retrieve_group(self, group_id: core_types.Id_) -> entities.Group:
         pass
 
     @abstractmethod
-    async def retrieve_group_list(self) -> list[entities.GroupRetrieve]:
+    async def retrieve_group_list(self) -> list[entities.Group]:
         pass
 
     @abstractmethod
@@ -36,11 +36,11 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def retrieve_report(self, report_id: core_types.Id_) -> entities.ReportRetrieve:
+    async def retrieve_report(self, report_id: core_types.Id_) -> entities.Report:
         pass
 
     @abstractmethod
-    async def retrieve_report_list(self) -> list[entities.ReportRetrieve]:
+    async def retrieve_report_list(self) -> list[entities.Report]:
         pass
 
     @abstractmethod
