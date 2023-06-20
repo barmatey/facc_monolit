@@ -60,6 +60,6 @@ class ReportCreate(BaseModel):
     sheet: SheetCreate
 
 
-class Report(ReportCreate):
+class ReportRetrieve(ReportCreate):
     id: core_types.Id_
-    sheet_id: core_types.MongoId
+    sheet_id: core_types.Id_
