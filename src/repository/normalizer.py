@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from ...sheet import enums
+from sheet import enums
 
 
 class Normalizer:
