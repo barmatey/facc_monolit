@@ -1,6 +1,10 @@
+import typing
+
 import numpy as np
 import pandas as pd
+from loguru import logger
 from sqlalchemy import ForeignKey, Integer, Boolean, String
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -48,11 +52,35 @@ class Cell(BaseModel):
     sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False)
 
 
-class RowRepo(BaseRepo):
+class SindexScrollSize(typing.TypedDict):
+    count_sindexes: int
+    scroll_size: int
+
+
+class SindexRepo(BaseRepo):
+    model: Row | Col = None
+
+    async def retrieve_scroll_size_with_session(self, session: AsyncSession,
+                                                sheet_id: core_types.Id_) -> SindexScrollSize:
+        count = await session.scalar(
+            select(func.count()).select_from(select(self.model).filter_by(sheet_id=sheet_id).subquery()))
+
+        scroll_size = await session.scalar(
+            select(func.max(self.model.scroll_pos)).select_from(
+                select(self.model.scroll_pos).filter_by(sheet_id=sheet_id)))
+
+        sindex_scroll_size = SindexScrollSize(
+            count_sindexes=count,
+            scroll_size=scroll_size,
+        )
+        return sindex_scroll_size
+
+
+class RowRepo(SindexRepo):
     model = Row
 
 
-class ColRepo(BaseRepo):
+class ColRepo(SindexRepo):
     model = Col
 
 
@@ -67,6 +95,35 @@ class SheetRepo(BaseRepo):
     cell_repo = CellRepo
     normalizer = Normalizer
     denormalizer = Denormalizer
+
+    async def create(self, data: entities.SheetCreate) -> core_types.Id_:
+        async with db.get_async_session() as session:
+            sheet_id = await self.create_with_session(session, data)
+            await session.commit()
+            return sheet_id
+
+    async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
+        async with db.get_async_session() as session:
+            return await self.retrieve_as_sheet_with_session(session, data)
+
+    async def retrieve_as_dataframe(self, id_: core_types.Id_) -> pd.DataFrame:
+        async with db.get_async_session() as session:
+            df = await self.retrieve_as_dataframe_with_session(session, id_)
+            return df
+
+    async def retrieve_scroll_size(self, id_: core_types.Id_) -> entities.ScrollSize:
+        async with db.get_async_session() as session:
+            row: SindexScrollSize = await self.row_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
+            col: SindexScrollSize = await self.col_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
+
+            scroll_size = entities.ScrollSize(
+                count_rows=row['count_sindexes'],
+                count_cols=col['count_sindexes'],
+                scroll_height=row['scroll_size'],
+                scroll_width=col['scroll_size'],
+            )
+            logger.debug(f"{scroll_size}")
+            return scroll_size
 
     async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
         sheet_id = await super().create_with_session(session, {})
@@ -91,12 +148,6 @@ class SheetRepo(BaseRepo):
 
         return sheet_id
 
-    async def create(self, data: entities.SheetCreate) -> core_types.Id_:
-        async with db.get_async_session() as session:
-            sheet_id = await self.create_with_session(session, data)
-            await session.commit()
-            return sheet_id
-
     async def retrieve_as_sheet_with_session(self, session: AsyncSession,
                                              data: entities.SheetRetrieve) -> entities.Sheet:
         cells = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": data.sheet_id})
@@ -109,10 +160,6 @@ class SheetRepo(BaseRepo):
             cells=pd.DataFrame.from_records(cells, columns=Cell.get_columns()).to_dict(orient='records'),
         )
         return sheet
-
-    async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
-        async with db.get_async_session() as session:
-            return await self.retrieve_as_sheet_with_session(session, data)
 
     async def retrieve_as_dataframe_with_session(self, session: AsyncSession, id_: core_types.Id_) -> pd.DataFrame:
         cells: list[tuple] = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
@@ -128,8 +175,3 @@ class SheetRepo(BaseRepo):
         df = denormalizer.get_denormalized()
 
         return df
-
-    async def retrieve_as_dataframe(self, id_: core_types.Id_) -> pd.DataFrame:
-        async with db.get_async_session() as session:
-            df = await self.retrieve_as_dataframe_with_session(session, id_)
-            return df

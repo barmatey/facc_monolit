@@ -10,13 +10,10 @@ class SheetService:
     repo: typing.Type[Repository] = PostgresRepo
 
     async def retrieve_sheet(self, data: schema.SheetRetrieveSchema) -> schema.SheetSchema:
-        sheet_schema = await self.repo().retrieve_sheet(data)
+        sheet_schema = await self.repo().retrieve_sheet(data=data)
         return sheet_schema
 
     async def retrieve_scroll_size(self, sheet_id: core_types.Id_) -> schema.ScrollSizeSchema:
-        return schema.ScrollSizeSchema(
-            count_cols=3,
-            count_rows=50,
-            scroll_height=1000,
-            scroll_width=360,
-        )
+        scroll_size = await self.repo().retrieve_scroll_size(sheet_id=sheet_id)
+        scroll_size = schema.ScrollSizeSchema.from_scroll_size_entity(scroll_size)
+        return scroll_size
