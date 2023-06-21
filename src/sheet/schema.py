@@ -23,9 +23,4 @@ class ScrollSizeSchema(entities.ScrollSize):
 
 
 class ColFilterSchema(entities.ColFilter):
-    @classmethod
-    def from_col_filter_entity(cls, data: entities.ColFilter) -> typing.Self:
-        return cls(
-            col_id=data.col_id,
-            items=data.items,
-        )
+    pass

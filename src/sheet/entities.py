@@ -66,13 +66,13 @@ class ScrollSize(BaseModel):
     scroll_width: int
 
 
-class FilterItem(BaseModel):
+class FilterItem(TypedDict):
     value: str
     dtype: enums.Dtype
     is_filtred: bool
 
 
-class ColFilter(BaseModel):
+class ColFilter(TypedDict):
     col_id: core_types.Id_
     items: list[FilterItem]
 

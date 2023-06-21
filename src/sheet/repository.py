@@ -18,6 +18,10 @@ class Repository(ABC):
     async def retrieve_col_filter(self, col_id: core_types.Id_) -> entities.ColFilter:
         pass
 
+    @abstractmethod
+    async def update_col_filter(self, data: entities.ColFilter) -> None:
+        pass
+
 
 class PostgresRepo(Repository):
     sheet_repo = repository_postgres.SheetRepo
@@ -32,6 +36,9 @@ class PostgresRepo(Repository):
         return scroll_size
 
     async def retrieve_col_filter(self, col_id: core_types.Id_) -> entities.ColFilter:
-        filter_items: list[entities.FilterItem] = await self.cell_repo().retrieve_filter_items({"col_id": col_id})
+        filter_items = await self.cell_repo().retrieve_filter_items({"col_id": col_id, "is_index": False})
         col_filter = entities.ColFilter(col_id=col_id, items=filter_items)
         return col_filter
+
+    async def update_col_filter(self, data: entities.ColFilter) -> None:
+        await self.cell_repo().update_cell_filtred_flag(data)

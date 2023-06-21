@@ -3,7 +3,7 @@ import typing
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import ForeignKey, Integer, Boolean, String
+from sqlalchemy import ForeignKey, Integer, Boolean, String, update, bindparam
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -87,17 +87,36 @@ class ColRepo(SindexRepo):
 class CellRepo(BaseRepo):
     model = Cell
 
-    async def retrieve_filter_intems_with_session(self, session: AsyncSession,
-                                                  filter_: dict) -> list[entities.FilterItem]:
+    async def retrieve_filter_items_with_session(self, session: AsyncSession,
+                                                 filter_: dict) -> list[entities.FilterItem]:
         items = await session.execute(
-            select(self.model.value, self.model.dtype, self.model.is_filtred).filter_by(**filter_))
-        items = pd.DataFrame.from_records(items.fetchall(), columns=self.model.get_columns())
-        logger.debug(items)
-        return []
+            select(self.model.value, self.model.dtype, self.model.is_filtred)
+            .distinct()
+            .filter_by(**filter_)
+            .order_by(self.model.value)
+        )
+
+        items = pd.DataFrame.from_records(items.fetchall(), columns=[
+            self.model.value.key, self.model.dtype.key, self.model.is_filtred.key]).to_dict(orient='records')
+        return items
 
     async def retrieve_filter_items(self, filter_: dict) -> list[entities.FilterItem]:
         async with db.get_async_session() as session:
-            return await self.retrieve_filter_intems_with_session(session, filter_)
+            return await self.retrieve_filter_items_with_session(session, filter_)
+
+    async def update_cell_filtred_flag(self, data: entities.ColFilter) -> None:
+        async with db.get_async_session() as session:
+            # Converting input data because "value" is reserved word in bindparam function
+            items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(orient='records')
+            stmt = (
+                update(self.model.__table__)
+                .where(self.model.__table__.c.value == bindparam('cell_value'), self.model.col_id == data['col_id'])
+                .values({"is_filtred": bindparam("is_filtred")})
+            )
+            _ = await session.execute(stmt, items)
+            await session.commit()
+
+            logger.debug(f'{stmt}')
 
 
 class SheetRepo(BaseRepo):
@@ -134,7 +153,6 @@ class SheetRepo(BaseRepo):
                 scroll_height=row['scroll_size'],
                 scroll_width=col['scroll_size'],
             )
-            logger.debug(f"{scroll_size}")
             return scroll_size
 
     async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:

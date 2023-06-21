@@ -1,6 +1,8 @@
 import typing
 
-from sqlalchemy import select, insert, delete, Result
+import pandas as pd
+from loguru import logger
+from sqlalchemy import select, insert, delete, update, bindparam, Result, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -55,25 +57,38 @@ class BaseRepo:
             return await self.retrieve_with_session(session, filter_)
 
     async def retrieve_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
-        result = await session.execute(select(self.model).filter_by(**filter_))
+        result = await session.execute(select(self.model).filter_by(**filter_).order_by())
         result = result.fetchone()
         if result is None:
             raise LookupError(f"there is no model with filter_={filter_}")
         return result[0]
 
-    async def retrieve_bulk(self, filter_: dict) -> list[BaseModel]:
+    async def retrieve_bulk(self, filter_: dict, sort_by: str = None, ascending=True) -> list[BaseModel]:
         async with db.get_async_session() as session:
-            return await self.retrieve_bulk_with_session(session, filter_)
+            return await self.retrieve_bulk_with_session(session, filter_, sort_by, ascending)
 
-    async def retrieve_bulk_with_session(self, session: AsyncSession, filter_: dict) -> list[BaseModel]:
+    async def retrieve_bulk_with_session(self, session: AsyncSession,
+                                         filter_: dict, sort_by: str = None, ascending=True) -> list[BaseModel]:
+        if sort_by is not None:
+            sorter = asc(sort_by) if ascending else desc(sort_by)
+        else:
+            sorter = asc(self.model.id.key)
+
         result = await session.scalars(
-            select(self.model).filter_by(**filter_)
+            select(self.model).filter_by(**filter_).order_by(sorter)
         )
+        logger.debug('hi')
         result = list(result)
         return result
 
-    async def retrieve_bulk_as_records_with_session(self, session: AsyncSession, filter_: dict) -> list[tuple]:
-        result = await session.execute(select(self.model.__table__).filter_by(**filter_))
+    async def retrieve_bulk_as_records_with_session(self, session: AsyncSession, filter_: dict,
+                                                    sort_by: str = None, ascending=True) -> list[tuple]:
+        if sort_by is not None:
+            sorter = asc(sort_by) if ascending else desc(sort_by)
+        else:
+            sorter = asc(self.model.id.key)
+
+        result = await session.execute(select(self.model.__table__).filter_by(**filter_).order_by(sorter))
         result = list(result)
         return result
 

@@ -20,5 +20,8 @@ class SheetService:
 
     async def retrieve_col_filter(self, col_id: core_types.Id_) -> schema.ColFilterSchema:
         col_filter = await self.repo().retrieve_col_filter(col_id=col_id)
-        col_filter_schema = schema.ColFilterSchema.from_col_filter_entity(col_filter)
-        return col_filter_schema
+        return col_filter
+
+    async def update_col_filter(self, data: schema.ColFilterSchema) -> None:
+        await self.repo().update_col_filter(data)
+
