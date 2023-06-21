@@ -87,6 +87,18 @@ class ColRepo(SindexRepo):
 class CellRepo(BaseRepo):
     model = Cell
 
+    async def retrieve_filter_intems_with_session(self, session: AsyncSession,
+                                                  filter_: dict) -> list[entities.FilterItem]:
+        items = await session.execute(
+            select(self.model.value, self.model.dtype, self.model.is_filtred).filter_by(**filter_))
+        items = pd.DataFrame.from_records(items.fetchall(), columns=self.model.get_columns())
+        logger.debug(items)
+        return []
+
+    async def retrieve_filter_items(self, filter_: dict) -> list[entities.FilterItem]:
+        async with db.get_async_session() as session:
+            return await self.retrieve_filter_intems_with_session(session, filter_)
+
 
 class SheetRepo(BaseRepo):
     model = Sheet

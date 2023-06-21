@@ -32,3 +32,11 @@ async def retrieve_scroll_size(sheet_id: core_types.Id_,
                                ) -> schema.ScrollSizeSchema:
     scroll_size = await sheet_service.retrieve_scroll_size(sheet_id)
     return scroll_size
+
+
+@router.get("/{sheet_id}/retrieve-unique-cells")
+async def retrieve_unique_cells(sheet_id: core_types.Id_, col_id: core_types.Id_,
+                                sheet_service: service.SheetService = Depends(service.SheetService),
+                                ) -> schema.ColFilterSchema:
+    col_filter = await sheet_service.retrieve_col_filter(col_id=col_id)
+    return col_filter

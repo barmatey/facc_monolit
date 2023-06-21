@@ -8,3 +8,5 @@ class CellDtype(enum.Enum):
     NUMBER = 'NUMBER'
     TEXT = 'TEXT'
     BOOLEAN = 'BOOLEAN'
+
+

@@ -64,3 +64,15 @@ class ScrollSize(BaseModel):
     count_cols: int
     scroll_height: int
     scroll_width: int
+
+
+class FilterItem(BaseModel):
+    value: str
+    dtype: enums.Dtype
+    is_filtred: bool
+
+
+class ColFilter(BaseModel):
+    col_id: core_types.Id_
+    items: list[FilterItem]
+

@@ -1,3 +1,5 @@
+import typing
+
 from . import entities
 
 
@@ -17,4 +19,13 @@ class ScrollSizeSchema(entities.ScrollSize):
             count_rows=data.count_rows,
             scroll_width=data.scroll_width,
             scroll_height=data.scroll_height,
+        )
+
+
+class ColFilterSchema(entities.ColFilter):
+    @classmethod
+    def from_col_filter_entity(cls, data: entities.ColFilter) -> typing.Self:
+        return cls(
+            col_id=data.col_id,
+            items=data.items,
         )
