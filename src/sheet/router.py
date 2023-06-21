@@ -24,3 +24,11 @@ async def retrieve(sheet_id: core_types.Id_,
     )
     sheet_schema = await sheet_service.retrieve_sheet(sheet_retrieve_schema)
     return JSONResponse(content=sheet_schema)
+
+
+@router.get("/{sheet_id}/retrieve-scroll-size")
+async def retrieve_scroll_size(sheet_id: core_types.Id_,
+                               sheet_service: service.SheetService = Depends(service.SheetService)
+                               ) -> schema.ScrollSizeSchema:
+    scroll_size = await sheet_service.retrieve_scroll_size(sheet_id)
+    return scroll_size

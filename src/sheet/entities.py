@@ -57,3 +57,10 @@ class Sheet(TypedDict):
     rows: list[Sindex]
     cols: list[Sindex]
     cells: list[Cell]
+
+
+class ScrollSize(BaseModel):
+    count_rows: int
+    count_cols: int
+    scroll_height: int
+    scroll_width: int

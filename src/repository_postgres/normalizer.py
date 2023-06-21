@@ -53,7 +53,7 @@ class Normalizer:
         sindex['is_freeze'] = False
         sindex['is_filtred'] = True
         sindex['index'] = sindex.index
-        sindex['scroll_pos'] = sindex['size'].cumsum() - item_size * total_item_count
+        sindex['scroll_pos'] = sindex['size'].cumsum() - item_size * freeze_item_count
         sindex['scroll_pos'] = np.where(sindex['scroll_pos'] < 0, -1, sindex['scroll_pos'])
 
         if freeze_item_count > 0:
