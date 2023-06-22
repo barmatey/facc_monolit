@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 from sqlalchemy import ForeignKey, Integer, Boolean, String, update, bindparam, Result
-from sqlalchemy import func, select
+from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
+import helpers
 from src import core_types
 from src.sheet import entities
 from . import db
@@ -63,11 +64,15 @@ class SindexRepo(BaseRepo):
     async def retrieve_scroll_size_with_session(self, session: AsyncSession,
                                                 sheet_id: core_types.Id_) -> SindexScrollSize:
         count = await session.scalar(
-            select(func.count()).select_from(select(self.model).filter_by(sheet_id=sheet_id).subquery()))
+            select(func.count())
+            .where(self.model.sheet_id == sheet_id)
+        )
 
-        scroll_size = await session.scalar(
-            select(func.max(self.model.scroll_pos)).select_from(
-                select(self.model.scroll_pos).filter_by(sheet_id=sheet_id)))
+        stmt = (
+            select(func.max(self.model.scroll_pos))
+            .where(self.model.sheet_id == sheet_id)
+        )
+        scroll_size = await session.scalar(stmt)
 
         sindex_scroll_size = SindexScrollSize(
             count_sindexes=count,
@@ -134,6 +139,7 @@ class SheetRepo(BaseRepo):
             await session.commit()
             return sheet_id
 
+    @helpers.async_timeit
     async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
         async with db.get_async_session() as session:
             return await self.retrieve_as_sheet_with_session(session, data)
@@ -143,6 +149,7 @@ class SheetRepo(BaseRepo):
             df = await self.retrieve_as_dataframe_with_session(session, id_)
             return df
 
+    @helpers.async_timeit
     async def retrieve_scroll_size(self, id_: core_types.Id_) -> entities.ScrollSize:
         async with db.get_async_session() as session:
             row: SindexScrollSize = await self.row_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
@@ -183,31 +190,36 @@ class SheetRepo(BaseRepo):
                                              data: entities.SheetRetrieve) -> entities.Sheet:
         # Find rows
         stmt = (
-            select(Row.__table__)
-            .where(Row.__table__.c.sheet_id == data.sheet_id,
-                   Row.__table__.c.scroll_pos >= data.from_scroll,
-                   Row.__table__.c.scroll_pos < data.to_scroll,
-                   )
-            .order_by(Row.__table__.c.scroll_pos)
+            select(self.row_repo.model.__table__)
+            .where(
+                self.row_repo.model.__table__.c.sheet_id == data.sheet_id,
+                self.row_repo.model.__table__.c.is_filtred,
+                or_(
+                    and_(self.row_repo.model.__table__.c.scroll_pos >= data.from_scroll,
+                         self.row_repo.model.__table__.c.scroll_pos < data.to_scroll),
+                    self.row_repo.model.__table__.c.is_freeze,
+                )
+            )
+            .order_by(self.row_repo.model.__table__.c.scroll_pos)
         )
         result = await session.execute(stmt)
         rows = pd.DataFrame.from_records(result.fetchall(), columns=Row.get_columns())
 
         # Find Cols
         stmt = (
-            select(Col.__table__)
-            .where(Col.__table__.c.sheet_id == data.sheet_id)
-            .order_by(Col.__table__.c.scroll_pos)
+            select(self.col_repo.model.__table__)
+            .where(self.col_repo.model.__table__.c.sheet_id == data.sheet_id)
+            .order_by(self.col_repo.model.__table__.c.scroll_pos)
         )
         result = await session.execute(stmt)
         cols = pd.DataFrame.from_records(result.fetchall(), columns=Col.get_columns())
 
         # Find cells
         stmt = (
-            select(Cell.__table__)
-            .where(Cell.__table__.c.sheet_id == data.sheet_id,
-                   Cell.__table__.c.row_id.in_(rows['id'].tolist()),
-                   Cell.__table__.c.col_id.in_(cols['id'].tolist()),
+            select(self.cell_repo.model.__table__)
+            .where(self.cell_repo.model.__table__.c.sheet_id == data.sheet_id,
+                   self.cell_repo.model.__table__.c.row_id.in_(rows['id'].tolist()),
+                   self.cell_repo.model.__table__.c.col_id.in_(cols['id'].tolist()),
                    )
         )
         result = await session.execute(stmt)
