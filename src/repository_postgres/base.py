@@ -46,7 +46,8 @@ class BaseRepo:
     async def create_bulk_with_session(self, session: AsyncSession, data: list[dict]) -> list[core_types.Id_]:
         # noinspection PyTypeChecker
         result = await session.scalars(
-            insert(self.model).returning(self.model.id),
+            insert(self.model)
+            .returning(self.model.id),
             data
         )
         result = list(result)
@@ -57,7 +58,11 @@ class BaseRepo:
             return await self.retrieve_with_session(session, filter_)
 
     async def retrieve_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
-        result = await session.execute(select(self.model).filter_by(**filter_).order_by())
+        result = await session.execute(
+            select(self.model)
+            .filter_by(**filter_)
+            .order_by()
+        )
         result = result.fetchone()
         if result is None:
             raise LookupError(f"there is no model with filter_={filter_}")
@@ -75,9 +80,10 @@ class BaseRepo:
             sorter = asc(self.model.id.key)
 
         result = await session.scalars(
-            select(self.model).filter_by(**filter_).order_by(sorter)
+            select(self.model)
+            .filter_by(**filter_)
+            .order_by(sorter)
         )
-        logger.debug('hi')
         result = list(result)
         return result
 
@@ -88,12 +94,20 @@ class BaseRepo:
         else:
             sorter = asc(self.model.id.key)
 
-        result = await session.execute(select(self.model.__table__).filter_by(**filter_).order_by(sorter))
+        result = await session.execute(
+            select(self.model.__table__)
+            .filter_by(**filter_)
+            .order_by(sorter)
+        )
         result = list(result)
         return result
 
     async def delete_with_session(self, session: AsyncSession, filter_: dict) -> None:
-        result = await session.execute(delete(self.model).filter_by(**filter_).returning(self.model.id))
+        result = await session.execute(
+            delete(self.model)
+            .filter_by(**filter_)
+            .returning(self.model.id)
+        )
 
         result = list(result)
         if len(result) == 0:
@@ -111,7 +125,9 @@ class BaseRepo:
 
     async def retrieve_and_delete_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
         result = await session.scalars(
-            delete(self.model).filter_by(**filter_).returning(self.model)
+            delete(self.model)
+            .filter_by(**filter_)
+            .returning(self.model)
         )
         result = list(result)
         if len(result) == 0:

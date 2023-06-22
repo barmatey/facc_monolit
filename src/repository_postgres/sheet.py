@@ -3,7 +3,7 @@ import typing
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import ForeignKey, Integer, Boolean, String, update, bindparam
+from sqlalchemy import ForeignKey, Integer, Boolean, String, update, bindparam, Result
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -107,7 +107,8 @@ class CellRepo(BaseRepo):
     async def update_cell_filtred_flag(self, data: entities.ColFilter) -> None:
         async with db.get_async_session() as session:
             # Converting input data because "value" is reserved word in bindparam function
-            items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(orient='records')
+            items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(
+                orient='records')
             stmt = (
                 update(self.model.__table__)
                 .where(self.model.__table__.c.value == bindparam('cell_value'), self.model.col_id == data['col_id'])
@@ -180,6 +181,16 @@ class SheetRepo(BaseRepo):
 
     async def retrieve_as_sheet_with_session(self, session: AsyncSession,
                                              data: entities.SheetRetrieve) -> entities.Sheet:
+        stmt = (
+            select(Cell.__table__, Row.__table__)
+            # .filter(Cell.__table__.c.sheet_id == data.sheet_id)
+            # .order_by(Row.index)
+        )
+        logger.warning(stmt)
+        result = await session.execute(stmt)
+        result = Result.mappings(result)
+        logger.debug(f"{result.fetchone()}")
+
         cells = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": data.sheet_id})
         rows = await self.row_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": data.sheet_id})
         cols = await self.col_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": data.sheet_id})
