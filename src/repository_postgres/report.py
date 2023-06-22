@@ -1,9 +1,9 @@
 from sqlalchemy import Integer, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-import core_types
-from report import entities as e_report
-from sheet import entities as e_sheet
+from src import core_types
+from src.report import entities as e_report
+from src.sheet import entities as e_sheet
 
 from . import db
 from .category import Category

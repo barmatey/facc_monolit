@@ -8,8 +8,8 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-import core_types
-from sheet import entities
+from src import core_types
+from src.sheet import entities
 from . import db
 from .base import BaseRepo, BaseModel
 from .normalizer import Normalizer, Denormalizer
@@ -25,8 +25,8 @@ class Row(BaseModel):
     is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     index: Mapped[int] = mapped_column(Integer, nullable=False)
-    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False)
-    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False)
+    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False, index=True)
 
 
 class Col(BaseModel):
@@ -35,8 +35,8 @@ class Col(BaseModel):
     is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     index: Mapped[int] = mapped_column(Integer, nullable=False)
-    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False)
-    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False)
+    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False, index=True)
 
 
 class Cell(BaseModel):
@@ -47,9 +47,9 @@ class Cell(BaseModel):
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_index: Mapped[bool] = mapped_column(Boolean, nullable=False)
     color: Mapped[str] = mapped_column(String(16), nullable=True)
-    row_id: Mapped[int] = mapped_column(Integer, ForeignKey(Row.id, ondelete='CASCADE'), nullable=False)
-    col_id: Mapped[int] = mapped_column(Integer, ForeignKey(Col.id, ondelete='CASCADE'), nullable=False)
-    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False)
+    row_id: Mapped[int] = mapped_column(Integer, ForeignKey(Row.id, ondelete='CASCADE'), nullable=False, index=True)
+    col_id: Mapped[int] = mapped_column(Integer, ForeignKey(Col.id, ondelete='CASCADE'), nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False, index=True)
 
 
 class SindexScrollSize(typing.TypedDict):

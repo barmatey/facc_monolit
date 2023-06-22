@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from datetime import datetime
 
-import core_types
+from src import core_types
 from .base import BaseRepo, BaseModel
 from .source import Source
 

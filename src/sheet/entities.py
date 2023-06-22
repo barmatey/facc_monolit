@@ -4,7 +4,7 @@ from typing import TypedDict
 import pandas as pd
 from pydantic import BaseModel
 
-import core_types
+from src import core_types
 from . import enums
 
 

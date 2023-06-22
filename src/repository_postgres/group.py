@@ -2,10 +2,10 @@ import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from report import entities as entities_report
-from report import enums as enums_report
-from sheet import entities as entities_sheet
-import core_types
+from src.report import entities as entities_report
+from src.report import enums as enums_report
+from src.sheet import entities as entities_sheet
+from src import core_types
 
 from . import db
 from .base import BaseRepo, BaseModel

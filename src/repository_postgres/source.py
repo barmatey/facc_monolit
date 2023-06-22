@@ -3,8 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from sqlalchemy import String, JSON, TIMESTAMP
 
-import core_types
-from wire import entities
+from src import core_types
+from src.wire import entities
 from .base import BaseRepo, BaseModel
 
 

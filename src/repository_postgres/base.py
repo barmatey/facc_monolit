@@ -6,7 +6,7 @@ from sqlalchemy import select, insert, delete, update, bindparam, Result, desc, 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-import core_types
+from src import core_types
 from . import db
 
 
