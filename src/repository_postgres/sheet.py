@@ -8,7 +8,7 @@ from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-import helpers
+from src import helpers
 from src import core_types
 from src.sheet import entities
 from . import db
@@ -111,7 +111,7 @@ class CellRepo(BaseRepo):
 
     async def update_cell_filtred_flag(self, data: entities.ColFilter) -> None:
         async with db.get_async_session() as session:
-            # Converting input data because "value" is reserved word in bindparam function
+            # Convert input data because "value" is reserved word in bindparam function
             items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(
                 orient='records')
             stmt = (

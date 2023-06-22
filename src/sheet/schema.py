@@ -22,5 +22,9 @@ class ScrollSizeSchema(entities.ScrollSize):
         )
 
 
+class ColFilterRetrieveSchema(entities.ColFilterRetrieve):
+    pass
+
+
 class ColFilterSchema(entities.ColFilter):
     pass

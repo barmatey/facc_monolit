@@ -66,13 +66,16 @@ class ScrollSize(BaseModel):
     scroll_width: int
 
 
+class ColFilterRetrieve(TypedDict):
+    sheet_id: core_types.Id_
+    col_id: core_types.Id_
+
+
 class FilterItem(TypedDict):
     value: str
     dtype: enums.Dtype
     is_filtred: bool
 
 
-class ColFilter(TypedDict):
-    col_id: core_types.Id_
+class ColFilter(ColFilterRetrieve):
     items: list[FilterItem]
-
