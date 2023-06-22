@@ -41,4 +41,4 @@ class PostgresRepo(Repository):
         return col_filter
 
     async def update_col_filter(self, data: entities.ColFilter) -> None:
-        await self.cell_repo().update_cell_filtred_flag(data)
+        await self.sheet_repo().update_col_filter(data)

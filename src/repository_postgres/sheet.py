@@ -3,7 +3,7 @@ import typing
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import ForeignKey, Integer, Boolean, String, update, bindparam, Result
+from sqlalchemy import ForeignKey, Integer, Boolean, String, update, bindparam
 from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -42,7 +42,7 @@ class Col(BaseModel):
 
 class Cell(BaseModel):
     __tablename__ = "sheet_cell"
-    value: Mapped[str] = mapped_column(String(1000), nullable=True)
+    value: Mapped[str] = mapped_column(String(1000), nullable=True, index=True)
     dtype: Mapped[str] = mapped_column(String(30), nullable=False)
     is_readonly: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
@@ -56,6 +56,11 @@ class Cell(BaseModel):
 class SindexScrollSize(typing.TypedDict):
     count_sindexes: int
     scroll_size: int
+
+
+class FiltredRow(typing.TypedDict):
+    row_id: core_types.Id_
+    is_filtred: bool
 
 
 class SindexRepo(BaseRepo):
@@ -79,6 +84,35 @@ class SindexRepo(BaseRepo):
             scroll_size=scroll_size,
         )
         return sindex_scroll_size
+
+    @helpers.async_timeit
+    async def update_filtred_flag_with_session(self, session: AsyncSession, items: list[FiltredRow]) -> None:
+        stmt = (
+            update(self.model.__table__)
+            .where(self.model.__table__.c.id == bindparam('row_id'))
+            .values({"is_filtred": bindparam("is_filtred")})
+        )
+        _ = await session.execute(stmt, items)
+
+    @helpers.async_timeit
+    async def calculate_scroll_pos_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
+        # Get rows, drop unfiltred, sort by index, calculate scroll_pos
+        rows = await self.retrieve_bulk_as_records_with_session(session, filter_={"sheet_id": sheet_id})
+        rows = pd.DataFrame.from_records(rows, columns=self.model.get_columns())
+        rows = rows.loc[rows['is_filtred']]
+        rows = rows.sort_values('index')
+        rows.loc[rows['is_freeze'], 'scroll_pos'] = -1
+        rows.loc[~rows['is_freeze'], 'scroll_pos'] = rows.loc[~rows['is_freeze'], 'size'].shift(1).cumsum()
+        rows['scroll_pos'] = rows['scroll_pos'].fillna(0)
+        rows = rows[['id', 'scroll_pos']].rename({'id': 'row_id'}, axis=1).to_dict(orient='records')
+
+        # Update rows
+        stmt = (
+            update(self.model.__table__)
+            .where(self.model.__table__.c.id == bindparam('row_id'))
+            .values({"scroll_pos": bindparam("scroll_pos")})
+        )
+        _ = await session.execute(stmt, rows)
 
 
 class RowRepo(SindexRepo):
@@ -109,20 +143,30 @@ class CellRepo(BaseRepo):
         async with db.get_async_session() as session:
             return await self.retrieve_filter_items_with_session(session, filter_)
 
-    async def update_cell_filtred_flag(self, data: entities.ColFilter) -> None:
-        async with db.get_async_session() as session:
-            # Convert input data because "value" is reserved word in bindparam function
-            items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(
-                orient='records')
-            stmt = (
-                update(self.model.__table__)
-                .where(self.model.__table__.c.value == bindparam('cell_value'), self.model.col_id == data['col_id'])
-                .values({"is_filtred": bindparam("is_filtred")})
-            )
-            _ = await session.execute(stmt, items)
-            await session.commit()
+    @helpers.async_timeit
+    async def find_filtred_rows_with_session(self, session: AsyncSession, data: entities.ColFilter) -> list[FiltredRow]:
+        stmt = (
+            select(self.model.row_id, func.count(self.model.is_filtred).filter(~self.model.is_filtred))
+            .group_by(self.model.row_id)
+            .filter(self.model.sheet_id == data['sheet_id'])
+        )
+        result = await session.execute(stmt)
+        filtred_rows = pd.DataFrame.from_records(result.fetchall(), columns=['row_id', 'is_filtred'])
+        filtred_rows['is_filtred'] = ~filtred_rows['is_filtred'].astype(bool)
+        filtred_rows = filtred_rows.to_dict(orient='records')
+        return filtred_rows
 
-            logger.debug(f'{stmt}')
+    @helpers.async_timeit
+    async def update_filtred_flag_with_session(self, session: AsyncSession, data: entities.ColFilter) -> None:
+        # Convert input data because "value" is reserved word in bindparam function
+        items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(
+            orient='records')
+        stmt = (
+            update(self.model.__table__)
+            .where(self.model.__table__.c.value == bindparam('cell_value'), self.model.col_id == data['col_id'])
+            .values({"is_filtred": bindparam("is_filtred")})
+        )
+        _ = await session.execute(stmt, items)
 
 
 class SheetRepo(BaseRepo):
@@ -138,30 +182,6 @@ class SheetRepo(BaseRepo):
             sheet_id = await self.create_with_session(session, data)
             await session.commit()
             return sheet_id
-
-    @helpers.async_timeit
-    async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
-        async with db.get_async_session() as session:
-            return await self.retrieve_as_sheet_with_session(session, data)
-
-    async def retrieve_as_dataframe(self, id_: core_types.Id_) -> pd.DataFrame:
-        async with db.get_async_session() as session:
-            df = await self.retrieve_as_dataframe_with_session(session, id_)
-            return df
-
-    @helpers.async_timeit
-    async def retrieve_scroll_size(self, id_: core_types.Id_) -> entities.ScrollSize:
-        async with db.get_async_session() as session:
-            row: SindexScrollSize = await self.row_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
-            col: SindexScrollSize = await self.col_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
-
-            scroll_size = entities.ScrollSize(
-                count_rows=row['count_sindexes'],
-                count_cols=col['count_sindexes'],
-                scroll_height=row['scroll_size'],
-                scroll_width=col['scroll_size'],
-            )
-            return scroll_size
 
     async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
         sheet_id = await super().create_with_session(session, {})
@@ -185,6 +205,10 @@ class SheetRepo(BaseRepo):
         _ = await self.cell_repo().create_bulk_with_session(session, cells)
 
         return sheet_id
+
+    async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
+        async with db.get_async_session() as session:
+            return await self.retrieve_as_sheet_with_session(session, data)
 
     async def retrieve_as_sheet_with_session(self, session: AsyncSession,
                                              data: entities.SheetRetrieve) -> entities.Sheet:
@@ -239,6 +263,11 @@ class SheetRepo(BaseRepo):
         )
         return sheet
 
+    async def retrieve_as_dataframe(self, id_: core_types.Id_) -> pd.DataFrame:
+        async with db.get_async_session() as session:
+            df = await self.retrieve_as_dataframe_with_session(session, id_)
+            return df
+
     async def retrieve_as_dataframe_with_session(self, session: AsyncSession, id_: core_types.Id_) -> pd.DataFrame:
         cells: list[tuple] = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
         rows: list[tuple] = await self.row_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
@@ -253,3 +282,25 @@ class SheetRepo(BaseRepo):
         df = denormalizer.get_denormalized()
 
         return df
+
+    async def retrieve_scroll_size(self, id_: core_types.Id_) -> entities.ScrollSize:
+        async with db.get_async_session() as session:
+            row: SindexScrollSize = await self.row_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
+            col: SindexScrollSize = await self.col_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
+
+            scroll_size = entities.ScrollSize(
+                count_rows=row['count_sindexes'],
+                count_cols=col['count_sindexes'],
+                scroll_height=row['scroll_size'],
+                scroll_width=col['scroll_size'],
+            )
+            return scroll_size
+
+    @helpers.async_timeit
+    async def update_col_filter(self, data: entities.ColFilter) -> None:
+        async with db.get_async_session() as session:
+            await self.cell_repo().update_filtred_flag_with_session(session, data)
+            filtred_rows = await self.cell_repo().find_filtred_rows_with_session(session, data)
+            await self.row_repo().update_filtred_flag_with_session(session, filtred_rows)
+            await self.row_repo().calculate_scroll_pos_with_session(session, sheet_id=data['sheet_id'])
+            await session.commit()
