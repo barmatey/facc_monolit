@@ -181,24 +181,49 @@ class SheetRepo(BaseRepo):
 
     async def retrieve_as_sheet_with_session(self, session: AsyncSession,
                                              data: entities.SheetRetrieve) -> entities.Sheet:
+        # Find rows
         stmt = (
-            select(Cell.__table__, Row.__table__)
-            # .filter(Cell.__table__.c.sheet_id == data.sheet_id)
-            # .order_by(Row.index)
+            select(Row.__table__)
+            .where(Row.__table__.c.sheet_id == data.sheet_id,
+                   Row.__table__.c.scroll_pos >= data.from_scroll,
+                   Row.__table__.c.scroll_pos < data.to_scroll,
+                   )
+            .order_by(Row.__table__.c.scroll_pos)
         )
-        logger.warning(stmt)
         result = await session.execute(stmt)
-        result = Result.mappings(result)
-        logger.debug(f"{result.fetchone()}")
+        rows = pd.DataFrame.from_records(result.fetchall(), columns=Row.get_columns())
 
-        cells = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": data.sheet_id})
-        rows = await self.row_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": data.sheet_id})
-        cols = await self.col_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": data.sheet_id})
+        # Find Cols
+        stmt = (
+            select(Col.__table__)
+            .where(Col.__table__.c.sheet_id == data.sheet_id)
+            .order_by(Col.__table__.c.scroll_pos)
+        )
+        result = await session.execute(stmt)
+        cols = pd.DataFrame.from_records(result.fetchall(), columns=Col.get_columns())
+
+        # Find cells
+        stmt = (
+            select(Cell.__table__)
+            .where(Cell.__table__.c.sheet_id == data.sheet_id,
+                   Cell.__table__.c.row_id.in_(rows['id'].tolist()),
+                   Cell.__table__.c.col_id.in_(cols['id'].tolist()),
+                   )
+        )
+        result = await session.execute(stmt)
+        cells = pd.DataFrame.from_records(result.fetchall(), columns=Cell.get_columns())
+
+        # Sort cells
+        saved_cols = cells.columns.copy()
+        cells = pd.merge(cells, rows[['id', 'index', ]], left_on='row_id', right_on='id', suffixes=('', '_row'))
+        cells = pd.merge(cells, cols[['id', 'index', ]], left_on='col_id', right_on='id', suffixes=('', '_col'))
+        cells = cells.sort_values(['index', 'index_col'])[saved_cols]
+
         sheet = entities.Sheet(
             id=data.sheet_id,
-            rows=pd.DataFrame.from_records(rows, columns=Row.get_columns()).to_dict(orient='records'),
-            cols=pd.DataFrame.from_records(cols, columns=Col.get_columns()).to_dict(orient='records'),
-            cells=pd.DataFrame.from_records(cells, columns=Cell.get_columns()).to_dict(orient='records'),
+            rows=rows.to_dict(orient='records'),
+            cols=cols.to_dict(orient='records'),
+            cells=cells.to_dict(orient='records'),
         )
         return sheet
 
