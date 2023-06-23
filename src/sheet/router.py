@@ -1,3 +1,4 @@
+import loguru
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -48,3 +49,16 @@ async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSche
                             sheet_service: service.SheetService = Depends(service.SheetService), ) -> int:
     await sheet_service.update_col_filter(data)
     return 1
+
+
+@router.patch("/{sheet_id}/update-col-sorter")
+async def update_col_sorter(data: schema.ColSorterSchema,
+                            sheet_service: service.SheetService = Depends(service.SheetService)) -> JSONResponse:
+    await sheet_service.update_col_sorter(data)
+    sheet_retrieve_schema = schema.SheetRetrieveSchema(
+        sheet_id=data.sheet_id,
+        from_scroll=data.from_scroll,
+        to_scroll=data.to_scroll,
+    )
+    sheet_schema = await sheet_service.retrieve_sheet(sheet_retrieve_schema)
+    return JSONResponse(content=sheet_schema)

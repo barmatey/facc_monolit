@@ -57,11 +57,6 @@ class SindexScrollSize(typing.TypedDict):
     scroll_size: int
 
 
-class FiltredRow(typing.TypedDict):
-    row_id: core_types.Id_
-    is_filtred: bool
-
-
 class SindexRepo(BaseRepo):
     model: Row | Col = None
 
@@ -83,33 +78,6 @@ class SindexRepo(BaseRepo):
             scroll_size=scroll_size,
         )
         return sindex_scroll_size
-
-    async def update_filtred_flag_with_session(self, session: AsyncSession, items: list[FiltredRow]) -> None:
-        stmt = (
-            self.model.__table__.update()
-            .where(self.model.__table__.c.id == bindparam('row_id'))
-            .values({"is_filtred": bindparam("is_filtred")})
-        )
-        _ = await session.execute(stmt, items)
-
-    async def calculate_scroll_pos_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
-        # Get rows, drop unfiltred, sort by index, calculate scroll_pos
-        rows = await self.retrieve_bulk_as_records_with_session(session, filter_={"sheet_id": sheet_id})
-        rows = pd.DataFrame.from_records(rows, columns=self.model.get_columns())
-        rows = rows.loc[rows['is_filtred']]
-        rows = rows.sort_values('index')
-        rows.loc[rows['is_freeze'], 'scroll_pos'] = -1
-        rows.loc[~rows['is_freeze'], 'scroll_pos'] = rows.loc[~rows['is_freeze'], 'size'].shift(1).cumsum()
-        rows['scroll_pos'] = rows['scroll_pos'].fillna(0)
-
-        # Update rows
-        values: list[FiltredRow] = rows[['id', 'scroll_pos']].rename({'id': 'row_id'}, axis=1).to_dict(orient='records')
-        stmt = (
-            self.model.__table__.update()
-            .where(self.model.__table__.c.id == bindparam('row_id'))
-            .values({"scroll_pos": bindparam("scroll_pos")})
-        )
-        _ = await session.execute(stmt, values)
 
 
 class RowRepo(SindexRepo):
@@ -254,7 +222,6 @@ class SheetRepo(BaseRepo):
 
 class SheetFilterRepo:
     row_model = Row
-    col_model = Col
     cell_model = Cell
 
     async def retrieve_col_filter(self, sheet_id: core_types.Id_, col_id: core_types.Id_) -> entities.ColFilter:
@@ -304,8 +271,8 @@ class SheetFilterRepo:
         rows = pd.DataFrame.from_records(rows.fetchall(), columns=['row_id', 'size', 'is_freeze', 'scroll_pos'])
         return rows
 
-    async def _find_filtred_rows_with_session(self, session: AsyncSession,
-                                              sheet_id: core_types.Id_) -> pd.DataFrame:
+    async def _retrieve_filtred_rows_with_session(self, session: AsyncSession,
+                                                  sheet_id: core_types.Id_) -> pd.DataFrame:
         stmt = (
             select(self.cell_model.row_id, func.count(self.cell_model.is_filtred)
                    .filter(~self.cell_model.is_filtred))
@@ -320,7 +287,7 @@ class SheetFilterRepo:
     async def _update_filtred_flag_and_scroll_pos_in_rows_with_session(self, session: AsyncSession,
                                                                        sheet_id: core_types.Id_) -> None:
         rows = await self._retrieve_total_sheet_rows_with_session(session, sheet_id)
-        filtred_rows = await self._find_filtred_rows_with_session(session, sheet_id)
+        filtred_rows = await self._retrieve_filtred_rows_with_session(session, sheet_id)
 
         if len(rows) != len(filtred_rows):
             raise Exception
@@ -338,3 +305,68 @@ class SheetFilterRepo:
             .values({"scroll_pos": bindparam("scroll_pos"), "is_filtred": bindparam("is_filtred")})
         )
         _ = await session.execute(stmt, values)
+
+
+class SheetSorterRepo:
+    row_model = Row
+    cell_model = Cell
+
+    async def update_col_sorter(self, data: entities.ColSorter) -> None:
+        async with db.get_async_session() as session:
+            sorted_rows = await self._retrieve_sorted_rows_with_session(session, data.sheet_id, data.col_id, data.ascending)
+            filtred_rows = await self._retrieve_filtred_rows_with_session(session, data.sheet_id)
+            await self._update_row_index_and_scroll_pos_with_session(session, sorted_rows, filtred_rows)
+            await session.commit()
+
+    async def _update_row_index_and_scroll_pos_with_session(self, session: AsyncSession,
+                                                            sorted_rows: pd.DataFrame,
+                                                            filtred_rows: pd.DataFrame) -> None:
+        merged = pd.merge(filtred_rows, sorted_rows, on='row_id', how='left').sort_values('row_index')
+        merged.loc[merged['is_index'], 'size'] = 0
+        merged['scroll_pos'] = merged['size'].cumsum().shift(1).fillna(0)
+        merged.loc[merged['is_index'], 'scroll_pos'] = -1
+
+        values = merged[['row_id', 'row_index', 'scroll_pos']].to_dict(orient='records')
+
+        stmt = (
+            self.row_model.__table__.update()
+            .where(self.row_model.__table__.c.id == bindparam('row_id'))
+            .values({"scroll_pos": bindparam("scroll_pos"), "index": bindparam("row_index")})
+        )
+        _ = await session.execute(stmt, values)
+
+    async def _retrieve_filtred_rows_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> pd.DataFrame:
+        stmt = (
+            select(
+                self.row_model.__table__.c.id,
+                self.row_model.__table__.c.size
+            )
+            .where(
+                self.row_model.sheet_id == sheet_id,
+                self.row_model.__table__.c.is_filtred)
+        )
+        rows = await session.execute(stmt)
+        rows = pd.DataFrame.from_records(rows.fetchall(), columns=['row_id', 'size'])
+        return rows
+
+    async def _retrieve_sorted_rows_with_session(self, session: AsyncSession, sheet_id: core_types.Id_,
+                                                 col_id: core_types.Id_, asc: bool) -> pd.DataFrame:
+        # Retrieving
+        stmt = (
+            select(
+                self.cell_model.__table__.c.row_id,
+                self.cell_model.__table__.c.value,
+                self.cell_model.__table__.c.is_index)
+            .where(
+                self.cell_model.sheet_id == sheet_id,
+                self.cell_model.col_id == col_id,)
+        )
+        result = await session.execute(stmt)
+
+        # Sorting
+        result = pd.DataFrame.from_records(result.fetchall(), columns=['row_id', 'cell_value', 'is_index'])
+        freeze_part = result.loc[result['is_index']]
+        free_part = result.loc[~result['is_index']].sort_values('cell_value', ascending=asc)
+        sorted_df = pd.concat([freeze_part, free_part], ignore_index=True)
+        sorted_df['row_index'] = range(len(sorted_df))
+        return sorted_df

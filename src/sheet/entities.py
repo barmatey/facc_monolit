@@ -79,3 +79,9 @@ class FilterItem(TypedDict):
 
 class ColFilter(ColFilterRetrieve):
     items: list[FilterItem]
+
+
+class ColSorter(BaseModel):
+    sheet_id: core_types.Id_
+    col_id: core_types.Id_
+    ascending: bool

@@ -28,3 +28,8 @@ class ColFilterRetrieveSchema(entities.ColFilterRetrieve):
 
 class ColFilterSchema(entities.ColFilter):
     pass
+
+
+class ColSorterSchema(entities.ColSorter):
+    from_scroll: int
+    to_scroll: int
