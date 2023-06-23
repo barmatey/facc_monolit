@@ -252,22 +252,23 @@ class SheetRepo(BaseRepo):
             return scroll_size
 
 
-class SheetSorterRepo:
+class SheetFilterRepo:
     row_model = Row
     col_model = Col
     cell_model = Cell
 
-    async def retrieve_filter_items(self, filter_: dict) -> list[entities.FilterItem]:
+    async def retrieve_col_filter(self, sheet_id: core_types.Id_, col_id: core_types.Id_) -> entities.ColFilter:
         async with db.get_async_session() as session:
             items = await session.execute(
                 select(self.cell_model.value, self.cell_model.dtype, self.cell_model.is_filtred)
                 .distinct()
-                .filter_by(**filter_)
+                .filter_by(sheet_id=sheet_id, col_id=col_id, is_index=False)
                 .order_by(self.cell_model.value)
             )
             columns = [self.cell_model.value.key, self.cell_model.dtype.key, self.cell_model.is_filtred.key]
             items = pd.DataFrame.from_records(items.fetchall(), columns=columns).to_dict(orient='records')
-            return items
+            col_filter = entities.ColFilter(col_id=col_id, sheet_id=sheet_id, items=items)
+            return col_filter
 
     async def update_col_filter(self, data: entities.ColFilter) -> None:
         async with db.get_async_session() as session:

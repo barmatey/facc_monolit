@@ -25,7 +25,7 @@ class Repository(ABC):
 
 class PostgresRepo(Repository):
     sheet_repo = repository_postgres.SheetRepo
-    sheet_sorter_repo = repository_postgres.SheetSorterRepo
+    sheet_filter_repo = repository_postgres.SheetFilterRepo
 
     async def retrieve_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
         sheet = await self.sheet_repo().retrieve_as_sheet(data=data)
@@ -36,9 +36,7 @@ class PostgresRepo(Repository):
         return scroll_size
 
     async def retrieve_col_filter(self, data: entities.ColFilterRetrieve) -> entities.ColFilter:
-        items = await self.sheet_sorter_repo().retrieve_filter_items({"col_id": data['col_id'], "is_index": False})
-        col_filter = entities.ColFilter(col_id=data['col_id'], sheet_id=data['sheet_id'], items=items)
-        return col_filter
+        return await self.sheet_filter_repo().retrieve_col_filter(sheet_id=data['sheet_id'], col_id=data['col_id'])
 
     async def update_col_filter(self, data: entities.ColFilter) -> None:
-        await self.sheet_sorter_repo().update_col_filter(data)
+        await self.sheet_filter_repo().update_col_filter(data)
