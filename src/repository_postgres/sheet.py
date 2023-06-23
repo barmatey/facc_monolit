@@ -3,12 +3,11 @@ import typing
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import ForeignKey, Integer, Boolean, String, update, bindparam
+from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam
 from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src import helpers
 from src import core_types
 from src.sheet import entities
 from . import db
@@ -85,16 +84,14 @@ class SindexRepo(BaseRepo):
         )
         return sindex_scroll_size
 
-    @helpers.async_timeit
     async def update_filtred_flag_with_session(self, session: AsyncSession, items: list[FiltredRow]) -> None:
         stmt = (
-            update(self.model.__table__)
+            self.model.__table__.update()
             .where(self.model.__table__.c.id == bindparam('row_id'))
             .values({"is_filtred": bindparam("is_filtred")})
         )
         _ = await session.execute(stmt, items)
 
-    @helpers.async_timeit
     async def calculate_scroll_pos_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
         # Get rows, drop unfiltred, sort by index, calculate scroll_pos
         rows = await self.retrieve_bulk_as_records_with_session(session, filter_={"sheet_id": sheet_id})
@@ -104,15 +101,15 @@ class SindexRepo(BaseRepo):
         rows.loc[rows['is_freeze'], 'scroll_pos'] = -1
         rows.loc[~rows['is_freeze'], 'scroll_pos'] = rows.loc[~rows['is_freeze'], 'size'].shift(1).cumsum()
         rows['scroll_pos'] = rows['scroll_pos'].fillna(0)
-        rows = rows[['id', 'scroll_pos']].rename({'id': 'row_id'}, axis=1).to_dict(orient='records')
 
         # Update rows
+        values: list[FiltredRow] = rows[['id', 'scroll_pos']].rename({'id': 'row_id'}, axis=1).to_dict(orient='records')
         stmt = (
-            update(self.model.__table__)
+            self.model.__table__.update()
             .where(self.model.__table__.c.id == bindparam('row_id'))
             .values({"scroll_pos": bindparam("scroll_pos")})
         )
-        _ = await session.execute(stmt, rows)
+        _ = await session.execute(stmt, values)
 
 
 class RowRepo(SindexRepo):
@@ -125,48 +122,6 @@ class ColRepo(SindexRepo):
 
 class CellRepo(BaseRepo):
     model = Cell
-
-    async def retrieve_filter_items_with_session(self, session: AsyncSession,
-                                                 filter_: dict) -> list[entities.FilterItem]:
-        items = await session.execute(
-            select(self.model.value, self.model.dtype, self.model.is_filtred)
-            .distinct()
-            .filter_by(**filter_)
-            .order_by(self.model.value)
-        )
-
-        items = pd.DataFrame.from_records(items.fetchall(), columns=[
-            self.model.value.key, self.model.dtype.key, self.model.is_filtred.key]).to_dict(orient='records')
-        return items
-
-    async def retrieve_filter_items(self, filter_: dict) -> list[entities.FilterItem]:
-        async with db.get_async_session() as session:
-            return await self.retrieve_filter_items_with_session(session, filter_)
-
-    @helpers.async_timeit
-    async def find_filtred_rows_with_session(self, session: AsyncSession, data: entities.ColFilter) -> list[FiltredRow]:
-        stmt = (
-            select(self.model.row_id, func.count(self.model.is_filtred).filter(~self.model.is_filtred))
-            .group_by(self.model.row_id)
-            .filter(self.model.sheet_id == data['sheet_id'])
-        )
-        result = await session.execute(stmt)
-        filtred_rows = pd.DataFrame.from_records(result.fetchall(), columns=['row_id', 'is_filtred'])
-        filtred_rows['is_filtred'] = ~filtred_rows['is_filtred'].astype(bool)
-        filtred_rows = filtred_rows.to_dict(orient='records')
-        return filtred_rows
-
-    @helpers.async_timeit
-    async def update_filtred_flag_with_session(self, session: AsyncSession, data: entities.ColFilter) -> None:
-        # Convert input data because "value" is reserved word in bindparam function
-        items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(
-            orient='records')
-        stmt = (
-            update(self.model.__table__)
-            .where(self.model.__table__.c.value == bindparam('cell_value'), self.model.col_id == data['col_id'])
-            .values({"is_filtred": bindparam("is_filtred")})
-        )
-        _ = await session.execute(stmt, items)
 
 
 class SheetRepo(BaseRepo):
@@ -296,11 +251,89 @@ class SheetRepo(BaseRepo):
             )
             return scroll_size
 
-    @helpers.async_timeit
+
+class SheetSorterRepo:
+    row_model = Row
+    col_model = Col
+    cell_model = Cell
+
+    async def retrieve_filter_items(self, filter_: dict) -> list[entities.FilterItem]:
+        async with db.get_async_session() as session:
+            items = await session.execute(
+                select(self.cell_model.value, self.cell_model.dtype, self.cell_model.is_filtred)
+                .distinct()
+                .filter_by(**filter_)
+                .order_by(self.cell_model.value)
+            )
+            columns = [self.cell_model.value.key, self.cell_model.dtype.key, self.cell_model.is_filtred.key]
+            items = pd.DataFrame.from_records(items.fetchall(), columns=columns).to_dict(orient='records')
+            return items
+
     async def update_col_filter(self, data: entities.ColFilter) -> None:
         async with db.get_async_session() as session:
-            await self.cell_repo().update_filtred_flag_with_session(session, data)
-            filtred_rows = await self.cell_repo().find_filtred_rows_with_session(session, data)
-            await self.row_repo().update_filtred_flag_with_session(session, filtred_rows)
-            await self.row_repo().calculate_scroll_pos_with_session(session, sheet_id=data['sheet_id'])
+            await self._update_filtred_flag_in_cells_with_session(session, data)
+            await self._update_filtred_flag_and_scroll_pos_in_rows_with_session(session, sheet_id=data['sheet_id'])
             await session.commit()
+
+    async def _update_filtred_flag_in_cells_with_session(self, session: AsyncSession, data: entities.ColFilter) -> None:
+        # Convert input data because "value" is reserved word in bindparam function
+        items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(
+            orient='records')
+
+        stmt = (
+            self.cell_model.__table__.update()
+            .where(self.cell_model.__table__.c.value == bindparam('cell_value'),
+                   self.cell_model.col_id == data['col_id'])
+            .values({"is_filtred": bindparam("is_filtred")})
+        )
+        _ = await session.execute(stmt, items)
+
+    async def _retrieve_total_sheet_rows_with_session(self, session: AsyncSession,
+                                                      sheet_id: core_types.Id_) -> pd.DataFrame:
+        stmt = (
+            select(
+                self.row_model.__table__.c.id,
+                self.row_model.__table__.c.size,
+                self.row_model.__table__.c.is_freeze,
+                self.row_model.__table__.c.scroll_pos)
+            .filter_by(sheet_id=sheet_id)
+            .order_by(self.row_model.__table__.c.index)
+        )
+        rows = await session.execute(stmt)
+        rows = pd.DataFrame.from_records(rows.fetchall(), columns=['row_id', 'size', 'is_freeze', 'scroll_pos'])
+        return rows
+
+    async def _find_filtred_rows_with_session(self, session: AsyncSession,
+                                              sheet_id: core_types.Id_) -> pd.DataFrame:
+        stmt = (
+            select(self.cell_model.row_id, func.count(self.cell_model.is_filtred)
+                   .filter(~self.cell_model.is_filtred))
+            .group_by(self.cell_model.row_id)
+            .filter(self.cell_model.sheet_id == sheet_id)
+        )
+        result = await session.execute(stmt)
+        filtred_rows = pd.DataFrame.from_records(result.fetchall(), columns=['row_id', 'is_filtred'])
+        filtred_rows['is_filtred'] = ~filtred_rows['is_filtred'].astype(bool)
+        return filtred_rows
+
+    async def _update_filtred_flag_and_scroll_pos_in_rows_with_session(self, session: AsyncSession,
+                                                                       sheet_id: core_types.Id_) -> None:
+        rows = await self._retrieve_total_sheet_rows_with_session(session, sheet_id)
+        filtred_rows = await self._find_filtred_rows_with_session(session, sheet_id)
+
+        if len(rows) != len(filtred_rows):
+            raise Exception
+
+        rows = pd.merge(rows, filtred_rows, on='row_id', how='inner')
+
+        rows.loc[~rows['is_filtred'] | rows['is_freeze'], 'size'] = 0
+        rows['scroll_pos'] = rows['size'].cumsum().shift(1).fillna(0)
+        rows.loc[rows['is_freeze'], 'scroll_pos'] = -1
+
+        values: list[dict] = rows[['row_id', 'is_filtred', 'scroll_pos']].to_dict(orient='records')
+        stmt = (
+            self.row_model.__table__.update()
+            .where(self.row_model.__table__.c.id == bindparam('row_id'))
+            .values({"scroll_pos": bindparam("scroll_pos"), "is_filtred": bindparam("is_filtred")})
+        )
+        _ = await session.execute(stmt, values)
