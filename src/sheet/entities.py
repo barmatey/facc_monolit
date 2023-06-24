@@ -85,3 +85,9 @@ class ColSorter(BaseModel):
     sheet_id: core_types.Id_
     col_id: core_types.Id_
     ascending: bool
+
+
+class CopySindex(BaseModel):
+    sheet_id: core_types.Id_
+    from_sindexes: list[core_types.Id_]
+    to_sindexes: list[core_types.Id_]

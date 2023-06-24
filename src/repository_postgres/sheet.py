@@ -243,27 +243,14 @@ class SheetFilterRepo:
             await self._update_filtred_flag_and_scroll_pos_in_rows_with_session(session, sheet_id=data['sheet_id'])
             await session.commit()
 
-    async def _update_filtred_flag_in_cells_with_session(self, session: AsyncSession, data: entities.ColFilter) -> None:
-        # Convert input data because "value" is reserved word in bindparam function
-        items = pd.DataFrame.from_dict(data['items']).rename({'value': 'cell_value'}, axis=1).to_dict(
-            orient='records')
-
-        stmt = (
-            self.cell_model.__table__.update()
-            .where(self.cell_model.__table__.c.value == bindparam('cell_value'),
-                   self.cell_model.col_id == data['col_id'])
-            .values({"is_filtred": bindparam("is_filtred")})
-        )
-        _ = await session.execute(stmt, items)
-
-    async def _retrieve_total_sheet_rows_with_session(self, session: AsyncSession,
-                                                      sheet_id: core_types.Id_) -> pd.DataFrame:
+    async def _retrieve_total_rows_with_session(self, session: AsyncSession,
+                                                sheet_id: core_types.Id_) -> pd.DataFrame:
         stmt = (
             select(
                 self.row_model.__table__.c.id,
                 self.row_model.__table__.c.size,
                 self.row_model.__table__.c.is_freeze,
-                self.row_model.__table__.c.scroll_pos)
+                self.row_model.__table__.c.scroll_pos, )
             .filter_by(sheet_id=sheet_id)
             .order_by(self.row_model.__table__.c.index)
         )
@@ -286,7 +273,7 @@ class SheetFilterRepo:
 
     async def _update_filtred_flag_and_scroll_pos_in_rows_with_session(self, session: AsyncSession,
                                                                        sheet_id: core_types.Id_) -> None:
-        rows = await self._retrieve_total_sheet_rows_with_session(session, sheet_id)
+        rows = await self._retrieve_total_rows_with_session(session, sheet_id)
         filtred_rows = await self._retrieve_filtred_rows_with_session(session, sheet_id)
 
         if len(rows) != len(filtred_rows):
@@ -306,6 +293,22 @@ class SheetFilterRepo:
         )
         _ = await session.execute(stmt, values)
 
+    async def _update_filtred_flag_in_cells_with_session(self, session: AsyncSession, data: entities.ColFilter) -> None:
+        # Convert input data because "value" is reserved word in bindparam function
+        items = (
+            pd.DataFrame.from_dict(data['items'])
+            .rename({'value': 'cell_value'}, axis=1)
+            .to_dict(orient='records')
+        )
+
+        stmt = (
+            self.cell_model.__table__.update()
+            .where(self.cell_model.__table__.c.value == bindparam('cell_value'),
+                   self.cell_model.col_id == data['col_id'])
+            .values({"is_filtred": bindparam("is_filtred")})
+        )
+        _ = await session.execute(stmt, items)
+
 
 class SheetSorterRepo:
     row_model = Row
@@ -313,7 +316,8 @@ class SheetSorterRepo:
 
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
         async with db.get_async_session() as session:
-            sorted_rows = await self._retrieve_sorted_rows_with_session(session, data.sheet_id, data.col_id, data.ascending)
+            sorted_rows = await self._retrieve_sorted_rows_with_session(session, data.sheet_id, data.col_id,
+                                                                        data.ascending)
             filtred_rows = await self._retrieve_filtred_rows_with_session(session, data.sheet_id)
             await self._update_row_index_and_scroll_pos_with_session(session, sorted_rows, filtred_rows)
             await session.commit()
@@ -335,7 +339,8 @@ class SheetSorterRepo:
         )
         _ = await session.execute(stmt, values)
 
-    async def _retrieve_filtred_rows_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> pd.DataFrame:
+    async def _retrieve_filtred_rows_with_session(self, session: AsyncSession,
+                                                  sheet_id: core_types.Id_) -> pd.DataFrame:
         stmt = (
             select(
                 self.row_model.__table__.c.id,
@@ -359,7 +364,7 @@ class SheetSorterRepo:
                 self.cell_model.__table__.c.is_index)
             .where(
                 self.cell_model.sheet_id == sheet_id,
-                self.cell_model.col_id == col_id,)
+                self.cell_model.col_id == col_id, )
         )
         result = await session.execute(stmt)
 
@@ -370,3 +375,41 @@ class SheetSorterRepo:
         sorted_df = pd.concat([freeze_part, free_part], ignore_index=True)
         sorted_df['row_index'] = range(len(sorted_df))
         return sorted_df
+
+
+class SheetTableRepo:
+    row_model = Row
+    col_model = Col
+    cell_model = Cell
+
+    async def copy_rows(self, data: entities.CopySindex) -> None:
+        mapper = {key: value for key, value in zip(data.from_sindexes, data.to_sindexes)}
+        async with db.get_async_session() as session:
+            # Get  from cells
+            stmt = (
+                select(self.cell_model.__table__)
+                .where(self.cell_model.row_id.in_(data.from_sindexes))
+            )
+            result = await session.execute(stmt)
+            cells = pd.DataFrame.from_records(result.fetchall(), columns=self.cell_model.get_columns())
+            cells['row_id'] = cells['row_id'].map(mapper)
+            cells = (
+                cells
+                .drop('id', axis=1)
+                .rename({'row_id': '__row_id__', 'col_id': '__col_id__', 'sheet_id': '__sheet_id__'}, axis=1)
+            )
+
+            # Update values
+            values = cells.to_dict(orient='records')
+            stmt = (
+                self.cell_model.__table__.update()
+                .where(self.cell_model.__table__.c.row_id == bindparam('__row_id__'),
+                       self.cell_model.__table__.c.col_id == bindparam('__col_id__'),
+                       self.cell_model.__table__.c.sheet_id == bindparam('__sheet_id__'))
+                .values({
+                    "value": bindparam("value"),
+                    "dtype": bindparam("dtype"),
+                })
+            )
+            _ = await session.execute(stmt, values)
+            await session.commit()

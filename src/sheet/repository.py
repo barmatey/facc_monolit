@@ -29,6 +29,7 @@ class Repository(ABC):
 
 class PostgresRepo(Repository):
     sheet_repo = repository_postgres.SheetRepo
+    sheet_table_repo = repository_postgres.SheetTableRepo
     sheet_filter_repo = repository_postgres.SheetFilterRepo
     sheet_sorter_repo = repository_postgres.SheetSorterRepo
 
@@ -46,3 +47,6 @@ class PostgresRepo(Repository):
 
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
         await self.sheet_sorter_repo().update_col_sorter(data)
+
+    async def copy_rows(self, data: entities.CopySindex) -> None:
+        await self.sheet_table_repo().copy_rows(data)

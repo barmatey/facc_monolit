@@ -33,3 +33,7 @@ class ColFilterSchema(entities.ColFilter):
 class ColSorterSchema(entities.ColSorter):
     from_scroll: int
     to_scroll: int
+
+
+class CopySindexSchema(entities.CopySindex):
+    pass

@@ -51,6 +51,11 @@ async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSche
     return 1
 
 
+@router.patch("/{sheet_id}/clear-all-filters")
+async def clear_all_filters(sheet_id: core_types.Id_) -> JSONResponse:
+    raise NotImplemented
+
+
 @router.patch("/{sheet_id}/update-col-sorter")
 async def update_col_sorter(data: schema.ColSorterSchema,
                             sheet_service: service.SheetService = Depends(service.SheetService)) -> JSONResponse:
@@ -62,3 +67,11 @@ async def update_col_sorter(data: schema.ColSorterSchema,
     )
     sheet_schema = await sheet_service.retrieve_sheet(sheet_retrieve_schema)
     return JSONResponse(content=sheet_schema)
+
+
+@router.patch("/{sheet_id}/copy-rows")
+async def copy_rows(sheet_id: core_types.Id_,
+                    data: schema.CopySindexSchema,
+                    sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
+    await sheet_service.copy_rows(data)
+    return 1

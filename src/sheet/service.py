@@ -28,3 +28,6 @@ class SheetService:
     async def update_col_sorter(self, data: schema.ColSorterSchema) -> None:
         await self.repo().update_col_sorter(data)
 
+    async def copy_rows(self, data: schema.CopySindexSchema) -> None:
+        await self.repo().copy_rows(data)
+
