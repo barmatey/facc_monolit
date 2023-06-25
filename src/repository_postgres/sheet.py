@@ -385,17 +385,15 @@ class SheetTableRepo:
     async def copy_cells(self, sheet_id: core_types.Id_, copy_from: list[entities.CopyCell],
                          copy_to: list[entities.CopyCell]):
         async with db.get_async_session() as session:
-            # Table of copy_from cells
-            records = [x.dict() for x in copy_from]
-            table = pd.DataFrame(records)
-
             # Change row and col indexes
-            if len(table) == 1:
+            if len(copy_from) == 1:
                 records = [x.dict() for x in copy_to]
                 table = pd.DataFrame(records)
                 table['value'] = copy_from[0].value
                 table['dtype'] = copy_from[0].dtype
             else:
+                records = [x.dict() for x in copy_from]
+                table = pd.DataFrame(records)
                 row_offset = copy_from[0].row_index - copy_to[0].row_index
                 col_offset = copy_from[0].col_index - copy_to[0].col_index
                 table['row_index'] = table['row_index'] - row_offset
