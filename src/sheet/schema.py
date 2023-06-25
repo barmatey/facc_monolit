@@ -37,3 +37,11 @@ class ColSorterSchema(entities.ColSorter):
 
 class CopySindexSchema(entities.CopySindex):
     pass
+
+
+class CellSchema(entities.Cell):
+    pass
+
+
+class CopyCellSchema(entities.CopyCell):
+    pass

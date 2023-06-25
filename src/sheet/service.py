@@ -31,3 +31,7 @@ class SheetService:
     async def copy_rows(self, data: schema.CopySindexSchema) -> None:
         await self.repo().copy_rows(data)
 
+    async def copy_cells(self, sheet_id: core_types.Id_,
+                         copy_from: list[schema.CopyCellSchema], copy_to: list[schema.CopyCellSchema]) -> None:
+        await self.repo().copy_cells(sheet_id, copy_from, copy_to)
+

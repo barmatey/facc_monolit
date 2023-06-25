@@ -91,3 +91,11 @@ class CopySindex(BaseModel):
     sheet_id: core_types.Id_
     from_sindexes: list[core_types.Id_]
     to_sindexes: list[core_types.Id_]
+
+
+class CopyCell(BaseModel):
+    value: str
+    dtype: enums.Dtype
+    row_index: int
+    col_index: int
+    sheet_id: core_types.Id_
