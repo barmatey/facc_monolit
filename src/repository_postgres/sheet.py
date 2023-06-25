@@ -382,12 +382,6 @@ class SheetTableRepo:
     row_model = Row
     col_model = Col
 
-    async def copy_rows(self, data: entities.CopySindex) -> None:
-        async with db.get_async_session() as session:
-            cells_to_update = await self._retrieve_cells_for_copy_many_to_one(session, data)
-            # await self._update_cells_with_session(session, cells_to_update)
-            # await session.commit()
-
     async def copy_cells(self, sheet_id: core_types.Id_, copy_from: list[entities.CopyCell],
                          copy_to: list[entities.CopyCell]):
         async with db.get_async_session() as session:
@@ -396,14 +390,18 @@ class SheetTableRepo:
             table = pd.DataFrame(records)
 
             # Change row and col indexes
-            row_offset = copy_from[0].row_index - copy_to[0].row_index
-            col_offset = copy_from[0].col_index - copy_to[0].col_index
-            table['row_index'] = table['row_index'] - row_offset
-            table['col_index'] = table['col_index'] - col_offset
+            if len(table) == 1:
+                records = [x.dict() for x in copy_to]
+                table = pd.DataFrame(records)
+                table['value'] = copy_from[0].value
+                table['dtype'] = copy_from[0].dtype
+            else:
+                row_offset = copy_from[0].row_index - copy_to[0].row_index
+                col_offset = copy_from[0].col_index - copy_to[0].col_index
+                table['row_index'] = table['row_index'] - row_offset
+                table['col_index'] = table['col_index'] - col_offset
 
-            logger.debug(f'\n{table}')
-
-            # Find target row and col ids
+            # Find target row ids
             stmt = (
                 select(self.row_model.__table__.c.id,
                        self.row_model.__table__.c.index)
@@ -413,6 +411,7 @@ class SheetTableRepo:
             result = await session.execute(stmt)
             target_rows = pd.DataFrame.from_records(result.fetchall(), columns=['row_id_target', 'row_index'])
 
+            # Find target col ids
             stmt = (
                 select(self.col_model.__table__.c.id,
                        self.col_model.__table__.c.index)
@@ -422,12 +421,13 @@ class SheetTableRepo:
             result = await session.execute(stmt)
             target_cols = pd.DataFrame.from_records(result.fetchall(), columns=['col_id_target', 'col_index'])
 
-            # Updating
+            # Update
             table = table.merge(target_rows, on='row_index').merge(target_cols, on='col_index')
             values = table[['value', 'dtype', 'row_id_target', 'col_id_target', 'sheet_id']].to_dict(orient='records')
             stmt = (
                 self.cell_model.__table__.update()
                 .where(self.cell_model.sheet_id == sheet_id,
+                       ~self.cell_model.is_index,
                        self.cell_model.row_id == bindparam('row_id_target'),
                        self.cell_model.col_id == bindparam('col_id_target'), )
                 .values({
@@ -435,46 +435,8 @@ class SheetTableRepo:
                     "dtype": bindparam("dtype"),
                 })
             )
-
             _ = await session.execute(stmt, values)
             await session.commit()
-
-    async def _retrieve_cells_for_copy_one_to_many(self, session: AsyncSession,
-                                                   data: entities.CopySindex) -> list[dict]:
-        pass
-
-    async def _retrieve_cells_for_copy_many_to_one(self, session: AsyncSession,
-                                                   data: entities.CopySindex) -> list[dict]:
-        stmt = (
-            select(self.cell_model.__table__)
-            .where(self.cell_model.row_id.in_(data.from_sindexes))
-        )
-        result = await session.execute(stmt)
-        cells = pd.DataFrame.from_records(result.fetchall(), columns=self.cell_model.get_columns())
-
-        stmt = (
-            select(self.row_model.__table__.c.id,
-                   self.row_model.__table__.c.index)
-            .where(self.cell_model.row_id.in_(cells['row_id']))
-        )
-        result = await session.execute(stmt)
-        rows = pd.DataFrame.from_records(result.fetchall(), columns=['row_id', '__row_index__'])
-
-        stmt = (
-            select(self.col_model.__table__.c.id,
-                   self.col_model.__table__.c.index)
-            .where(self.col_model.id.in_(cells['col_id']))
-        )
-        result = await session.execute(stmt)
-        cols = pd.DataFrame.from_records(result.fetchall(), columns=['col_id', '__col_index__'])
-
-        merged = pd.merge(cells, rows, on='row_id')
-        merged = pd.merge(merged, cols, on='col_id')
-
-        logger.debug(f'\n{merged}')
-
-        values = cells.to_dict(orient='records')
-        return values
 
     async def _update_cells_with_session(self, session: AsyncSession, values: list[dict]) -> None:
         stmt = (
