@@ -385,24 +385,112 @@ class SheetTableRepo:
     async def copy_rows(self, sheet_id: core_types.Id_,
                         copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
         async with db.get_async_session() as session:
-            # Find from cells
+            if len(copy_from) == 1:
+                pass
+            else:
+                await self._copy_rows_many_to_one(session, sheet_id, copy_from, copy_to)
+            await session.commit()
+
+    async def _copy_rows_many_to_one(self, session: AsyncSession, sheet_id: core_types.Id_,
+                                     copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]):
+        records = [{'row_id': x.id, 'row_index': x.index, 'sheet_id': x.sheet_id} for x in copy_from]
+        from_row_df = pd.DataFrame(records)
+
+        row_offset = copy_from[0].index - copy_to[0].index
+        from_row_df['row_index'] = from_row_df['row_index'] - row_offset
+        to_row_df = await self._retrieve_sindex_df(session, sheet_id, self.row_model.index.in_(from_row_df['row_index']))
+        to_row_df = to_row_df.rename({'id': 'row_id', 'index': 'row_index'}, axis=1)
+
+        from_cell = await self._retrieve_cell_df(session, sheet_id, self.cell_model.row_id.in_(from_row_df['row_id']))
+        from_cell = pd.merge(from_cell, from_row_df, on=['row_id', 'sheet_id'])
+
+        to_cell = await self._retrieve_cell_df(session, sheet_id, self.cell_model.row_id.in_(to_row_df['row_id']))
+        to_cell = pd.merge(to_cell, to_row_df, on='row_id')
+
+        table = pd.merge(
+            from_cell[['value', 'dtype', 'col_id', 'row_index', 'sheet_id']],
+            to_cell[['row_id', 'col_id', 'row_index', 'sheet_id']],
+            on=['row_index', 'col_id', 'sheet_id'])
+
+        await self._update_cells_with_bindparams(session, table, {'value': 'value', 'dtype': 'dtype'})
+
+    async def _update_cells_with_bindparams(self, session: AsyncSession, cell_df: pd.DataFrame,
+                                            bindparams: dict) -> None:
+        if len(cell_df) == 0:
+            raise ValueError('cell_df must have at least one row')
+        if 'sheet_id' not in cell_df.columns:
+            raise IndexError("'sheet_id' not in cell_df.columns")
+        if 'row_id' not in cell_df.columns:
+            raise IndexError("'row_id' not in cell_df.columns:")
+        if 'col_id' not in cell_df.columns:
+            raise IndexError("'col_id' not in cell_df.columns:")
+
+        for key in bindparams.keys():
+            if key not in cell_df.columns:
+                raise IndexError(f'{key} not in {cell_df.columns}')
+
+        cell_df.columns = [f'__{col}__' for col in cell_df.columns]
+        to_update = {key: bindparam(f'__{value}__') for key, value in bindparams.items()}
+
+        stmt = (
+            self.cell_model.__table__.update()
+            .where(
+                ~self.cell_model.is_index,
+                self.cell_model.sheet_id == bindparam('__sheet_id__'),
+                self.cell_model.row_id == bindparam('__row_id__'),
+                self.cell_model.col_id == bindparam('__col_id__'),
+            )
+            .values(to_update)
+        )
+        values = cell_df.to_dict(orient='records')
+        _ = await session.execute(stmt, values)
+
+    async def _retrieve_sindex_df(self, session: AsyncSession, sheet_id: core_types.Id_, *args) -> pd.DataFrame:
+        # *args for complex conditions like model.in_ operator
+        # **kwargs for simple conditions like '==' operator
+        stmt = (
+            select(self.row_model.__table__.c.id,
+                   self.row_model.__table__.c.index, )
+            .where(self.row_model.sheet_id == sheet_id, *args)
+        )
+        result = await session.execute(stmt)
+        sindex_df = pd.DataFrame(result.fetchall(), columns=['id', 'index'])
+        return sindex_df
+
+    async def _retrieve_cell_df(self, session: AsyncSession, sheet_id: core_types.Id_, *args, **kwargs):
+        # *args for complex conditions like model.in_ operator
+        # **kwargs for simple conditions like '==' operator
+        conditions = [self.cell_model.__table__.c[key] == value for key, value in kwargs.items()]
+        stmt = (
+            select(self.cell_model.__table__.c.value,
+                   self.cell_model.__table__.c.dtype,
+                   self.cell_model.__table__.c.row_id,
+                   self.cell_model.__table__.c.col_id,
+                   self.cell_model.__table__.c.sheet_id, )
+            .where(self.cell_model.sheet_id == sheet_id, *args, *conditions)
+        )
+        result = await session.execute(stmt)
+        cell_df = pd.DataFrame(result.fetchall(), columns=['value', 'dtype', 'row_id', 'col_id', 'sheet_id'])
+        return cell_df
+
+    async def copy_rowsOld(self, sheet_id: core_types.Id_,
+                           copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
+        async with db.get_async_session() as session:
             records = [x.dict() for x in copy_from]
-            from_sindex_df = pd.DataFrame(records)
+            from_row_df = pd.DataFrame(records)
+
+            # Find from cells
             stmt = (
                 select(self.cell_model.__table__.c.value,
                        self.cell_model.__table__.c.dtype,
                        self.cell_model.__table__.c.row_id,
-                       self.cell_model.__table__.c.col_id,
-                       self.cell_model.__table__.c.sheet_id)
+                       self.cell_model.__table__.c.col_id, )
                 .where(self.cell_model.sheet_id == sheet_id,
-                       self.cell_model.row_id.in_(from_sindex_df['id']))
+                       self.cell_model.row_id.in_(from_row_df['id']))
             )
             result = await session.execute(stmt)
             from_cell_df = pd.DataFrame(result.fetchall(),
-                                        columns=['value', 'dtype', '__row_id__', '__col_id__', 'sheet_id'])
-
-            records = [x.dict() for x in copy_to]
-            sindex_df = pd.DataFrame(records)
+                                        columns=['value', 'dtype', '__row_id__', '__col_id__', ])
 
             # Find to cells
             stmt = (
@@ -410,15 +498,17 @@ class SheetTableRepo:
                        self.cell_model.__table__.c.row_id,
                        self.cell_model.__table__.c.col_id)
                 .where(self.cell_model.sheet_id == sheet_id,
-                       self.cell_model.row_id.in_(sindex_df['id']))
+                       self.cell_model.row_id.in_(to_row_df['__row_id__']))
             )
             result = await session.execute(stmt)
-            cell_df = pd.DataFrame.from_records(result.fetchall(),
-                                                columns=['id', '__row_id__', '__col_id__', ])
+            to_cell_df = pd.DataFrame.from_records(result.fetchall(),
+                                                   columns=['id', '__row_id__', '__col_id__', ])
 
+            # Change values
             if len(copy_from) == 1:
-                table = pd.merge(from_cell_df.drop('__row_id__', axis=1), cell_df, on='__col_id__')
-                logger.warning(f'\n{table.to_string()}')
+                table = pd.merge(from_cell_df.drop('__row_id__', axis=1), to_cell_df, on='__col_id__')
+            else:
+                table = pd.merge(from_cell_df, to_cell_df, on=['__row_id__', '__col_id__'])
 
             # Update
             stmt = (
