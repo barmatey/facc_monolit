@@ -26,6 +26,17 @@ class Repository(ABC):
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
         pass
 
+    @abstractmethod
+    async def copy_rows(self, sheet_id: core_types.Id_,
+                        copy_from: list[entities.CopySindex],
+                        copy_to: list[entities.CopySindex]) -> None:
+        pass
+
+    @abstractmethod
+    async def copy_cells(self, sheet_id: core_types.Id_, copy_from: list[entities.CopyCell],
+                         copy_to: list[entities.CopyCell]) -> None:
+        pass
+
 
 class PostgresRepo(Repository):
     sheet_repo = repository_postgres.SheetRepo
@@ -49,8 +60,10 @@ class PostgresRepo(Repository):
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
         await self.sheet_sorter_repo().update_col_sorter(data)
 
-    async def copy_rows(self, data: entities.CopySindex) -> None:
-        await self.sheet_table_repo().copy_rows(data)
+    async def copy_rows(self, sheet_id: core_types.Id_,
+                        copy_from: list[entities.CopySindex],
+                        copy_to: list[entities.CopySindex]) -> None:
+        await self.sheet_table_repo().copy_rows(sheet_id, copy_from, copy_to)
 
     async def copy_cells(self, sheet_id: core_types.Id_,
                          copy_from: list[entities.CopyCell], copy_to: list[entities.CopyCell]) -> None:

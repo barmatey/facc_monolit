@@ -382,6 +382,61 @@ class SheetTableRepo:
     row_model = Row
     col_model = Col
 
+    async def copy_rows(self, sheet_id: core_types.Id_,
+                        copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
+        async with db.get_async_session() as session:
+            # Find from cells
+            records = [x.dict() for x in copy_from]
+            from_sindex_df = pd.DataFrame(records)
+            stmt = (
+                select(self.cell_model.__table__.c.value,
+                       self.cell_model.__table__.c.dtype,
+                       self.cell_model.__table__.c.row_id,
+                       self.cell_model.__table__.c.col_id,
+                       self.cell_model.__table__.c.sheet_id)
+                .where(self.cell_model.sheet_id == sheet_id,
+                       self.cell_model.row_id.in_(from_sindex_df['id']))
+            )
+            result = await session.execute(stmt)
+            from_cell_df = pd.DataFrame(result.fetchall(),
+                                        columns=['value', 'dtype', '__row_id__', '__col_id__', 'sheet_id'])
+
+            records = [x.dict() for x in copy_to]
+            sindex_df = pd.DataFrame(records)
+
+            # Find to cells
+            stmt = (
+                select(self.cell_model.__table__.c.id,
+                       self.cell_model.__table__.c.row_id,
+                       self.cell_model.__table__.c.col_id)
+                .where(self.cell_model.sheet_id == sheet_id,
+                       self.cell_model.row_id.in_(sindex_df['id']))
+            )
+            result = await session.execute(stmt)
+            cell_df = pd.DataFrame.from_records(result.fetchall(),
+                                                columns=['id', '__row_id__', '__col_id__', ])
+
+            if len(copy_from) == 1:
+                table = pd.merge(from_cell_df.drop('__row_id__', axis=1), cell_df, on='__col_id__')
+                logger.warning(f'\n{table.to_string()}')
+
+            # Update
+            stmt = (
+                self.cell_model.__table__.update()
+                .where(self.cell_model.sheet_id == sheet_id,
+                       ~self.cell_model.is_index,
+                       self.cell_model.row_id == bindparam('__row_id__'),
+                       self.cell_model.col_id == bindparam('__col_id__'),
+                       )
+                .values({
+                    "value": bindparam("value"),
+                    "dtype": bindparam("dtype"),
+                })
+            )
+            values = table.to_dict(orient='records')
+            _ = await session.execute(stmt, values)
+            await session.commit()
+
     async def copy_cells(self, sheet_id: core_types.Id_, copy_from: list[entities.CopyCell],
                          copy_to: list[entities.CopyCell]):
         async with db.get_async_session() as session:
@@ -435,16 +490,3 @@ class SheetTableRepo:
             )
             _ = await session.execute(stmt, values)
             await session.commit()
-
-    async def _update_cells_with_session(self, session: AsyncSession, values: list[dict]) -> None:
-        stmt = (
-            self.cell_model.__table__.update()
-            .where(self.cell_model.__table__.c.row_id == bindparam('__row_id__'),
-                   self.cell_model.__table__.c.col_id == bindparam('__col_id__'),
-                   self.cell_model.__table__.c.sheet_id == bindparam('__sheet_id__'))
-            .values({
-                "value": bindparam("value"),
-                "dtype": bindparam("dtype"),
-            })
-        )
-        _ = await session.execute(stmt, values)

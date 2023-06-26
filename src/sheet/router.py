@@ -71,9 +71,10 @@ async def update_col_sorter(data: schema.ColSorterSchema,
 
 @router.patch("/{sheet_id}/copy-rows")
 async def copy_rows(sheet_id: core_types.Id_,
-                    data: schema.CopySindexSchema,
+                    copy_from: list[schema.CopySindexSchema],
+                    copy_to: list[schema.CopySindexSchema],
                     sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
-    await sheet_service.copy_rows(data)
+    await sheet_service.copy_rows(sheet_id, copy_from, copy_to)
     return 1
 
 

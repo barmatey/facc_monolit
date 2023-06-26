@@ -16,9 +16,8 @@ class SindexCreate(TypedDict):
     sheet_id: bool
 
 
-class Sindex(TypedDict):
+class Sindex(SindexCreate):
     id: core_types.Id_
-    sheet_id: core_types.Id_
 
 
 class CellCreate(TypedDict):
@@ -88,9 +87,9 @@ class ColSorter(BaseModel):
 
 
 class CopySindex(BaseModel):
-    sheet_id: core_types.Id_
-    from_sindexes: list[core_types.Id_]
-    to_sindexes: list[core_types.Id_]
+    id: core_types.Id_
+    index: int
+    sheet_id: int
 
 
 class CopyCell(BaseModel):
