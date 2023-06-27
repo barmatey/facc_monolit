@@ -103,3 +103,12 @@ class CopyCell(BaseModel):
 class UpdateSindexSize(BaseModel):
     sindex_id: core_types.Id_
     new_size: int
+
+
+class UpdateCell(BaseModel):
+    id: core_types.Id_
+    value: str
+    dtype: enums.Dtype
+    is_selected: typing.Optional[bool]
+    is_readonly: typing.Optional[bool]
+    is_filtred: typing.Optional[bool]

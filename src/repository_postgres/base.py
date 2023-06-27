@@ -102,6 +102,14 @@ class BaseRepo:
         result = list(result)
         return result
 
+    async def _update_with_session(self, session: AsyncSession, filter_: dict, data: dict) -> None:
+        stmt = (
+            update(self.model)
+            .filter_by(**filter_)
+            .values(**data)
+        )
+        _ = await session.execute(stmt)
+
     async def delete_with_session(self, session: AsyncSession, filter_: dict) -> None:
         result = await session.execute(
             delete(self.model)

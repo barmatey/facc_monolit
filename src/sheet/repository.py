@@ -87,3 +87,6 @@ class PostgresRepo(Repository):
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         await self.sheet_layout_repo().update_col_size(sheet_id, data)
+
+    async def update_cell(self, sheet_id: core_types.Id_, data: entities.UpdateCell) -> None:
+        await self.sheet_cell_repo().update(sheet_id, data)

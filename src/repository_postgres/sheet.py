@@ -91,6 +91,14 @@ class ColRepo(SindexRepo):
 class CellRepo(BaseRepo):
     model = Cell
 
+    async def update(self, sheet_id: core_types.Id_, data: entities.UpdateCell) -> None:
+        async with db.get_async_session() as session:
+            data = data.dict()
+            data = {key: data[key] for key in data if data[key] is not None}
+            filter_ = {'id': data.pop('id')} | {'sheet_id': sheet_id}
+            await super()._update_with_session(session, filter_=filter_, data=data)
+            await session.commit()
+
 
 class SheetRepo(BaseRepo):
     model = Sheet

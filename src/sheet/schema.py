@@ -49,3 +49,7 @@ class CopyCellSchema(entities.CopyCell):
 
 class UpdateSindexSizeSchema(entities.UpdateSindexSize):
     pass
+
+
+class UpdateCellSchema(entities.UpdateCell):
+    pass

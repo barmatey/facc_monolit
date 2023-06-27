@@ -44,3 +44,6 @@ class SheetService:
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
         await self.repo().update_col_size(sheet_id, data)
+
+    async def update_cell(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
+        await self.repo().update_cell(sheet_id, data)
