@@ -1,8 +1,6 @@
 import typing
 
-import pandas as pd
-from loguru import logger
-from sqlalchemy import select, insert, delete, update, bindparam, Result, desc, asc
+from sqlalchemy import select, insert, delete, update, desc, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 

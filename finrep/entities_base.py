@@ -115,7 +115,7 @@ class ReportBase(entities.Report):
         return df
 
     def create_report(self):
-        pass
+        raise NotImplemented
 
     def get_report(self) -> pd.DataFrame:
         if self.report is None:

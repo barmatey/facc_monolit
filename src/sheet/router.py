@@ -108,3 +108,10 @@ async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,
                       sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.update_cell(sheet_id, data)
     return 1
+
+
+@router.delete("/{sheet_id}/delete-rows")
+async def delete_rows(sheet_id: core_types.Id_, row_ids: list[core_types.Id_],
+                      sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
+    await sheet_service.delete_rows(sheet_id, row_ids)
+    return 1

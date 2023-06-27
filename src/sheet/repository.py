@@ -47,9 +47,18 @@ class Repository(ABC):
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         pass
 
+    @abstractmethod
+    async def update_cell(self, sheet_id: core_types.Id_, data: entities.UpdateCell) -> None:
+        pass
+
+    @abstractmethod
+    async def delete_rows(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
+        pass
+
 
 class PostgresRepo(Repository):
     sheet_repo = repository_postgres.SheetRepo
+    sheet_row_repo = repository_postgres.RowRepo
     sheet_cell_repo = repository_postgres.CellRepo
     sheet_table_repo = repository_postgres.SheetTableRepo
     sheet_filter_repo = repository_postgres.SheetFilterRepo
@@ -90,3 +99,6 @@ class PostgresRepo(Repository):
 
     async def update_cell(self, sheet_id: core_types.Id_, data: entities.UpdateCell) -> None:
         await self.sheet_cell_repo().update(sheet_id, data)
+
+    async def delete_rows(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
+        await self.sheet_row_repo().delete_bulk(sheet_id, row_ids)

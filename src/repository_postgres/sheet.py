@@ -3,7 +3,7 @@ import typing
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, update
+from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, update, delete
 from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -79,9 +79,49 @@ class SindexRepo(BaseRepo):
         )
         return sindex_scroll_size
 
+    async def _update_scroll_pos(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
+        # Get data
+        stmt = (
+            select(
+                self.model.__table__.c.id,
+                self.model.__table__.c.size,
+                self.model.__table__.c.is_freeze,
+                self.model.__table__.c.is_filtred,
+                self.model.__table__.c.scroll_pos, )
+            .filter_by(sheet_id=sheet_id)
+            .order_by(self.model.__table__.c.index)
+        )
+        sindexes = await session.execute(stmt)
+        sindexes = pd.DataFrame.from_records(sindexes.fetchall(), columns=['sindex_id', 'size', 'is_freeze',
+                                                                           'is_filtred', 'scroll_pos'])
+        # Calculate new values
+        sindexes.loc[~sindexes['is_filtred'] | sindexes['is_freeze'], 'size'] = 0
+        sindexes['scroll_pos'] = sindexes['size'].cumsum().shift(1).fillna(0)
+        sindexes.loc[sindexes['is_freeze'], 'scroll_pos'] = -1
+
+        # Update data
+        values: list[dict] = sindexes[['sindex_id', 'is_filtred', 'scroll_pos']].to_dict(orient='records')
+        stmt = (
+            self.model.__table__.update()
+            .where(self.model.__table__.c.id == bindparam('sindex_id'))
+            .values({"scroll_pos": bindparam("scroll_pos"), "is_filtred": bindparam("is_filtred")})
+        )
+        _ = await session.execute(stmt, values)
+
 
 class RowRepo(SindexRepo):
     model = Row
+
+    async def delete_bulk(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
+        async with db.get_async_session() as session:
+            stmt = (
+                delete(self.model)
+                .where(self.model.sheet_id == sheet_id,
+                       self.model.id.in_(row_ids))
+            )
+            _ = await session.execute(stmt)
+            await super()._update_scroll_pos(session, sheet_id)
+            await session.commit()
 
 
 class ColRepo(SindexRepo):

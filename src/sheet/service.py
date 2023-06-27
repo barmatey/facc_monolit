@@ -28,6 +28,9 @@ class SheetService:
     async def update_col_sorter(self, data: schema.ColSorterSchema) -> None:
         await self.repo().update_col_sorter(data)
 
+    async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
+        await self.repo().update_col_size(sheet_id, data)
+
     async def copy_rows(self, sheet_id: core_types.Id_,
                         copy_from: list[schema.CopySindexSchema],
                         copy_to: list[schema.CopySindexSchema]) -> None:
@@ -42,8 +45,8 @@ class SheetService:
                          copy_from: list[schema.CopyCellSchema], copy_to: list[schema.CopyCellSchema]) -> None:
         await self.repo().copy_cells(sheet_id, copy_from, copy_to)
 
-    async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
-        await self.repo().update_col_size(sheet_id, data)
-
     async def update_cell(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
         await self.repo().update_cell(sheet_id, data)
+
+    async def delete_rows(self, sheet_id:  core_types.Id_, row_ids: list[core_types.Id_]) -> None:
+        await self.repo().delete_rows(sheet_id, row_ids)
