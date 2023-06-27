@@ -33,6 +33,12 @@ class Repository(ABC):
         pass
 
     @abstractmethod
+    async def copy_cols(self, sheet_id: core_types.Id_,
+                        copy_from: list[entities.CopySindex],
+                        copy_to: list[entities.CopySindex]) -> None:
+        pass
+
+    @abstractmethod
     async def copy_cells(self, sheet_id: core_types.Id_, copy_from: list[entities.CopyCell],
                          copy_to: list[entities.CopyCell]) -> None:
         pass
@@ -64,6 +70,11 @@ class PostgresRepo(Repository):
                         copy_from: list[entities.CopySindex],
                         copy_to: list[entities.CopySindex]) -> None:
         await self.sheet_table_repo().copy_rows(sheet_id, copy_from, copy_to)
+
+    async def copy_cols(self, sheet_id: core_types.Id_,
+                        copy_from: list[entities.CopySindex],
+                        copy_to: list[entities.CopySindex]) -> None:
+        await self.sheet_table_repo().copy_cols(sheet_id, copy_from, copy_to)
 
     async def copy_cells(self, sheet_id: core_types.Id_,
                          copy_from: list[entities.CopyCell], copy_to: list[entities.CopyCell]) -> None:

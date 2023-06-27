@@ -78,10 +78,19 @@ async def copy_rows(sheet_id: core_types.Id_,
     return 1
 
 
+@router.patch("/{sheet_id}/copy-cols")
+async def copy_cols(sheet_id: core_types.Id_,
+                    copy_from: list[schema.CopySindexSchema],
+                    copy_to: list[schema.CopySindexSchema],
+                    sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
+    await sheet_service.copy_cols(sheet_id, copy_from, copy_to)
+    return 1
+
+
 @router.patch("/{sheet_id}/copy-cells")
 async def copy_cells(sheet_id: core_types.Id_,
                      copy_from: list[schema.CopyCellSchema],
                      copy_to: list[schema.CopyCellSchema],
                      sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
-    await sheet_service.copy_cells(sheet_id, copy_from, copy_to,)
+    await sheet_service.copy_cells(sheet_id, copy_from, copy_to, )
     return 1

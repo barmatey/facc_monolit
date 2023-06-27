@@ -442,13 +442,22 @@ class SheetTableRepo:
                         copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
         async with db.get_async_session() as session:
             if len(copy_from) == 1:
-                await self.copy_rows_one_to_many(session, sheet_id, copy_from, copy_to)
+                await self._copy_rows_one_to_many(session, sheet_id, copy_from, copy_to)
             else:
                 await self._copy_rows_many_to_one(session, sheet_id, copy_from, copy_to)
             await session.commit()
 
-    async def copy_rows_one_to_many(self, session: AsyncSession, sheet_id: core_types.Id_,
-                                    copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
+    async def copy_cols(self, sheet_id: core_types.Id_,
+                        copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
+        async with db.get_async_session() as session:
+            if len(copy_from) == 1:
+                await self._copy_cols_one_to_many(session, sheet_id, copy_from, copy_to)
+            else:
+                await self._copy_cols_many_to_one(session, sheet_id, copy_from, copy_to)
+            await session.commit()
+
+    async def _copy_rows_one_to_many(self, session: AsyncSession, sheet_id: core_types.Id_,
+                                     copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
         records = [{'row_id': x.id, 'row_index': x.index, 'sheet_id': x.sheet_id} for x in copy_to]
         to_row_df = pd.DataFrame(records)
 
@@ -486,6 +495,47 @@ class SheetTableRepo:
             to_cell[['row_id', 'col_id', 'row_index', 'sheet_id']],
             on=['row_index', 'col_id', 'sheet_id'])
 
+        await self._update_cells_with_bindparams(session, table, {'value': 'value', 'dtype': 'dtype'})
+
+    async def _copy_cols_many_to_one(self, session: AsyncSession, sheet_id: core_types.Id_,
+                                     copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
+        records = [{'col_id': x.id, 'col_index': x.index, 'sheet_id': x.sheet_id} for x in copy_from]
+        from_col_df = pd.DataFrame(records)
+
+        # Offset indexes in from_col_df then retrieve to_col_df searching via offseted indexes
+        row_offset = copy_from[0].index - copy_to[0].index
+        from_col_df['col_index'] = from_col_df['col_index'] - row_offset
+        to_col_df = await self._retrieve_col_df(session, sheet_id,
+                                                self.col_model.index.in_(from_col_df['col_index']))
+        to_col_df = to_col_df.rename({'id': 'col_id', 'index': 'col_index'}, axis=1)
+
+        # Find cells and merge with cols
+        from_cell = await self._retrieve_cell_df(session, sheet_id, self.cell_model.col_id.in_(from_col_df['col_id']))
+        from_cell = pd.merge(from_cell, from_col_df, on=['col_id', 'sheet_id'])
+
+        to_cell = await self._retrieve_cell_df(session, sheet_id, self.cell_model.col_id.in_(to_col_df['col_id']))
+        to_cell = pd.merge(to_cell, to_col_df, on='col_id')
+
+        # Create table with data and update cells
+        table = pd.merge(
+            from_cell[['value', 'dtype', 'row_id', 'col_index', 'sheet_id']],
+            to_cell[['row_id', 'col_id', 'col_index', 'sheet_id']],
+            on=['col_index', 'row_id', 'sheet_id'])
+
+        await self._update_cells_with_bindparams(session, table, {'value': 'value', 'dtype': 'dtype'})
+
+    async def _copy_cols_one_to_many(self, session: AsyncSession, sheet_id: core_types.Id_,
+                                     copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
+        records = [{'col_id': x.id, 'col_index': x.index, 'sheet_id': x.sheet_id} for x in copy_to]
+        to_row_df = pd.DataFrame(records)
+
+        from_cell_df = await self._retrieve_cell_df(session, sheet_id, self.cell_model.col_id == copy_from[0].id)
+        to_cell_df = await self._retrieve_cell_df(session, sheet_id, self.cell_model.col_id.in_(to_row_df['col_id']))
+        table = pd.merge(
+            from_cell_df[['value', 'dtype', 'row_id', 'sheet_id']],
+            to_cell_df[['row_id', 'col_id', 'sheet_id']],
+            on=['row_id', 'sheet_id']
+        )
         await self._update_cells_with_bindparams(session, table, {'value': 'value', 'dtype': 'dtype'})
 
     async def _retrieve_row_df(self, session: AsyncSession, sheet_id: core_types.Id_, *args) -> pd.DataFrame:
