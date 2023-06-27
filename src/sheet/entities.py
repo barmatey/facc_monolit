@@ -98,3 +98,8 @@ class CopyCell(BaseModel):
     row_index: int
     col_index: int
     sheet_id: core_types.Id_
+
+
+class UpdateSindexSize(BaseModel):
+    sindex_id: core_types.Id_
+    new_size: int

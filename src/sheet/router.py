@@ -94,3 +94,10 @@ async def copy_cells(sheet_id: core_types.Id_,
                      sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.copy_cells(sheet_id, copy_from, copy_to, )
     return 1
+
+
+@router.patch("/{sheet_id}/update-col-width")
+async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema,
+                           sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
+    await sheet_service.update_col_size(sheet_id, data)
+    return 1
