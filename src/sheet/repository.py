@@ -59,11 +59,11 @@ class Repository(ABC):
 class PostgresRepo(Repository):
     sheet_repo = repository_postgres.SheetRepo
     sheet_row_repo = repository_postgres.RowRepo
+    sheet_col_repo = repository_postgres.ColRepo
     sheet_cell_repo = repository_postgres.CellRepo
     sheet_table_repo = repository_postgres.SheetTableRepo
     sheet_filter_repo = repository_postgres.SheetFilterRepo
     sheet_sorter_repo = repository_postgres.SheetSorterRepo
-    sheet_layout_repo = repository_postgres.SheetLayoutRepo
 
     async def retrieve_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
         return await self.sheet_repo().retrieve_as_sheet(data=data)
@@ -95,7 +95,7 @@ class PostgresRepo(Repository):
         await self.sheet_table_repo().copy_cells(sheet_id, copy_from, copy_to)
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
-        await self.sheet_layout_repo().update_col_size(sheet_id, data)
+        await self.sheet_col_repo().update_sindex_size(sheet_id, data)
 
     async def update_cell(self, sheet_id: core_types.Id_, data: entities.UpdateCell) -> None:
         await self.sheet_cell_repo().update(sheet_id, data)

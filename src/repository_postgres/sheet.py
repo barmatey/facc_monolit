@@ -79,6 +79,25 @@ class SindexRepo(BaseRepo):
         )
         return sindex_scroll_size
 
+    async def update_sindex_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
+        async with db.get_async_session() as session:
+            await super()._update_with_session(session,
+                                               filter_={'sheet_id': sheet_id, 'id': data.sindex_id},
+                                               data={'size': data.new_size})
+            await self._update_scroll_pos(session, sheet_id)
+            await session.commit()
+
+    async def delete_bulk(self, sheet_id: core_types.Id_, sindex_ids: list[core_types.Id_]) -> None:
+        async with db.get_async_session() as session:
+            stmt = (
+                delete(self.model)
+                .where(self.model.sheet_id == sheet_id,
+                       self.model.id.in_(sindex_ids))
+            )
+            _ = await session.execute(stmt)
+            await self._update_scroll_pos(session, sheet_id)
+            await session.commit()
+
     async def _update_scroll_pos(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
         # Get data
         stmt = (
@@ -111,17 +130,6 @@ class SindexRepo(BaseRepo):
 
 class RowRepo(SindexRepo):
     model = Row
-
-    async def delete_bulk(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
-        async with db.get_async_session() as session:
-            stmt = (
-                delete(self.model)
-                .where(self.model.sheet_id == sheet_id,
-                       self.model.id.in_(row_ids))
-            )
-            _ = await session.execute(stmt)
-            await super()._update_scroll_pos(session, sheet_id)
-            await session.commit()
 
 
 class ColRepo(SindexRepo):
@@ -356,55 +364,6 @@ class SheetFilterRepo:
             .values({"is_filtred": bindparam("is_filtred")})
         )
         _ = await session.execute(stmt, items)
-
-
-class SheetLayoutRepo:
-    row_model = Row
-    col_model = Col
-
-    async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
-        async with db.get_async_session() as session:
-            await self._update_col_size(session, sheet_id, data)
-            await self._update_scroll_pos(session, sheet_id)
-            await session.commit()
-
-    async def _update_col_size(self, session: AsyncSession, sheet_id: core_types.Id_,
-                               data: entities.UpdateSindexSize) -> None:
-        stmt = (
-            update(self.col_model)
-            .where(self.col_model.sheet_id == sheet_id, self.col_model.id == data.sindex_id)
-            .values(size=data.new_size)
-        )
-        _ = await session.execute(stmt)
-
-    async def _update_scroll_pos(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
-        # Get data
-        stmt = (
-            select(
-                self.col_model.__table__.c.id,
-                self.col_model.__table__.c.size,
-                self.col_model.__table__.c.is_freeze,
-                self.col_model.__table__.c.is_filtred,
-                self.col_model.__table__.c.scroll_pos, )
-            .filter_by(sheet_id=sheet_id)
-            .order_by(self.col_model.__table__.c.index)
-        )
-        cols = await session.execute(stmt)
-        cols = pd.DataFrame.from_records(cols.fetchall(), columns=['col_id', 'size', 'is_freeze', 'is_filtred',
-                                                                   'scroll_pos'])
-        # Calculate new values
-        cols.loc[~cols['is_filtred'] | cols['is_freeze'], 'size'] = 0
-        cols['scroll_pos'] = cols['size'].cumsum().shift(1).fillna(0)
-        cols.loc[cols['is_freeze'], 'scroll_pos'] = -1
-
-        # Update data
-        values: list[dict] = cols[['col_id', 'is_filtred', 'scroll_pos']].to_dict(orient='records')
-        stmt = (
-            self.col_model.__table__.update()
-            .where(self.col_model.__table__.c.id == bindparam('col_id'))
-            .values({"scroll_pos": bindparam("scroll_pos"), "is_filtred": bindparam("is_filtred")})
-        )
-        _ = await session.execute(stmt, values)
 
 
 class SheetSorterRepo:
