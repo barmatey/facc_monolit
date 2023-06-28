@@ -2,9 +2,9 @@ import pydantic
 from . import entities
 
 
-class Source(entities.Source):
+class SourceSchema(entities.Source):
     pass
 
 
-class CreateSourceForm(pydantic.BaseModel):
-    title: str
+class SourceCreateSchema(entities.SourceCreate):
+    pass

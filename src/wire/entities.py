@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from src import core_types
 
 
-class SourceCreateData(BaseModel):
+class SourceCreate(BaseModel):
     title: str
 
 
