@@ -7,6 +7,8 @@ from .. import core_types
 from . import enums
 from . import entities
 
+ReportCategorySchema = enums.CategoryLiteral
+
 
 class GroupCreateSchema(pydantic.BaseModel):
     title: str

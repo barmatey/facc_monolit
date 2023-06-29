@@ -4,3 +4,4 @@ from .sheet import SheetRepo, RowRepo, ColRepo, CellRepo, SheetFilterRepo, Sheet
 from .group import GroupRepo
 from .interval import IntervalRepo
 from .report import ReportRepo
+from .category import CategoryRepo

@@ -31,8 +31,7 @@ async def delete_source(source_id: core_types.Id_, service: Service = Depends(Se
 
 @router_wire.get("/", response_model=list[schema.SourceSchema])
 async def list_source(service: Service = Depends(ServiceSource)):
-    result = await service.list()
-    loguru.logger.debug(f'{result}')
+    result = await service.retrieve_list()
     return result
 
 

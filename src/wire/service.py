@@ -19,7 +19,7 @@ class Service(ABC):
     async def delete(self, id_: core_types.Id_) -> None:
         await self.repo().delete(id_)
 
-    async def list(self) -> list[pydantic.BaseModel]:
+    async def retrieve_list(self) -> list[pydantic.BaseModel]:
         return await self.repo().list()
 
 

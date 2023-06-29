@@ -3,7 +3,7 @@ import pandas as pd
 
 import core_types
 import repository_postgres
-from . import entities
+from . import entities, enums
 
 
 class Repository(ABC):
@@ -52,11 +52,16 @@ class Repository(ABC):
     async def retrieve_report_sheet_as_dataframe(self, report_id: core_types.Id_) -> pd.DataFrame:
         pass
 
+    @abstractmethod
+    async def retrieve_report_categories(self) -> list[enums.CategoryLiteral]:
+        pass
+
 
 class PostgresRepo(Repository):
     wire_repo = repository_postgres.WireRepo
     group_repo = repository_postgres.GroupRepo
     report_repo = repository_postgres.ReportRepo
+    category_repo = repository_postgres.CategoryRepo
 
     async def retrieve_wire_df(self, source_id: core_types.Id_) -> pd.DataFrame:
         return await self.wire_repo().retrieve_wire_df(source_id=source_id)
@@ -90,3 +95,6 @@ class PostgresRepo(Repository):
 
     async def retrieve_report_sheet_as_dataframe(self, report_id: core_types.Id_) -> pd.DataFrame:
         raise NotImplemented
+
+    async def retrieve_report_categories(self) -> list[enums.CategoryLiteral]:
+        return await self.category_repo().retrieve_bulk()

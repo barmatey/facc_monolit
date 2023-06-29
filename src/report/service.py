@@ -14,6 +14,10 @@ from .repository import Repository, PostgresRepo
 class Service(ABC):
 
     @abstractmethod
+    async def retrieve_report_categories(self) -> list[enums.CategoryLiteral]:
+        pass
+
+    @abstractmethod
     async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
         pass
 
@@ -36,6 +40,9 @@ class Service(ABC):
 
 class BaseService(Service):
     repo: Repository = PostgresRepo
+
+    async def retrieve_report_categories(self) -> list[enums.CategoryLiteral]:
+        return await self.repo().retrieve_report_categories()
 
     async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
         raise NotImplemented

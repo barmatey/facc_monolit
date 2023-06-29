@@ -7,7 +7,6 @@ from .. import core_types
 from .service import Service, BaseService, BalanceService
 from . import schema, enums, entities
 
-
 router_group = APIRouter(
     prefix="/group",
     tags=['Group']
@@ -22,7 +21,7 @@ def get_service(category: enums.CategoryLiteral) -> Service:
     return LinkedService[category].value()
 
 
-@router_group.post("")
+@router_group.post("/")
 async def create_group(data: schema.GroupCreateSchema) -> core_types.Id_:
     service = get_service(data.category)
     group_id = await service.create_group(data)
@@ -51,12 +50,25 @@ async def delete_group(group_id: core_types.Id_, service: Service = Depends(Base
 
 router_report = APIRouter(
     prefix="/report",
-    tags=['Report']
+    tags=['Report'],
 )
 
 
-@router_report.post("")
+@router_report.post("/")
 async def create_finrep(data: schema.ReportCreateSchema) -> core_types.Id_:
     service = get_service(data.category)
     report_id = await service.create_report(data)
     return report_id
+
+
+router_category = APIRouter(
+    prefix="/category",
+    tags=['Category'],
+)
+
+
+@router_category.get("/")
+async def retrieve_all_categories(service: BaseService = Depends(BaseService)) -> list[schema.ReportCategorySchema]:
+    result = await service.retrieve_report_categories()
+    logger.debug(f'{result}')
+    return result
