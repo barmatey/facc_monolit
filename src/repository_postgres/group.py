@@ -46,7 +46,7 @@ class GroupRepo(BaseRepo):
                 drop_index=data.drop_index,
                 drop_columns=data.drop_columns,
             )
-            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
+            sheet_id = await self.sheet_repo()._create_with_session(session, sheet_data)
 
             # Create group model
             group_data = dict(
@@ -56,7 +56,7 @@ class GroupRepo(BaseRepo):
                 source_id=data.source_id,
                 sheet_id=sheet_id,
             )
-            group_id = await self.create_with_session(session, group_data)
+            group_id = await self._create_with_session(session, group_data)
 
             await session.commit()
             return group_id
@@ -67,7 +67,7 @@ class GroupRepo(BaseRepo):
 
         async with db.get_async_session() as session:
             # noinspection PyTypeChecker
-            groups: list[Group] = await super().retrieve_bulk_with_session(session, filter_)
+            groups: list[Group] = await super()._retrieve_bulk_with_session(session, filter_)
             groups: list[entities_report.Group] = [g.to_group_entity() for g in groups]
             return groups
 
@@ -80,8 +80,8 @@ class GroupRepo(BaseRepo):
     async def delete_by_id(self, id_: core_types.Id_) -> core_types.Id_:
         async with db.get_async_session() as session:
             # noinspection PyTypeChecker
-            group: Group = await self.retrieve_and_delete_with_session(session, filter_={"id": id_})
-            await self.sheet_repo().delete_with_session(session, filter_={"id": group.sheet_id})
+            group: Group = await self._retrieve_and_delete_with_session(session, filter_={"id": id_})
+            await self.sheet_repo()._delete_with_session(session, filter_={"id": group.sheet_id})
             group_id = group.id
             await session.commit()
             return group_id
@@ -89,6 +89,6 @@ class GroupRepo(BaseRepo):
     async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         async with db.get_async_session() as session:
             # noinspection PyTypeChecker
-            group: Group = await self.retrieve_with_session(session, filter_={"id": group_id})
+            group: Group = await self._retrieve_with_session(session, filter_={"id": group_id})
             df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, group.sheet_id)
             return df

@@ -33,7 +33,7 @@ class BaseRepo:
             await session.commit()
             return model_id
 
-    async def create_with_session(self, session: AsyncSession, data: dict) -> core_types.Id_:
+    async def _create_with_session(self, session: AsyncSession, data: dict) -> core_types.Id_:
         model = self.model(**data)
         session.add(model)
         await session.flush()
@@ -41,11 +41,11 @@ class BaseRepo:
 
     async def create_bulk(self, data: list[dict]) -> list[core_types.Id_]:
         async with db.get_async_session() as session:
-            result = await self.create_bulk_with_session(session, data)
+            result = await self._create_bulk_with_session(session, data)
             await session.commit()
             return result
 
-    async def create_bulk_with_session(self, session: AsyncSession, data: list[dict]) -> list[core_types.Id_]:
+    async def _create_bulk_with_session(self, session: AsyncSession, data: list[dict]) -> list[core_types.Id_]:
         # noinspection PyTypeChecker
         result = await session.scalars(
             insert(self.model)
@@ -57,9 +57,9 @@ class BaseRepo:
 
     async def retrieve(self, filter_: dict) -> BaseModel:
         async with db.get_async_session() as session:
-            return await self.retrieve_with_session(session, filter_)
+            return await self._retrieve_with_session(session, filter_)
 
-    async def retrieve_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
+    async def _retrieve_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
         result = await session.execute(
             select(self.model)
             .filter_by(**filter_)
@@ -72,10 +72,10 @@ class BaseRepo:
 
     async def retrieve_bulk(self, filter_: dict, sort_by: str = None, ascending=True) -> list[BaseModel]:
         async with db.get_async_session() as session:
-            return await self.retrieve_bulk_with_session(session, filter_, sort_by, ascending)
+            return await self._retrieve_bulk_with_session(session, filter_, sort_by, ascending)
 
-    async def retrieve_bulk_with_session(self, session: AsyncSession,
-                                         filter_: dict, sort_by: str = None, ascending=True) -> list[BaseModel]:
+    async def _retrieve_bulk_with_session(self, session: AsyncSession,
+                                          filter_: dict, sort_by: str = None, ascending=True) -> list[BaseModel]:
         if sort_by is not None:
             sorter = asc(sort_by) if ascending else desc(sort_by)
         else:
@@ -89,7 +89,8 @@ class BaseRepo:
         result = list(result)
         return result
 
-    async def _retrieve_bulk(self, session: AsyncSession, filter_: dict, sort_by: str = None, ascending=True) -> Result:
+    async def _retrieve_bulk_as_result(self, session: AsyncSession, filter_: dict,
+                                       sort_by: str = None, ascending=True) -> Result:
         if sort_by is not None:
             sorter = asc(sort_by) if ascending else desc(sort_by)
         else:
@@ -102,21 +103,21 @@ class BaseRepo:
         )
         return result
 
-    async def retrieve_bulk_as_records_with_session(self, session: AsyncSession, filter_: dict,
-                                                    sort_by: str = None, ascending=True) -> list[tuple]:
-        result = await self._retrieve_bulk(session, filter_, sort_by, ascending)
+    async def _retrieve_bulk_as_records(self, session: AsyncSession, filter_: dict,
+                                        sort_by: str = None, ascending=True) -> list[tuple]:
+        result = await self._retrieve_bulk_as_result(session, filter_, sort_by, ascending)
         result = list(result)
         return result
 
     async def _retrieve_bulk_as_dataframe(self, session: AsyncSession, filter_: dict,
                                           sort_by: str = None, ascending=True) -> pd.DataFrame:
-        result = await self._retrieve_bulk(session, filter_, sort_by, ascending)
+        result = await self._retrieve_bulk_as_result(session, filter_, sort_by, ascending)
         df = pd.DataFrame.from_records(result, columns=self.model.get_columns())
         return df
 
     async def _retrieve_bulk_as_dicts(self, session: AsyncSession, filter_: dict,
                                       sort_by: str = None, ascending=True) -> list[dict]:
-        result = await self._retrieve_bulk(session, filter_, sort_by, ascending)
+        result = await self._retrieve_bulk_as_result(session, filter_, sort_by, ascending)
         result = Result.mappings(result)
         return list(result)
 
@@ -128,7 +129,7 @@ class BaseRepo:
         )
         _ = await session.execute(stmt)
 
-    async def delete_with_session(self, session: AsyncSession, filter_: dict) -> None:
+    async def _delete_with_session(self, session: AsyncSession, filter_: dict) -> None:
         result = await session.execute(
             delete(self.model)
             .filter_by(**filter_)
@@ -145,11 +146,11 @@ class BaseRepo:
 
     async def retrieve_and_delete(self, filter_: dict) -> BaseModel:
         async with db.get_async_session() as session:
-            result = await self.retrieve_and_delete_with_session(session, filter_)
+            result = await self._retrieve_and_delete_with_session(session, filter_)
             await session.commit()
             return result
 
-    async def retrieve_and_delete_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
+    async def _retrieve_and_delete_with_session(self, session: AsyncSession, filter_: dict) -> BaseModel:
         result = await session.scalars(
             delete(self.model)
             .filter_by(**filter_)

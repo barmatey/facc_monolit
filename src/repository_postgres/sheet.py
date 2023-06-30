@@ -158,12 +158,12 @@ class SheetRepo(BaseRepo):
 
     async def create(self, data: entities.SheetCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
-            sheet_id = await self.create_with_session(session, data)
+            sheet_id = await self._create_with_session(session, data)
             await session.commit()
             return sheet_id
 
-    async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
-        sheet_id = await super().create_with_session(session, {})
+    async def _create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
+        sheet_id = await super()._create_with_session(session, {})
 
         # Create row, col and cell data from denormalized dataframe
         normalizer = self.normalizer(**data.dict())
@@ -173,15 +173,15 @@ class SheetRepo(BaseRepo):
         rows = normalizer.get_normalized_rows().assign(sheet_id=sheet_id).to_dict(orient='records')
         cols = normalizer.get_normalized_cols().assign(sheet_id=sheet_id).to_dict(orient='records')
 
-        row_ids = await self.row_repo().create_bulk_with_session(session, rows)
-        col_ids = await self.col_repo().create_bulk_with_session(session, cols)
+        row_ids = await self.row_repo()._create_bulk_with_session(session, rows)
+        col_ids = await self.col_repo()._create_bulk_with_session(session, cols)
 
         # Create cells
         repeated_row_ids = np.repeat(row_ids, len(col_ids))
         repeated_col_ids = col_ids * len(row_ids)
         cells = normalizer.get_normalized_cells().assign(
             sheet_id=sheet_id, row_id=repeated_row_ids, col_id=repeated_col_ids).to_dict(orient='records')
-        _ = await self.cell_repo().create_bulk_with_session(session, cells)
+        _ = await self.cell_repo()._create_bulk_with_session(session, cells)
 
         return sheet_id
 
@@ -248,9 +248,9 @@ class SheetRepo(BaseRepo):
             return df
 
     async def retrieve_as_dataframe_with_session(self, session: AsyncSession, id_: core_types.Id_) -> pd.DataFrame:
-        cells: list[tuple] = await self.cell_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
-        rows: list[tuple] = await self.row_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
-        cols: list[tuple] = await self.col_repo().retrieve_bulk_as_records_with_session(session, {"sheet_id": id_})
+        cells: list[tuple] = await self.cell_repo()._retrieve_bulk_as_records(session, {"sheet_id": id_})
+        rows: list[tuple] = await self.row_repo()._retrieve_bulk_as_records(session, {"sheet_id": id_})
+        cols: list[tuple] = await self.col_repo()._retrieve_bulk_as_records(session, {"sheet_id": id_})
 
         rows: pd.DataFrame = pd.DataFrame.from_records(rows, columns=Row.get_columns())
         cols: pd.DataFrame = pd.DataFrame.from_records(cols, columns=Col.get_columns())

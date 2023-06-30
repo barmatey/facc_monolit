@@ -3,6 +3,7 @@ import enum
 from fastapi import APIRouter, Depends
 from loguru import logger
 
+import helpers
 from .. import core_types
 from .service import Service, BaseService, BalanceService
 from . import schema, enums, entities
@@ -67,9 +68,16 @@ async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(
 
 
 @router_report.get("/")
+@helpers.async_timeit
 async def retrieve_report_list(category: enums.CategoryLiteral = None,
                                service: Service = Depends(BaseService)) -> list[schema.ReportSchema]:
-    reports = await service.retrieve_report_list(category=category)
+    converter = {
+        'BALANCE': 1,
+        'PROFIT': 2,
+        'CASHFLOW': 3,
+    }
+    cat_id = converter[category] if category else None
+    reports = await service.retrieve_report_list(category_id=cat_id)
     return reports
 
 

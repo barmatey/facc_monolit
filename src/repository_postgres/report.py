@@ -28,8 +28,16 @@ class Report(BaseModel):
     interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(Interval.id, ondelete='RESTRICT'), nullable=False,
                                              unique=True)
 
-    def to_report_entity(self) -> e_report.Report:
-        raise NotImplemented
+    def to_report_entity(self, interval: e_report.ReportInterval) -> e_report.Report:
+        return e_report.Report(
+            id=self.id,
+            category=CategoryEnum(self.category_id).name,
+            title=self.title,
+            group_id=self.group_id,
+            source_id=self.source_id,
+            sheet_id=self.sheet_id,
+            interval=interval.copy()
+        )
 
 
 class ReportRepo(BaseRepo):
@@ -45,10 +53,10 @@ class ReportRepo(BaseRepo):
                 drop_index=data.sheet.drop_index,
                 drop_columns=data.sheet.drop_columns,
             )
-            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
+            sheet_id = await self.sheet_repo()._create_with_session(session, sheet_data)
 
             # Create interval model
-            interval_id = await self.interval_repo().create_with_session(session, data.interval.dict())
+            interval_id = await self.interval_repo()._create_with_session(session, data.interval.dict())
 
             # Create report model
             report_data = dict(
@@ -59,27 +67,23 @@ class ReportRepo(BaseRepo):
                 interval_id=interval_id,
                 sheet_id=sheet_id,
             )
-            report_id = await self.create_with_session(session, report_data)
+            report_id = await self._create_with_session(session, report_data)
             await session.commit()
             return report_id
 
     async def retrieve_by_id(self, id_: core_types.Id_) -> e_report.Report:
-        # noinspection PyTypeChecker
-        report: Report = await self.retrieve({"id": id_})
-        report: e_report.Report = report.to_report_entity()
-        return report
+        async with db.get_async_session() as session:
+            report: Report = await super()._retrieve_with_session(session, {"id": id_})
+            interval: Interval = await self.interval_repo()._retrieve_with_session(session, {"id": report.interval_id})
+            return report.to_report_entity(interval.to_interval_entity())
 
     async def retrieve_bulk(self, filter_: dict = None, sort_by: str = None, ascending=True) -> list[e_report.Report]:
         if filter_ is None:
             filter_ = {}
-        if sort_by is not None:
-            sorter = asc(sort_by) if ascending else desc(sort_by)
-        else:
-            sorter = asc(self.model.id.key)
 
         async with db.get_async_session() as session:
             report = await super()._retrieve_bulk_as_dataframe(session, filter_, sort_by, ascending)
-            interval = await self.interval_repo()._retrieve_bulk_as_dataframe(session, filter_, sort_by, ascending)
+            interval = await self.interval_repo()._retrieve_bulk_as_dataframe(session, {})
 
             report = pd.merge(
                 report,
