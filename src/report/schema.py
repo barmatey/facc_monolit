@@ -50,3 +50,6 @@ class ReportCreateSchema(pydantic.BaseModel):
     interval: ReportIntervalCreateSchema
     group_id: core_types.Id_
     source_id: core_types.Id_
+
+
+ReportSchema = entities.Report

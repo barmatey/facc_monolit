@@ -55,10 +55,22 @@ router_report = APIRouter(
 
 
 @router_report.post("/")
-async def create_finrep(data: schema.ReportCreateSchema) -> core_types.Id_:
+async def create_report(data: schema.ReportCreateSchema) -> core_types.Id_:
     service = get_service(data.category)
     report_id = await service.create_report(data)
     return report_id
+
+
+@router_report.get("/{report_id}")
+async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(BaseService)) -> schema.ReportSchema:
+    report = await service.retrieve_report(report_id)
+    return report
+
+
+@router_report.get("/")
+async def retrieve_report_list(service: Service = Depends(BaseService)) -> list[schema.ReportSchema]:
+    reports = await service.retrieve_report_list()
+    return reports
 
 
 router_category = APIRouter(
