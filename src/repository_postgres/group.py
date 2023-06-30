@@ -2,15 +2,15 @@ import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
+from report.enums import CategoryLiteral
 from src.report import entities as entities_report
-from src.report import enums as enums_report
 from src.sheet import entities as entities_sheet
 from src import core_types
 
 from . import db
 from .base import BaseRepo, BaseModel
 from .sheet import Sheet, SheetRepo
-from .category import Category
+from .category import Category, CategoryEnum
 from .source import Source
 
 
@@ -27,7 +27,7 @@ class Group(BaseModel):
         converted = entities_report.Group(
             id=self.id,
             title=self.title,
-            category=enums_report.Category(self.category_id),
+            category=CategoryEnum(self.category_id).name,
             sheet_id=self.sheet_id,
             source_id=self.source_id,
         )
@@ -51,7 +51,7 @@ class GroupRepo(BaseRepo):
             # Create group model
             group_data = dict(
                 title=data.title,
-                category_id=data.category.value,
+                category_id=CategoryEnum[data.category].value,
                 columns=data.columns,
                 source_id=data.source_id,
                 sheet_id=sheet_id,
@@ -61,7 +61,7 @@ class GroupRepo(BaseRepo):
             await session.commit()
             return group_id
 
-    async def retrieve_bulk(self, filter_: dict = None) -> list[entities_report.Group]:
+    async def retrieve_bulk(self, filter_: dict = None, sort_by: str = None, ascending=True) -> list[entities_report.Group]:
         if filter_ is None:
             filter_ = {}
 

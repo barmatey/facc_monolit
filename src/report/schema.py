@@ -17,23 +17,7 @@ class GroupCreateSchema(pydantic.BaseModel):
     columns: list[str]
 
 
-class GroupRetrieveSchema(pydantic.BaseModel):
-    id: core_types.Id_
-    title: str
-    category: enums.CategoryLiteral
-    source_id: core_types.Id_
-    sheet_id: core_types.Id_
-
-    @classmethod
-    def from_group_entity(cls, data: entities.Group) -> typing.Self:
-        params = {
-            'id': data.id,
-            'title': data.title,
-            'category': data.category.name,
-            'source_id': data.source_id,
-            'sheet_id': data.sheet_id,
-        }
-        return cls(**params)
+GroupSchema = entities.Group
 
 
 class ReportIntervalCreateSchema(pydantic.BaseModel):

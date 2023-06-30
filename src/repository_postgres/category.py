@@ -1,8 +1,15 @@
+from enum import Enum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.report import enums
 from .base import BaseModel, BaseRepo
+
+
+class CategoryEnum(Enum):
+    BALANCE = 1
+    PROFIT = 2
+    CASHFLOW = 3
 
 
 class Category(BaseModel):

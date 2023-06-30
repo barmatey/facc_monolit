@@ -26,7 +26,7 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    async def retrieve_group_list(self) -> list[schema.GroupRetrieveSchema]:
+    async def retrieve_group_list(self) -> list[schema.GroupSchema]:
         pass
 
     @abstractmethod
@@ -62,9 +62,8 @@ class BaseService(Service):
         group: entities.Group = await self.repo().retrieve_group(id_)
         return group
 
-    async def retrieve_group_list(self) -> list[schema.GroupRetrieveSchema]:
+    async def retrieve_group_list(self) -> list[entities.Group]:
         groups: list[entities.Group] = await self.repo().retrieve_group_list()
-        groups: list[schema.GroupRetrieveSchema] = [schema.GroupRetrieveSchema.from_group_entity(g) for g in groups]
         return groups
 
     async def delete_group(self, id_: core_types.Id_) -> core_types.Id_:
@@ -102,7 +101,7 @@ class BalanceService(BaseService):
             dataframe=balance_group,
             drop_index=True,
             drop_columns=False,
-            category=enums.Category.BALANCE,
+            category='BALANCE',
         )
         group_id = await self.repo().create_group(group_create_data)
         return group_id
@@ -130,7 +129,7 @@ class BalanceService(BaseService):
         )
         report_create_data = entities.ReportCreate(
             title=data.title,
-            category=enums.Category.BALANCE,
+            category='BALANCE',
             source_id=data.source_id,
             group_id=data.group_id,
             interval=interval_create_data,

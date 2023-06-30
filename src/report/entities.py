@@ -19,7 +19,7 @@ class SheetCreate(BaseModel):
 
 class GroupCreate(BaseModel):
     title: str
-    category: enums.Category
+    category: enums.CategoryLiteral
     source_id: int
     columns: list[str]
     dataframe: pd.DataFrame
@@ -33,7 +33,7 @@ class GroupCreate(BaseModel):
 class Group(BaseModel):
     id: core_types.Id_
     title: str
-    category: enums.Category
+    category: enums.CategoryLiteral
     source_id: core_types.Id_
     sheet_id: core_types.Id_
 
@@ -54,13 +54,18 @@ class ReportInterval(ReportIntervalCreate):
 
 class ReportCreate(BaseModel):
     title: str
-    category: enums.Category
+    category: enums.CategoryLiteral
     source_id: core_types.Id_
     group_id: core_types.Id_
     interval: ReportIntervalCreate
     sheet: SheetCreate
 
 
-class Report(ReportCreate):
+class Report(BaseModel):
     id: core_types.Id_
+    title: str
+    category: enums.CategoryLiteral
+    source_id: core_types.Id_
+    group_id: core_types.Id_
+    interval: ReportIntervalCreate
     sheet_id: core_types.Id_
