@@ -67,5 +67,5 @@ class Report(BaseModel):
     category: enums.CategoryLiteral
     source_id: core_types.Id_
     group_id: core_types.Id_
-    interval: ReportIntervalCreate
+    interval: ReportInterval
     sheet_id: core_types.Id_

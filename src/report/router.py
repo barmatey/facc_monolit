@@ -67,8 +67,9 @@ async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(
 
 
 @router_report.get("/")
-async def retrieve_report_list(service: Service = Depends(BaseService)) -> list[schema.ReportSchema]:
-    reports = await service.retrieve_report_list()
+async def retrieve_report_list(category: enums.CategoryLiteral = None,
+                               service: Service = Depends(BaseService)) -> list[schema.ReportSchema]:
+    reports = await service.retrieve_report_list(category=category)
     return reports
 
 

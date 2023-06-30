@@ -87,8 +87,9 @@ class PostgresRepo(Repository):
     async def retrieve_report(self, report_id: core_types.Id_) -> entities.Report:
         return await self.report_repo().retrieve_by_id(id_=report_id)
 
-    async def retrieve_report_list(self) -> list[entities.Report]:
-        raise NotImplemented
+    async def retrieve_report_list(self, **kwargs) -> list[entities.Report]:
+        filter_ = {key: value for key, value in kwargs.items() if value is not None}
+        return await self.report_repo().retrieve_bulk(filter_=filter_)
 
     async def delete_report(self, report_id: core_types.Id_) -> core_types.Id_:
         raise NotImplemented

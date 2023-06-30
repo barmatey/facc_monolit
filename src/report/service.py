@@ -42,7 +42,7 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    async def retrieve_report_list(self) -> list[entities.Report]:
+    async def retrieve_report_list(self, **kwargs) -> list[entities.Report]:
         pass
 
 
@@ -74,8 +74,8 @@ class BaseService(Service):
         report: entities.Report = await self.repo().retrieve_report(id_)
         return report
 
-    async def retrieve_report_list(self) -> list[entities.Report]:
-        reports: list[entities.Report] = await self.repo().retrieve_report_list()
+    async def retrieve_report_list(self, **kwargs) -> list[entities.Report]:
+        reports: list[entities.Report] = await self.repo().retrieve_report_list(**kwargs)
         return reports
 
 

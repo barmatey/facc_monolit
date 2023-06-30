@@ -1,4 +1,6 @@
-from sqlalchemy import Integer, ForeignKey, String
+import loguru
+import pandas as pd
+from sqlalchemy import Integer, ForeignKey, String, asc, desc
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src import core_types
@@ -6,7 +8,7 @@ from src.report import entities as e_report
 from src.sheet import entities as e_sheet
 
 from . import db
-from .category import Category
+from .category import Category, CategoryEnum
 from .sheet import Sheet
 from .group import Group
 from .source import Source
@@ -51,7 +53,7 @@ class ReportRepo(BaseRepo):
             # Create report model
             report_data = dict(
                 title=data.title,
-                category_id=data.category.value,
+                category_id=CategoryEnum[data.category].value,
                 source_id=data.source_id,
                 group_id=data.group_id,
                 interval_id=interval_id,
@@ -66,3 +68,47 @@ class ReportRepo(BaseRepo):
         report: Report = await self.retrieve({"id": id_})
         report: e_report.Report = report.to_report_entity()
         return report
+
+    async def retrieve_bulk(self, filter_: dict = None, sort_by: str = None, ascending=True) -> list[e_report.Report]:
+        if filter_ is None:
+            filter_ = {}
+        if sort_by is not None:
+            sorter = asc(sort_by) if ascending else desc(sort_by)
+        else:
+            sorter = asc(self.model.id.key)
+
+        async with db.get_async_session() as session:
+            report = await super()._retrieve_bulk_as_dataframe(session, filter_, sort_by, ascending)
+            interval = await self.interval_repo()._retrieve_bulk_as_dataframe(session, filter_, sort_by, ascending)
+
+            report = pd.merge(
+                report,
+                interval.rename({'id': 'interval_id'}, axis=1),
+                on='interval_id',
+            )
+
+            report_entities: list[e_report.Report] = []
+
+            for i, row in report.iterrows():
+                report_interval = e_report.ReportInterval(
+                    id=row['interval_id'],
+                    total_start_date=row['total_start_date'],
+                    total_end_date=row['total_end_date'],
+                    start_date=row['start_date'],
+                    end_date=row['end_date'],
+                    period_year=row['period_year'],
+                    period_month=row['period_month'],
+                    period_day=row['period_day'],
+                )
+                report_entity = e_report.Report(
+                    id=row['id'],
+                    title=row['title'],
+                    category=CategoryEnum(row['category_id']).name,
+                    source_id=row['source_id'],
+                    group_id=row['group_id'],
+                    interval=report_interval,
+                    sheet_id=row['sheet_id'],
+                )
+                report_entities.append(report_entity)
+
+            return report_entities

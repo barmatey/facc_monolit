@@ -1,6 +1,7 @@
 import typing
 
-from sqlalchemy import select, insert, delete, update, desc, asc
+import pandas as pd
+from sqlalchemy import select, insert, delete, update, desc, asc, Result, MappingResult
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -19,6 +20,9 @@ class BaseModel(DeclarativeBase):
 
 class BaseRepo:
     model: typing.Type[BaseModel]
+
+    def get_model(self):
+        return self.model
 
     async def create(self, data: dict) -> core_types.Id_:
         async with db.get_async_session() as session:
@@ -85,8 +89,7 @@ class BaseRepo:
         result = list(result)
         return result
 
-    async def retrieve_bulk_as_records_with_session(self, session: AsyncSession, filter_: dict,
-                                                    sort_by: str = None, ascending=True) -> list[tuple]:
+    async def _retrieve_bulk(self, session: AsyncSession, filter_: dict, sort_by: str = None, ascending=True) -> Result:
         if sort_by is not None:
             sorter = asc(sort_by) if ascending else desc(sort_by)
         else:
@@ -97,8 +100,25 @@ class BaseRepo:
             .filter_by(**filter_)
             .order_by(sorter)
         )
+        return result
+
+    async def retrieve_bulk_as_records_with_session(self, session: AsyncSession, filter_: dict,
+                                                    sort_by: str = None, ascending=True) -> list[tuple]:
+        result = await self._retrieve_bulk(session, filter_, sort_by, ascending)
         result = list(result)
         return result
+
+    async def _retrieve_bulk_as_dataframe(self, session: AsyncSession, filter_: dict,
+                                          sort_by: str = None, ascending=True) -> pd.DataFrame:
+        result = await self._retrieve_bulk(session, filter_, sort_by, ascending)
+        df = pd.DataFrame.from_records(result, columns=self.model.get_columns())
+        return df
+
+    async def _retrieve_bulk_as_dicts(self, session: AsyncSession, filter_: dict,
+                                      sort_by: str = None, ascending=True) -> list[dict]:
+        result = await self._retrieve_bulk(session, filter_, sort_by, ascending)
+        result = Result.mappings(result)
+        return list(result)
 
     async def _update_with_session(self, session: AsyncSession, filter_: dict, data: dict) -> None:
         stmt = (
