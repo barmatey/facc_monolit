@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 import core_types
+import helpers
 from . import schema
 from . import service
 
@@ -13,6 +14,7 @@ router = APIRouter(
 
 
 @router.get("/{sheet_id}")
+@helpers.async_timeit
 async def retrieve(sheet_id: core_types.Id_,
                    from_scroll: int = None,
                    to_scroll: int = None,
@@ -28,6 +30,7 @@ async def retrieve(sheet_id: core_types.Id_,
 
 
 @router.get("/{sheet_id}/retrieve-scroll-size")
+@helpers.async_timeit
 async def retrieve_scroll_size(sheet_id: core_types.Id_,
                                sheet_service: service.SheetService = Depends(service.SheetService)
                                ) -> schema.ScrollSizeSchema:

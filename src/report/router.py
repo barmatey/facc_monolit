@@ -68,7 +68,6 @@ router_category = APIRouter(
 
 
 @router_category.get("/")
-async def retrieve_all_categories(service: BaseService = Depends(BaseService)) -> list[schema.ReportCategorySchema]:
+async def retrieve_report_categories(service: BaseService = Depends(BaseService)) -> list[schema.ReportCategorySchema]:
     result = await service.retrieve_report_categories()
-    logger.debug(f'{result}')
     return result
