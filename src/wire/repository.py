@@ -30,7 +30,7 @@ class RepositoryPostgres(Repository):
     source_repo = SourceRepo
 
     async def create(self, data: entities.SourceCreate) -> entities.Source:
-        raise NotImplemented
+        return await self.source_repo().create(data)
 
     async def retrieve(self, source_id: core_types.Id_) -> entities.Source:
         return await self.source_repo().retrieve(source_id)

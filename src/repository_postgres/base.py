@@ -24,20 +24,18 @@ class BaseRepo:
     def get_model(self):
         return self.model
 
-    async def create(self, data: dict) -> core_types.Id_:
+    async def create(self, data: dict) -> BaseModel:
         async with db.get_async_session() as session:
-            model = self.model(**data)
-            session.add(model)
-            await session.flush()
-            model_id = model.id
+            model = await self._create_with_session(session, data)
+            session.expunge(model)
             await session.commit()
-            return model_id
+            return model
 
-    async def _create_with_session(self, session: AsyncSession, data: dict) -> core_types.Id_:
+    async def _create_with_session(self, session: AsyncSession, data: dict) -> BaseModel:
         model = self.model(**data)
         session.add(model)
         await session.flush()
-        return model.id
+        return model
 
     async def create_bulk(self, data: list[dict]) -> list[core_types.Id_]:
         async with db.get_async_session() as session:

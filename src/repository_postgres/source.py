@@ -33,8 +33,9 @@ class Source(BaseModel):
 class SourceRepo(BaseRepo):
     model = Source
 
-    async def create(self, data: entities.SourceCreate) -> core_types.Id_:
-        return await super().create(data.dict())
+    async def create(self, data: entities.SourceCreate) -> entities.Source:
+        source_model: Source = await super().create(data.dict())
+        return source_model.to_source_entity()
 
     async def retrieve(self, source_id: core_types.Id_) -> entities.Source:
         filter_ = {"id": source_id}
