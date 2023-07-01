@@ -72,8 +72,9 @@ class PostgresRepo(Repository):
     async def retrieve_group(self, group_id: core_types.Id_) -> entities.Group:
         return await self.group_repo().retrieve_by_id(id_=group_id)
 
-    async def retrieve_group_list(self) -> list[entities.Group]:
-        return await self.group_repo().retrieve_bulk()
+    async def retrieve_group_list(self, **kwargs) -> list[entities.Group]:
+        filter_ = {key: value for key, value in kwargs.items() if value is not None}
+        return await self.group_repo().retrieve_bulk(filter_=filter_)
 
     async def delete_group(self, group_id: core_types.Id_) -> core_types.Id_:
         return await self.group_repo().delete_by_id(id_=group_id)

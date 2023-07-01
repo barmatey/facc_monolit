@@ -65,6 +65,9 @@ class Normalizer:
     def create_cell_df(rows: pd.DataFrame, cols: pd.DataFrame, table: pd.DataFrame) -> pd.DataFrame:
         col_is_freeze = cols['is_freeze'].tolist() * len(rows.index)
         row_is_freeze = np.repeat(rows['is_freeze'].tolist(), len(cols.index))
+        index_flag = np.where(
+            row_is_freeze, True, False
+        )
         readonly_flag = np.where(
             np.logical_or(row_is_freeze, col_is_freeze), True, False
         )
@@ -78,7 +81,7 @@ class Normalizer:
             return enums.CellDtype.TEXT.value
 
         flatten = pd.DataFrame(table.stack().values, columns=['value'])
-        flatten['is_index'] = readonly_flag
+        flatten['is_index'] = index_flag
         flatten['is_readonly'] = readonly_flag
         flatten['is_filtred'] = True
         flatten['dtype'] = flatten['value'].apply(get_dtype)

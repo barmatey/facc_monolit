@@ -1,6 +1,6 @@
 import loguru
 import pandas as pd
-from sqlalchemy import Integer, ForeignKey, String, asc, desc
+from sqlalchemy import Integer, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src import core_types
@@ -53,7 +53,7 @@ class ReportRepo(BaseRepo):
                 drop_index=data.sheet.drop_index,
                 drop_columns=data.sheet.drop_columns,
             )
-            sheet_id = await self.sheet_repo()._create_with_session(session, sheet_data)
+            sheet_id = await super(self.sheet_repo, self.sheet_repo())._create_with_session(session, sheet_data)
 
             # Create interval model
             interval_id = await self.interval_repo()._create_with_session(session, data.interval.dict())

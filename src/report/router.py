@@ -8,11 +8,6 @@ from .. import core_types
 from .service import Service, BaseService, BalanceService
 from . import schema, enums, entities
 
-router_group = APIRouter(
-    prefix="/group",
-    tags=['Group']
-)
-
 
 class LinkedService(enum.Enum):
     BALANCE = BalanceService
@@ -20,6 +15,23 @@ class LinkedService(enum.Enum):
 
 def get_service(category: enums.CategoryLiteral) -> Service:
     return LinkedService[category].value()
+
+
+class LinkedCategory(enum.Enum):
+    BALANCE = 1
+    PROFIT = 2
+    CASHFLOW = 3
+
+
+def get_category_id(category: enums.CategoryLiteral | None) -> int | None:
+    result = LinkedCategory[category].value if category is not None else None
+    return result
+
+
+router_group = APIRouter(
+    prefix="/group",
+    tags=['Group']
+)
 
 
 @router_group.post("/")
@@ -37,8 +49,10 @@ async def retrieve_group(group_id: core_types.Id_,
 
 
 @router_group.get("/")
-async def retrieve_group_list(service: Service = Depends(BaseService)) -> list[schema.GroupSchema]:
-    groups: list[schema.GroupSchema] = await service.retrieve_group_list()
+async def retrieve_group_list(
+        category: enums.CategoryLiteral = None,
+        service: Service = Depends(BaseService)) -> list[schema.GroupSchema]:
+    groups: list[schema.GroupSchema] = await service.retrieve_group_list(category_id=get_category_id(category))
     return groups
 
 
@@ -71,13 +85,7 @@ async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(
 @helpers.async_timeit
 async def retrieve_report_list(category: enums.CategoryLiteral = None,
                                service: Service = Depends(BaseService)) -> list[schema.ReportSchema]:
-    converter = {
-        'BALANCE': 1,
-        'PROFIT': 2,
-        'CASHFLOW': 3,
-    }
-    cat_id = converter[category] if category else None
-    reports = await service.retrieve_report_list(category_id=cat_id)
+    reports = await service.retrieve_report_list(category_id=get_category_id(category))
     return reports
 
 
