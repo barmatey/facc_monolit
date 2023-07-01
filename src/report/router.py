@@ -1,5 +1,6 @@
 import enum
 
+import loguru
 from fastapi import APIRouter, Depends
 from loguru import logger
 
@@ -35,10 +36,11 @@ router_group = APIRouter(
 
 
 @router_group.post("/")
-async def create_group(data: schema.GroupCreateSchema) -> core_types.Id_:
+async def create_group(data: schema.GroupCreateSchema) -> schema.GroupSchema:
     service = get_service(data.category)
-    group_id = await service.create_group(data)
-    return group_id
+    group = await service.create_group(data)
+    loguru.logger.debug(f'{group}')
+    return group
 
 
 @router_group.get("/{group_id}")

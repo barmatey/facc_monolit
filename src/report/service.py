@@ -18,7 +18,7 @@ class Service(ABC):
         pass
 
     @abstractmethod
-    async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
+    async def create_group(self, data: schema.GroupCreateSchema) -> entities.Group:
         pass
 
     @abstractmethod
@@ -52,7 +52,7 @@ class BaseService(Service):
     async def retrieve_report_categories(self) -> list[enums.CategoryLiteral]:
         return await self.repo().retrieve_report_categories()
 
-    async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
+    async def create_group(self, data: schema.GroupCreateSchema) -> entities.Group:
         raise NotImplemented
 
     async def create_report(self, data: schema.ReportCreateSchema) -> core_types.Id_:
@@ -84,7 +84,7 @@ class BalanceService(BaseService):
     report = finrep.BalanceReport
     interval = finrep.BalanceInterval
 
-    async def create_group(self, data: schema.GroupCreateSchema) -> core_types.Id_:
+    async def create_group(self, data: schema.GroupCreateSchema) -> entities.Group:
         # Get source base
         wire: DataFrame[WireSchema] = await self.repo().retrieve_wire_df(data.source_id)
 
@@ -103,8 +103,8 @@ class BalanceService(BaseService):
             drop_columns=False,
             category='BALANCE',
         )
-        group_id = await self.repo().create_group(group_create_data)
-        return group_id
+        group = await self.repo().create_group(group_create_data)
+        return group
 
     async def create_report(self, data: schema.ReportCreateSchema) -> core_types.Id_:
         # Get source base

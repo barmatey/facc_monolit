@@ -2,8 +2,7 @@ import typing
 
 import numpy as np
 import pandas as pd
-from loguru import logger
-from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, update, delete
+from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, delete
 from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -158,12 +157,13 @@ class SheetRepo(BaseRepo):
 
     async def create(self, data: entities.SheetCreate) -> core_types.Id_:
         async with db.get_async_session() as session:
-            sheet_id = await self._create_with_session(session, data)
+            sheet = await self._create_with_session(session, data)
             await session.commit()
-            return sheet_id
+            return sheet
 
     async def _create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
-        sheet_id = await super()._create_with_session(session, {})
+        sheet = await super()._create_with_session(session, {})
+        sheet_id = sheet.id
 
         # Create row, col and cell data from denormalized dataframe
         normalizer = self.normalizer(**data.dict())

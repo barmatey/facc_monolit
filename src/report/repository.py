@@ -66,7 +66,7 @@ class PostgresRepo(Repository):
     async def retrieve_wire_df(self, source_id: core_types.Id_) -> pd.DataFrame:
         return await self.wire_repo().retrieve_wire_df(source_id=source_id)
 
-    async def create_group(self, data: entities.GroupCreate) -> core_types.Id_:
+    async def create_group(self, data: entities.GroupCreate) -> entities.Group:
         return await self.group_repo().create(data)
 
     async def retrieve_group(self, group_id: core_types.Id_) -> entities.Group:

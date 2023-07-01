@@ -27,6 +27,7 @@ async def retrieve_source(source_id: core_types.Id_, service: Service = Depends(
 @router_wire.delete("/{source_id}", response_model=int)
 async def delete_source(source_id: core_types.Id_, service: Service = Depends(ServiceSource)):
     await service.delete(source_id)
+    return 1
 
 
 @router_wire.get("/", response_model=list[schema.SourceSchema])
@@ -35,9 +36,8 @@ async def list_source(service: Service = Depends(ServiceSource)):
     return result
 
 
-@router_wire.post("/{id_}")
-async def bulk_append_wire_from_csv(id_: core_types.Id_, file: UploadFile, repo: WireRepo = Depends(WireRepo)) -> int:
+@router_wire.post("/{source_id}")
+async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile, repo: WireRepo = Depends(WireRepo)) -> int:
     df = pd.read_csv(file.file, parse_dates=['date'])
-    df['source_id'] = id_
-    await repo.bulk_create_wire(df)
+    await repo.bulk_create_wire(source_id, df)
     return 1

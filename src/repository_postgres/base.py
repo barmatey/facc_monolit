@@ -1,5 +1,6 @@
 import typing
 
+import loguru
 import pandas as pd
 from sqlalchemy import select, insert, delete, update, desc, asc, Result, MappingResult
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,6 +33,7 @@ class BaseRepo:
             return model
 
     async def _create_with_session(self, session: AsyncSession, data: dict) -> BaseModel:
+        loguru.logger.warning(f'\n{data}')
         model = self.model(**data)
         session.add(model)
         await session.flush()
@@ -126,6 +128,11 @@ class BaseRepo:
             .values(**data)
         )
         _ = await session.execute(stmt)
+
+    async def delete(self, filter_: dict) -> None:
+        async with db.get_async_session() as session:
+            await self._delete_with_session(session, filter_)
+            await session.commit()
 
     async def _delete_with_session(self, session: AsyncSession, filter_: dict) -> None:
         result = await session.execute(

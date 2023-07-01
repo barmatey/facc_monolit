@@ -1,7 +1,9 @@
+import loguru
 import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
+from report import entities
 from report.enums import CategoryLiteral
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
@@ -38,7 +40,7 @@ class GroupRepo(BaseRepo):
     model = Group
     sheet_repo = SheetRepo
 
-    async def create(self, data: entities_report.GroupCreate) -> core_types.Id_:
+    async def create(self, data: entities_report.GroupCreate) -> entities.Group:
         async with db.get_async_session() as session:
             # Create sheet model
             sheet_data = entities_sheet.SheetCreate(
@@ -56,10 +58,10 @@ class GroupRepo(BaseRepo):
                 source_id=data.source_id,
                 sheet_id=sheet_id,
             )
-            group_id = await self._create_with_session(session, group_data)
-
+            group: Group = await self._create_with_session(session, group_data)
+            session.expunge(group)
             await session.commit()
-            return group_id
+            return group.to_group_entity()
 
     async def retrieve_bulk(self, filter_: dict = None, sort_by: str = None, ascending=True) -> list[entities_report.Group]:
         if filter_ is None:
