@@ -7,6 +7,8 @@ from loguru import logger
 import helpers
 from .. import core_types
 from .service import Service, BaseService, BalanceService
+from .service_crud import Service as ServiceNew
+from .service_crud import CategoryService
 from . import schema, enums, entities
 
 
@@ -105,6 +107,7 @@ router_category = APIRouter(
 
 
 @router_category.get("/")
-async def retrieve_report_categories(service: BaseService = Depends(BaseService)) -> list[schema.ReportCategorySchema]:
-    result = await service.retrieve_report_categories()
-    return result
+async def retrieve_report_categories(service: ServiceNew = Depends(CategoryService)) -> list[schema.ReportCategorySchema]:
+    result: list[entities.ReportCategory] = await service.retrieve_bulk({})
+    categories = [category.value for category in result]
+    return categories

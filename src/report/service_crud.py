@@ -1,57 +1,31 @@
-from abc import ABC, abstractmethod
-
-import pandas as pd
+import typing
 from pydantic import BaseModel
 
 from src import core_types
-from . import entities, schema
-from .repository_new import Repository
+from . import repository_new as repository
+
+OrderBy = typing.Union[str, list[str]]
+DTO = typing.Union[BaseModel]
 
 
-class Service(ABC):
-    @abstractmethod
-    async def create(self, data: BaseModel) -> BaseModel:
-        pass
-
-    @abstractmethod
-    async def retrieve(self, **kwargs) -> BaseModel:
-        pass
-
-    @abstractmethod
-    async def retrieve_bulk(self, **kwargs) -> list[BaseModel]:
-        pass
-
-    @abstractmethod
-    async def partial_update(self, data: BaseModel, **kwargs) -> BaseModel:
-        pass
-
-    @abstractmethod
-    async def delete(self, **kwargs) -> core_types.Id_:
-        pass
-
-
-class BaseService(Service):
-
-    def __init__(self, repo: Repository):
-        self.repo = repo
+class Service:
+    repo: repository.CrudRepo
 
     async def create(self, data: BaseModel) -> BaseModel:
+        return await self.repo.create(data)
+
+    async def retrieve(self, filter_by: dict) -> BaseModel:
+        return await self.repo.retrieve(filter_by)
+
+    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[BaseModel]:
+        return await self.repo.retrieve_bulk(filter_by, order_by)
+
+    async def partial_update(self, data: BaseModel, filter_by: dict) -> BaseModel:
         raise NotImplemented
 
-    async def retrieve(self, **kwargs) -> BaseModel:
-        raise NotImplemented
-
-    async def retrieve_bulk(self, **kwargs) -> list[BaseModel]:
-        raise NotImplemented
-
-    async def partial_update(self, data: BaseModel, **kwargs) -> BaseModel:
-        raise NotImplemented
-
-    async def delete(self, **kwargs) -> core_types.Id_:
-        raise NotImplemented
+    async def delete(self, filter_by: dict) -> core_types.Id_:
+        return await self.repo.delete(filter_by)
 
 
-class CategoryService(BaseService):
-    pass
-
-
+class CategoryService(Service):
+    repo: repository.CrudRepo = repository.CategoryRepo()

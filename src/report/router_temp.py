@@ -1,6 +1,7 @@
 import enum
 
 import loguru
+import pandas as pd
 from fastapi import APIRouter, Depends
 from loguru import logger
 
@@ -30,5 +31,17 @@ async def create_bulk(data: list[schema.SourceCreateSchema]):
 
 @router.get("/:id_")
 async def retrieve(id_: int):
-    source: entities.Source = await repo.retrieve(id=id_)
+    source: entities.Source = await repo.retrieve({"id": id_})
     return source
+
+
+@router.get("/bulk")
+async def retrieve_bulk():
+    sources = await repo.retrieve_bulk_as_dicts(filter_by={'title': 'string'}, order_by=['title', 'id'])
+    return sources
+
+
+@router.delete("/delete")
+async def delete():
+    deleted_id = await repo.delete(filter_by={"id": 18})
+    return deleted_id
