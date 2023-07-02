@@ -142,7 +142,7 @@ class CellRepo(BaseRepo):
         async with db.get_async_session() as session:
             data = data.dict()
             data = {key: data[key] for key in data if data[key] is not None}
-            filter_ = {'id': data.pop('id')} | {'sheet_id': sheet_id}
+            filter_ = {'id': data.pop('id')} | {'sheet_id': sheet_id, 'is_readonly': False}
             await super()._update_with_session(session, filter_=filter_, data=data)
             await session.commit()
 
@@ -481,7 +481,7 @@ class SheetTableRepo:
             stmt = (
                 self.cell_model.__table__.update()
                 .where(self.cell_model.sheet_id == sheet_id,
-                       ~self.cell_model.is_index,
+                       ~self.cell_model.is_readonly,
                        self.cell_model.row_id == bindparam('row_id_target'),
                        self.cell_model.col_id == bindparam('col_id_target'), )
                 .values({
@@ -648,7 +648,7 @@ class SheetTableRepo:
         stmt = (
             self.cell_model.__table__.update()
             .where(
-                ~self.cell_model.is_index,
+                ~self.cell_model.is_readonly,
                 self.cell_model.sheet_id == bindparam('__sheet_id__'),
                 self.cell_model.row_id == bindparam('__row_id__'),
                 self.cell_model.col_id == bindparam('__col_id__'),

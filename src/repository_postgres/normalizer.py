@@ -86,7 +86,10 @@ class Normalizer:
         flatten['is_filtred'] = True
         flatten['dtype'] = flatten['value'].apply(get_dtype)
         flatten['value'] = flatten['value'].astype(str)
-        flatten['color'] = np.where(flatten['is_index'], '#f8fafd', 'white')
+        flatten['value'] = np.where(
+            np.logical_and(col_is_freeze, row_is_freeze), '', flatten['value']
+        )
+        flatten['color'] = np.where(flatten['is_readonly'], '#f8fafd', 'white')
 
         return flatten
 
