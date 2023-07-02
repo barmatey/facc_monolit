@@ -33,7 +33,7 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def create_report(self, data: entities.ReportCreate) -> core_types.Id_:
+    async def create_report(self, data: entities.ReportCreate) -> entities.Report:
         pass
 
     @abstractmethod
@@ -82,7 +82,7 @@ class PostgresRepo(Repository):
     async def retrieve_group_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         return await self.group_repo().retrieve_linked_sheet_as_dataframe(group_id=group_id)
 
-    async def create_report(self, data: entities.ReportCreate) -> core_types.Id_:
+    async def create_report(self, data: entities.ReportCreate) -> entities.Report:
         return await self.report_repo().create(data)
 
     async def retrieve_report(self, report_id: core_types.Id_) -> entities.Report:

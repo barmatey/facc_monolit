@@ -1,4 +1,5 @@
 import pandas as pd
+from loguru import logger
 from pandera.typing import DataFrame
 
 from finrep import entities, entities_base, typing

@@ -45,7 +45,7 @@ class ReportRepo(BaseRepo):
     sheet_repo = SheetRepo
     interval_repo = IntervalRepo
 
-    async def create(self, data: e_report.ReportCreate) -> core_types.Id_:
+    async def create(self, data: e_report.ReportCreate) -> e_report.Report:
         async with db.get_async_session() as session:
             # Create sheet model
             sheet_data = e_sheet.SheetCreate(
@@ -53,10 +53,10 @@ class ReportRepo(BaseRepo):
                 drop_index=data.sheet.drop_index,
                 drop_columns=data.sheet.drop_columns,
             )
-            sheet_id = await super(self.sheet_repo, self.sheet_repo())._create_with_session(session, sheet_data)
+            sheet_id = await self.sheet_repo()._create_with_session(session, sheet_data)
 
             # Create interval model
-            interval_id = await self.interval_repo()._create_with_session(session, data.interval.dict())
+            interval: Interval = await self.interval_repo()._create_with_session(session, data.interval.dict())
 
             # Create report model
             report_data = dict(
@@ -64,12 +64,13 @@ class ReportRepo(BaseRepo):
                 category_id=CategoryEnum[data.category].value,
                 source_id=data.source_id,
                 group_id=data.group_id,
-                interval_id=interval_id,
+                interval_id=interval.id,
                 sheet_id=sheet_id,
             )
-            report_id = await self._create_with_session(session, report_data)
+            report: Report = await self._create_with_session(session, report_data)
+            session.expunge_all()
             await session.commit()
-            return report_id
+            return report.to_report_entity(interval.to_interval_entity())
 
     async def retrieve_by_id(self, id_: core_types.Id_) -> e_report.Report:
         async with db.get_async_session() as session:

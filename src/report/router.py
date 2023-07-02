@@ -71,10 +71,10 @@ router_report = APIRouter(
 
 
 @router_report.post("/")
-async def create_report(data: schema.ReportCreateSchema) -> core_types.Id_:
+async def create_report(data: schema.ReportCreateSchema) -> schema.ReportSchema:
     service = get_service(data.category)
-    report_id = await service.create_report(data)
-    return report_id
+    report = await service.create_report(data)
+    return report
 
 
 @router_report.get("/{report_id}")
