@@ -45,6 +45,10 @@ class Service(ABC):
     async def retrieve_report_list(self, **kwargs) -> list[entities.Report]:
         pass
 
+    @abstractmethod
+    async def delete_report(self, report_id: core_types.Id_) -> core_types.Id_:
+        pass
+
 
 class BaseService(Service):
     repo: Repository = PostgresRepo
@@ -77,6 +81,10 @@ class BaseService(Service):
     async def retrieve_report_list(self, **kwargs) -> list[entities.Report]:
         reports: list[entities.Report] = await self.repo().retrieve_report_list(**kwargs)
         return reports
+
+    async def delete_report(self, report_id: core_types.Id_) -> core_types.Id_:
+        deleted_id: core_types.Id_ = await self.repo().delete_report(report_id)
+        return deleted_id
 
 
 class BalanceService(BaseService):

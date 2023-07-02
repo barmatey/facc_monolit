@@ -91,6 +91,13 @@ async def retrieve_report_list(category: enums.CategoryLiteral = None,
     return reports
 
 
+@router_report.delete("/{report_id}")
+async def delete_report(report_id: core_types.Id_,
+                        service: Service = Depends(BaseService)) -> core_types.Id_:
+    deleted_id = await service.delete_report(report_id)
+    return deleted_id
+
+
 router_category = APIRouter(
     prefix="/category",
     tags=['Category'],

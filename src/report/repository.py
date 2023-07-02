@@ -93,7 +93,7 @@ class PostgresRepo(Repository):
         return await self.report_repo().retrieve_bulk(filter_=filter_)
 
     async def delete_report(self, report_id: core_types.Id_) -> core_types.Id_:
-        raise NotImplemented
+        return await self.report_repo().delete_by_id(report_id)
 
     async def retrieve_report_sheet_as_dataframe(self, report_id: core_types.Id_) -> pd.DataFrame:
         raise NotImplemented

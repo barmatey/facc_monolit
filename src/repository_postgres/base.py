@@ -129,6 +129,13 @@ class BaseRepo:
         )
         _ = await session.execute(stmt)
 
+    async def delete_by_id(self, id_: core_types.Id_) -> core_types.Id_:
+        async with db.get_async_session() as session:
+            model: BaseModel = await self._retrieve_and_delete_with_session(session, filter_={"id": id_})
+            model_id = model.id
+            await session.commit()
+            return model_id
+
     async def delete(self, filter_: dict) -> None:
         async with db.get_async_session() as session:
             await self._delete_with_session(session, filter_)
