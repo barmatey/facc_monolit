@@ -5,8 +5,8 @@ from pydantic import BaseModel
 
 from src import core_types
 from .service_finrep import get_finrep_service
-from . import repository_new as repository
-from . import enums, entities, schema
+from . import repository
+from . import entities, schema
 
 OrderBy = typing.Union[str, list[str]]
 DTO = typing.Union[BaseModel]
@@ -40,14 +40,12 @@ class GroupService(Service):
     wire_repo: repository.WireRepo = repository.WireRepo()
 
     async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
-        wire: pd.DataFrame = await self.wire_repo.retrieve_wire_dataframe({"source_id": data.source_id})
-        group: pd.DataFrame = await get_finrep_service(data.category).create_group(wire, data.columns)
-
+        group_df: pd.DataFrame = await get_finrep_service(data.category).create_group(data)
         group_create = entities.GroupCreate(
             title=data.title,
             source_id=data.source_id,
             columns=data.columns,
-            dataframe=group,
+            dataframe=group_df,
             drop_index=True,
             drop_columns=False,
             category=data.category,
@@ -63,18 +61,14 @@ class ReportService(Service):
     group_repo: repository.GroupRepo = repository.GroupRepo()
 
     async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
-        interval_create = data.interval.to_interval_create_entity()
-
-        wire_df = await self.wire_repo.retrieve_wire_dataframe({"source_id": data.source_id})
-        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
-        report_df = await get_finrep_service(data.category).create_report(wire_df, group_df, interval_create)
+        report_df = await get_finrep_service(data.category).create_report(data)
 
         report_create_data = entities.ReportCreate(
             title=data.title,
             category=data.category,
             source_id=data.source_id,
             group_id=data.group_id,
-            interval=interval_create,
+            interval=data.interval.to_interval_create_entity(),
             sheet=entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False)
         )
         report = await self.repo.create(report_create_data)

@@ -5,38 +5,45 @@ import pandas as pd
 
 import finrep
 
-from . import entities, enums
+from . import schema, enums, repository
 
 
 class FinrepService(ABC):
 
     @abstractmethod
-    async def create_group(self, wire: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    async def create_group(self, data: schema.GroupCreateSchema) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    async def create_report(self, wire_df: pd.DataFrame, group_df: pd.DataFrame,
-                            interval: entities.IntervalCreate) -> pd.DataFrame:
+    async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
         pass
 
 
-class BalanceService(FinrepService):
+class BaseService(FinrepService, ABC):
+    wire_repo: repository.WireRepo = repository.WireRepo()
+    group_repo: repository.GroupRepo = repository.GroupRepo()
 
-    async def create_group(self, wire: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
-        balance = finrep.BalanceGroup(wire)
-        balance.create_group(ccols=columns)
+
+class BalanceService(BaseService):
+
+    async def create_group(self, data: schema.GroupCreateSchema) -> pd.DataFrame:
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+        balance = finrep.BalanceGroup(wire_df)
+        balance.create_group(ccols=data.columns)
         balance_group: pd.DataFrame = balance.get_group()
         return balance_group
 
-    async def create_report(self, wire_df: pd.DataFrame, group_df: pd.DataFrame,
-                            interval: entities.IntervalCreate) -> pd.DataFrame:
+    async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
         interval = finrep.BalanceInterval(
-            start_date=interval.start_date,
-            end_date=interval.end_date,
-            iyear=interval.period_year,
-            imonth=interval.period_month,
-            iday=interval.period_day,
+            start_date=data.interval.start_date,
+            end_date=data.interval.end_date,
+            iyear=data.interval.iyear,
+            imonth=data.interval.imonth,
+            iday=data.interval.iday,
         )
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
+
         report = finrep.BalanceReport(wire_df, group_df, interval)
         report.create_report()
         report_df = report.get_report()
