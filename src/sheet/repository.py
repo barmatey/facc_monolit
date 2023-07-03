@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import core_types
 from . import entities
-from src.repository_postgres_new import SheetRepo, RowRepo, ColRepo, CellRepo, SheetTableRepo, SheetSorterRepo, \
+from repository_postgres import SheetRepo, RowRepo, ColRepo, CellRepo, SheetTableRepo, SheetSorterRepo, \
     SheetFilterRepo
 
 

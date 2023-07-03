@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pydantic
 
 from src import core_types
-from src.repository_postgres_new import SourceRepo
+from repository_postgres import SourceRepo
 from . import entities
 
 

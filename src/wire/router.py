@@ -1,7 +1,7 @@
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
 
-from src.repository_postgres_new.wire import WireRepo
+from repository_postgres import WireRepo
 from src import core_types
 from . import schema
 from .service import Service, ServiceSource

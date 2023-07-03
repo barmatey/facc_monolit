@@ -1,12 +1,6 @@
-import enum
+from fastapi import APIRouter
 
-import loguru
-import pandas as pd
-from fastapi import APIRouter, Depends
-from loguru import logger
-
-import helpers
-from repository_postgres_new import SourceRepo
+from repository_postgres import SourceRepo
 from wire import schema, entities
 
 router = APIRouter(

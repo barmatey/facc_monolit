@@ -1,10 +1,8 @@
-import loguru
 import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from report import entities
-from report.enums import CategoryLiteral
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
@@ -25,7 +23,7 @@ class Group(BaseModel):
     sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='RESTRICT'), nullable=False,
                                           unique=True)
 
-    def to_group_entity(self) -> entities_report.Group:
+    def to_entity(self) -> entities_report.Group:
         converted = entities_report.Group(
             id=self.id,
             title=self.title,
@@ -48,7 +46,7 @@ class GroupRepo(BaseRepo):
                 drop_index=data.drop_index,
                 drop_columns=data.drop_columns,
             )
-            sheet_id = await self.sheet_repo()._create_with_session(session, sheet_data)
+            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
 
             # Create group model
             group_data = dict(
@@ -58,39 +56,13 @@ class GroupRepo(BaseRepo):
                 source_id=data.source_id,
                 sheet_id=sheet_id,
             )
-            group: Group = await self._create_with_session(session, group_data)
-            session.expunge(group)
+            group: Group = await super().create_with_session(session, group_data)
+            entity = group.to_entity()
             await session.commit()
-            return group.to_group_entity()
-
-    async def retrieve_bulk(self, filter_: dict = None, sort_by: str = None, ascending=True) -> list[entities_report.Group]:
-        if filter_ is None:
-            filter_ = {}
-
-        async with db.get_async_session() as session:
-            # noinspection PyTypeChecker
-            groups: list[Group] = await super()._retrieve_bulk_with_session(session, filter_)
-            groups: list[entities_report.Group] = [g.to_group_entity() for g in groups]
-            return groups
-
-    async def retrieve_by_id(self, id_: core_types.Id_) -> entities_report.Group:
-        # noinspection PyTypeChecker
-        group: Group = await self.retrieve({"id": id_})
-        group: entities_report.Group = group.to_group_entity()
-        return group
-
-    async def delete_by_id(self, id_: core_types.Id_) -> core_types.Id_:
-        async with db.get_async_session() as session:
-            # noinspection PyTypeChecker
-            group: Group = await self._retrieve_and_delete_with_session(session, filter_={"id": id_})
-            await self.sheet_repo()._delete_with_session(session, filter_={"id": group.sheet_id})
-            group_id = group.id
-            await session.commit()
-            return group_id
+            return entity
 
     async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         async with db.get_async_session() as session:
-            # noinspection PyTypeChecker
-            group: Group = await self._retrieve_with_session(session, filter_={"id": group_id})
-            df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, group.sheet_id)
+            group: Group = await self.retrieve_with_session(session, filter_by={"id": group_id})
+            df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, sheet_id=group.sheet_id)
             return df

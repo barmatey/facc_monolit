@@ -1,11 +1,9 @@
-from sqlalchemy import ForeignKey, MetaData, Table, Column, Integer
+from sqlalchemy import Integer
 from sqlalchemy import TIMESTAMP
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 
-from src import core_types
 from src.report import entities
-from . import db
 from .base import BaseRepo, BaseModel
 
 
@@ -19,7 +17,7 @@ class Interval(BaseModel):
     period_month: Mapped[int] = mapped_column(Integer, nullable=False)
     period_day: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    def to_interval_entity(self) -> entities.Interval:
+    def to_entity(self) -> entities.Interval:
         return entities.Interval(
             id=self.id,
             total_start_date=self.total_start_date,
@@ -34,6 +32,3 @@ class Interval(BaseModel):
 
 class IntervalRepo(BaseRepo):
     model = Interval
-
-    async def create(self, data: entities.IntervalCreate) -> core_types.Id_:
-        return await super().create(data.dict())

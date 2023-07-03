@@ -1,12 +1,12 @@
 import pandas as pd
 import pandera as pa
-from pandera.typing import DataFrame
 from sqlalchemy import Integer, ForeignKey, String, TIMESTAMP, Float
 from sqlalchemy.orm import Mapped, mapped_column
 
 from datetime import datetime
 
 from src import core_types
+from src.wire import entities
 from . import db
 from .base import BaseRepo, BaseModel
 from .source import Source, SourceRepo
@@ -23,6 +23,9 @@ class Wire(BaseModel):
     subconto_second: Mapped[str] = mapped_column(String(800), nullable=True)
     comment: Mapped[str] = mapped_column(String(800), nullable=True)
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey(Source.id, ondelete='CASCADE'), nullable=False)
+
+    def to_entity(self, **kwargs):
+        raise NotImplemented
 
 
 class WireSchema(pa.DataFrameModel):
@@ -47,6 +50,9 @@ class WireRepo(BaseRepo):
     model = Wire
     source_repo = SourceRepo
 
+    async def create_bulk(self, data: list[entities.WireCreate]) -> list[core_types.Id_]:
+        raise NotImplemented
+
     async def bulk_create_wire(self, source_id: core_types.Id_, wires: pd.DataFrame) -> None:
         wires = wires.copy()
         wires['source_id'] = source_id
@@ -57,19 +63,18 @@ class WireRepo(BaseRepo):
             "total_end_date": wires['date'].max(),
         }
         async with db.get_async_session() as session:
-            _ = await super()._create_bulk_with_session(session, wires.to_dict(orient='records'))
-            _ = await super(self.source_repo, self.source_repo())._update_with_session(session, {"id": source_id},
-                                                                                       data_for_source_update)
+            _ = await self.create_bulk_with_session(session, wires.to_dict(orient='records'))
+            _ = await self.source_repo().update_with_session(session, {"id": source_id}, data_for_source_update)
             await session.commit()
 
-    async def retrieve_wire_df(self, source_id: core_types.Id_) -> DataFrame[WireSchema]:
-        # noinspection PyTypeChecker
-        wires: list[Wire] = await self.retrieve_bulk({"source_id": source_id})
-        if len(wires) == 0:
+    async def retrieve_bulk_as_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
+        source_id = filter_by['source_id']
+
+        wire_df = await super().retrieve_bulk_as_dataframe(filter_by, order_by)
+        if len(wire_df) == 0:
             raise LookupError(f'wires with source_id={source_id} is not found')
 
-        records = pd.Series(wires).apply(lambda x: x.__dict__).to_list()
-        df = pd.DataFrame.from_records(records)
-        WireSchema.validate(df)
-        df = df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
-        return df
+        WireSchema.validate(wire_df)
+        wire_df = wire_df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
+        return wire_df
+

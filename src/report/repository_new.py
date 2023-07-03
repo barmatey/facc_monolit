@@ -5,8 +5,8 @@ import pandas as pd
 from pydantic import BaseModel
 
 from src import core_types
-from src import repository_postgres_new as postgres
-from . import enums, entities
+from src import repository_postgres as postgres
+from . import entities
 
 OrderBy = typing.Union[str, list[str]]
 DTO = typing.Union[BaseModel, dict]

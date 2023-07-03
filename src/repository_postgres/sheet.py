@@ -17,6 +17,9 @@ from .normalizer import Normalizer, Denormalizer
 class Sheet(BaseModel):
     __tablename__ = "sheet"
 
+    def to_entity(self, **kwargs) -> entities.Sheet:
+        raise NotImplemented
+
 
 class Row(BaseModel):
     __tablename__ = "sheet_row"
@@ -61,15 +64,10 @@ class SindexRepo(BaseRepo):
 
     async def retrieve_scroll_size_with_session(self, session: AsyncSession,
                                                 sheet_id: core_types.Id_) -> SindexScrollSize:
-        count = await session.scalar(
-            select(func.count())
-            .where(self.model.sheet_id == sheet_id)
-        )
+        stmt = select(func.count()).where(self.model.sheet_id == sheet_id)
+        count = await session.scalar(stmt)
 
-        stmt = (
-            select(func.max(self.model.scroll_pos))
-            .where(self.model.sheet_id == sheet_id)
-        )
+        stmt = select(func.max(self.model.scroll_pos)).where(self.model.sheet_id == sheet_id)
         scroll_size = await session.scalar(stmt)
 
         sindex_scroll_size = SindexScrollSize(
@@ -80,10 +78,10 @@ class SindexRepo(BaseRepo):
 
     async def update_sindex_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         async with db.get_async_session() as session:
-            await super()._update_with_session(session,
-                                               filter_={'sheet_id': sheet_id, 'id': data.sindex_id},
-                                               data={'size': data.new_size})
-            await self._update_scroll_pos(session, sheet_id)
+            await self.update_with_session(session,
+                                           filter_by={'sheet_id': sheet_id, 'id': data.sindex_id},
+                                           data={'size': data.new_size})
+            await self._update_scroll_pos_with_session(session, sheet_id)
             await session.commit()
 
     async def delete_bulk(self, sheet_id: core_types.Id_, sindex_ids: list[core_types.Id_]) -> None:
@@ -94,24 +92,16 @@ class SindexRepo(BaseRepo):
                        self.model.id.in_(sindex_ids))
             )
             _ = await session.execute(stmt)
-            await self._update_scroll_pos(session, sheet_id)
+            await self._update_scroll_pos_with_session(session, sheet_id)
             await session.commit()
 
-    async def _update_scroll_pos(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
+    async def _update_scroll_pos_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
         # Get data
-        stmt = (
-            select(
-                self.model.__table__.c.id,
-                self.model.__table__.c.size,
-                self.model.__table__.c.is_freeze,
-                self.model.__table__.c.is_filtred,
-                self.model.__table__.c.scroll_pos, )
-            .filter_by(sheet_id=sheet_id)
-            .order_by(self.model.__table__.c.index)
-        )
-        sindexes = await session.execute(stmt)
-        sindexes = pd.DataFrame.from_records(sindexes.fetchall(), columns=['sindex_id', 'size', 'is_freeze',
-                                                                           'is_filtred', 'scroll_pos'])
+        sindexes = await self.retrieve_bulk_as_dataframe_with_session(session,
+                                                                      filter_by={"sheet_id": sheet_id},
+                                                                      order_by="index")
+        sindexes = sindexes[['id', 'size', 'is_freeze', 'is_filtred', 'scroll_pos']].rename({"id": "sindex_id"}, axis=1)
+
         # Calculate new values
         sindexes.loc[~sindexes['is_filtred'] | sindexes['is_freeze'], 'size'] = 0
         sindexes['scroll_pos'] = sindexes['size'].cumsum().shift(1).fillna(0)
@@ -143,7 +133,7 @@ class CellRepo(BaseRepo):
             data = data.dict()
             data = {key: data[key] for key in data if data[key] is not None}
             filter_ = {'id': data.pop('id')} | {'sheet_id': sheet_id, 'is_readonly': False}
-            await super()._update_with_session(session, filter_=filter_, data=data)
+            await self.update_with_session(session, filter_by=filter_, data=data)
             await session.commit()
 
 
@@ -155,14 +145,8 @@ class SheetRepo(BaseRepo):
     normalizer = Normalizer
     denormalizer = Denormalizer
 
-    async def create(self, data: entities.SheetCreate) -> core_types.Id_:
-        async with db.get_async_session() as session:
-            sheet = await self._create_with_session(session, data)
-            await session.commit()
-            return sheet
-
-    async def _create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
-        sheet = await super()._create_with_session(session, {})
+    async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
+        sheet: Sheet = await super().create_with_session(session, {})
         sheet_id = sheet.id
 
         # Create row, col and cell data from denormalized dataframe
@@ -173,93 +157,79 @@ class SheetRepo(BaseRepo):
         rows = normalizer.get_normalized_rows().assign(sheet_id=sheet_id).to_dict(orient='records')
         cols = normalizer.get_normalized_cols().assign(sheet_id=sheet_id).to_dict(orient='records')
 
-        row_ids = await self.row_repo()._create_bulk_with_session(session, rows)
-        col_ids = await self.col_repo()._create_bulk_with_session(session, cols)
+        row_ids = await self.row_repo().create_bulk_with_session(session, rows)
+        col_ids = await self.col_repo().create_bulk_with_session(session, cols)
 
         # Create cells
         repeated_row_ids = np.repeat(row_ids, len(col_ids))
         repeated_col_ids = col_ids * len(row_ids)
         cells = normalizer.get_normalized_cells().assign(
             sheet_id=sheet_id, row_id=repeated_row_ids, col_id=repeated_col_ids).to_dict(orient='records')
-        _ = await self.cell_repo()._create_bulk_with_session(session, cells)
+        _ = await self.cell_repo().create_bulk_with_session(session, cells)
 
         return sheet_id
 
     async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
         async with db.get_async_session() as session:
-            return await self.retrieve_as_sheet_with_session(session, data)
-
-    async def retrieve_as_sheet_with_session(self, session: AsyncSession,
-                                             data: entities.SheetRetrieve) -> entities.Sheet:
-        # Find rows
-        stmt = (
-            select(self.row_repo.model.__table__)
-            .where(
-                self.row_repo.model.__table__.c.sheet_id == data.sheet_id,
-                self.row_repo.model.__table__.c.is_filtred,
-                or_(
-                    and_(self.row_repo.model.__table__.c.scroll_pos >= data.from_scroll,
-                         self.row_repo.model.__table__.c.scroll_pos < data.to_scroll),
-                    self.row_repo.model.__table__.c.is_freeze,
+            # Find rows
+            stmt = (
+                select(self.row_repo.model.__table__)
+                .where(
+                    self.row_repo.model.sheet_id == data.sheet_id,
+                    self.row_repo.model.is_filtred,
+                    or_(
+                        and_(self.row_repo.model.scroll_pos >= data.from_scroll,
+                             self.row_repo.model.scroll_pos < data.to_scroll),
+                        self.row_repo.model.is_freeze,
+                    )
                 )
+                .order_by(self.row_repo.model.scroll_pos)
             )
-            .order_by(self.row_repo.model.__table__.c.scroll_pos)
-        )
-        result = await session.execute(stmt)
-        rows = pd.DataFrame.from_records(result.fetchall(), columns=Row.get_columns())
+            result = await session.execute(stmt)
+            rows = pd.DataFrame.from_records(result.fetchall(), columns=Row.get_columns())
 
-        # Find Cols
-        stmt = (
-            select(self.col_repo.model.__table__)
-            .where(self.col_repo.model.__table__.c.sheet_id == data.sheet_id)
-            .order_by(self.col_repo.model.__table__.c.scroll_pos)
-        )
-        result = await session.execute(stmt)
-        cols = pd.DataFrame.from_records(result.fetchall(), columns=Col.get_columns())
+            # Find Cols
+            stmt = (
+                select(self.col_repo.model.__table__)
+                .where(self.col_repo.model.sheet_id == data.sheet_id)
+                .order_by(self.col_repo.model.scroll_pos)
+            )
+            result = await session.execute(stmt)
+            cols = pd.DataFrame.from_records(result.fetchall(), columns=Col.get_columns())
 
-        # Find cells
-        stmt = (
-            select(self.cell_repo.model.__table__)
-            .where(self.cell_repo.model.__table__.c.sheet_id == data.sheet_id,
-                   self.cell_repo.model.__table__.c.row_id.in_(rows['id'].tolist()),
-                   self.cell_repo.model.__table__.c.col_id.in_(cols['id'].tolist()),
-                   )
-        )
-        result = await session.execute(stmt)
-        cells = pd.DataFrame.from_records(result.fetchall(), columns=Cell.get_columns())
+            # Find cells
+            stmt = (
+                select(self.cell_repo.model.__table__)
+                .where(self.cell_repo.model.sheet_id == data.sheet_id,
+                       self.cell_repo.model.row_id.in_(rows['id'].tolist()),
+                       self.cell_repo.model.col_id.in_(cols['id'].tolist()),
+                       )
+            )
+            result = await session.execute(stmt)
+            cells = pd.DataFrame.from_records(result.fetchall(), columns=Cell.get_columns())
 
-        # Sort cells
-        saved_cols = cells.columns.copy()
-        cells = pd.merge(cells, rows[['id', 'index', ]], left_on='row_id', right_on='id', suffixes=('', '_row'))
-        cells = pd.merge(cells, cols[['id', 'index', ]], left_on='col_id', right_on='id', suffixes=('', '_col'))
-        cells = cells.sort_values(['index', 'index_col'])[saved_cols]
+            # Sort cells
+            saved_cols = cells.columns.copy()
+            cells = pd.merge(cells, rows[['id', 'index', ]], left_on='row_id', right_on='id', suffixes=('', '_row'))
+            cells = pd.merge(cells, cols[['id', 'index', ]], left_on='col_id', right_on='id', suffixes=('', '_col'))
+            cells = cells.sort_values(['index', 'index_col'])[saved_cols]
 
-        sheet = entities.Sheet(
-            id=data.sheet_id,
-            rows=rows.to_dict(orient='records'),
-            cols=cols.to_dict(orient='records'),
-            cells=cells.to_dict(orient='records'),
-        )
-        return sheet
+            sheet = entities.Sheet(
+                id=data.sheet_id,
+                rows=rows.to_dict(orient='records'),
+                cols=cols.to_dict(orient='records'),
+                cells=cells.to_dict(orient='records'),
+            )
+            return sheet
 
-    async def retrieve_as_dataframe(self, id_: core_types.Id_) -> pd.DataFrame:
-        async with db.get_async_session() as session:
-            df = await self.retrieve_as_dataframe_with_session(session, id_)
-            return df
-
-    async def retrieve_as_dataframe_with_session(self, session: AsyncSession, id_: core_types.Id_) -> pd.DataFrame:
-        cells: list[tuple] = await self.cell_repo()._retrieve_bulk_as_records(session, {"sheet_id": id_})
-        rows: list[tuple] = await self.row_repo()._retrieve_bulk_as_records(session, {"sheet_id": id_})
-        cols: list[tuple] = await self.col_repo()._retrieve_bulk_as_records(session, {"sheet_id": id_})
-
-        rows: pd.DataFrame = pd.DataFrame.from_records(rows, columns=Row.get_columns())
-        cols: pd.DataFrame = pd.DataFrame.from_records(cols, columns=Col.get_columns())
-        cells: pd.DataFrame = pd.DataFrame.from_records(cells, columns=Cell.get_columns())
+    async def retrieve_as_dataframe_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> pd.DataFrame:
+        cells = await self.cell_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": sheet_id})
+        rows = await self.row_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": sheet_id})
+        cols = await self.col_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": sheet_id})
 
         denormalizer = self.denormalizer(rows, cols, cells)
         denormalizer.denormalize()
         df = denormalizer.get_denormalized()
-
         return df
 
     async def retrieve_scroll_size(self, id_: core_types.Id_) -> entities.ScrollSize:
