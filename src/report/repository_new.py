@@ -44,7 +44,7 @@ class GroupRepo(postgres.GroupRepo, CrudRepo):
     pass
 
 
-class ReportRepo(postgres.ReportRepo):
+class ReportRepo(postgres.ReportRepo, CrudRepo):
     pass
 
 

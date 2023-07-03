@@ -19,8 +19,8 @@ class Interval(BaseModel):
     period_month: Mapped[int] = mapped_column(Integer, nullable=False)
     period_day: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    def to_interval_entity(self) -> entities.ReportInterval:
-        return entities.ReportInterval(
+    def to_interval_entity(self) -> entities.Interval:
+        return entities.Interval(
             id=self.id,
             total_start_date=self.total_start_date,
             total_end_date=self.total_end_date,
@@ -35,5 +35,5 @@ class Interval(BaseModel):
 class IntervalRepo(BaseRepo):
     model = Interval
 
-    async def create(self, data: entities.ReportIntervalCreate) -> core_types.Id_:
+    async def create(self, data: entities.IntervalCreate) -> core_types.Id_:
         return await super().create(data.dict())

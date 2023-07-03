@@ -1,9 +1,10 @@
+import typing
+
 import loguru
 import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src import core_types
 from src.report import entities as e_report
 from src.sheet import entities as e_sheet
 
@@ -15,6 +16,8 @@ from .source import Source
 from .interval import Interval, IntervalRepo
 from .base import BaseRepo, BaseModel
 from .sheet import SheetRepo
+
+OrderBy = typing.Union[str, list[str]]
 
 
 class Report(BaseModel):
@@ -28,7 +31,7 @@ class Report(BaseModel):
     interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(Interval.id, ondelete='RESTRICT'), nullable=False,
                                              unique=True)
 
-    def to_report_entity(self, interval: e_report.ReportInterval) -> e_report.Report:
+    def to_entity(self, interval: e_report.Interval) -> e_report.Report:
         return e_report.Report(
             id=self.id,
             category=CategoryEnum(self.category_id).name,
@@ -53,10 +56,10 @@ class ReportRepo(BaseRepo):
                 drop_index=data.sheet.drop_index,
                 drop_columns=data.sheet.drop_columns,
             )
-            sheet_id = await self.sheet_repo()._create_with_session(session, sheet_data)
+            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
 
             # Create interval model
-            interval: Interval = await self.interval_repo()._create_with_session(session, data.interval.dict())
+            interval: Interval = await self.interval_repo().create_with_session(session, data.interval)
 
             # Create report model
             report_data = dict(
@@ -67,24 +70,21 @@ class ReportRepo(BaseRepo):
                 interval_id=interval.id,
                 sheet_id=sheet_id,
             )
-            report: Report = await self._create_with_session(session, report_data)
+            report: Report = await self.create_with_session(session, report_data)
             session.expunge_all()
             await session.commit()
-            return report.to_report_entity(interval.to_interval_entity())
+            return report.to_entity(interval.to_entity())
 
-    async def retrieve_by_id(self, id_: core_types.Id_) -> e_report.Report:
+    async def retrieve(self, filter_by: dict):
         async with db.get_async_session() as session:
-            report: Report = await super()._retrieve_with_session(session, {"id": id_})
-            interval: Interval = await self.interval_repo()._retrieve_with_session(session, {"id": report.interval_id})
-            return report.to_report_entity(interval.to_interval_entity())
+            report: Report = await self.retrieve_with_session(session, filter_by)
+            interval: Interval = await self.interval_repo().retrieve_with_session(session, {"id": report.interval_id})
+            return report.to_entity(interval.to_entity())
 
-    async def retrieve_bulk(self, filter_: dict = None, sort_by: str = None, ascending=True) -> list[e_report.Report]:
-        if filter_ is None:
-            filter_ = {}
-
+    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[e_report.Report]:
         async with db.get_async_session() as session:
-            report = await super()._retrieve_bulk_as_dataframe(session, filter_, sort_by, ascending)
-            interval = await self.interval_repo()._retrieve_bulk_as_dataframe(session, {})
+            report: pd.DataFrame = await self.retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
+            interval: pd.DataFrame = await self.interval_repo().retrieve_bulk_as_dataframe_with_session(session, {})
 
             report = pd.merge(
                 report,
@@ -95,7 +95,7 @@ class ReportRepo(BaseRepo):
             report_entities: list[e_report.Report] = []
 
             for i, row in report.iterrows():
-                report_interval = e_report.ReportInterval(
+                report_interval = e_report.Interval(
                     id=row['interval_id'],
                     total_start_date=row['total_start_date'],
                     total_end_date=row['total_end_date'],

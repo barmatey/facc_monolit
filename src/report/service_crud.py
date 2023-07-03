@@ -60,7 +60,22 @@ class GroupService(Service):
 class ReportService(Service):
     repo: repository.CrudRepo = repository.ReportRepo()
     wire_repo: repository.WireRepo = repository.WireRepo()
+    group_repo: repository.GroupRepo = repository.GroupRepo()
 
     async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
+        interval_create = data.interval.to_interval_create_entity()
 
-        raise NotImplemented
+        wire_df = await self.wire_repo.retrieve_wire_dataframe({"source_id": data.source_id})
+        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
+        report_df = await get_finrep_service(data.category).create_report(wire_df, group_df, interval_create)
+
+        report_create_data = entities.ReportCreate(
+            title=data.title,
+            category='BALANCE',
+            source_id=data.source_id,
+            group_id=data.group_id,
+            interval=interval_create,
+            sheet=entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False)
+        )
+        report = await self.repo.create(report_create_data)
+        return report

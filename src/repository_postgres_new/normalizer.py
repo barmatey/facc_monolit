@@ -1,3 +1,4 @@
+import loguru
 import numpy as np
 import pandas as pd
 
@@ -99,7 +100,6 @@ class Denormalizer:
         self.rows = rows.copy()
         self.cols = cols.copy()
         self.cells = cells.copy()
-
         self.df = pd.DataFrame([])
 
     def get_denormalized(self) -> pd.DataFrame:

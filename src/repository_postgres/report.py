@@ -28,7 +28,7 @@ class Report(BaseModel):
     interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(Interval.id, ondelete='RESTRICT'), nullable=False,
                                              unique=True)
 
-    def to_report_entity(self, interval: e_report.ReportInterval) -> e_report.Report:
+    def to_report_entity(self, interval: e_report.Interval) -> e_report.Report:
         return e_report.Report(
             id=self.id,
             category=CategoryEnum(self.category_id).name,
@@ -95,7 +95,7 @@ class ReportRepo(BaseRepo):
             report_entities: list[e_report.Report] = []
 
             for i, row in report.iterrows():
-                report_interval = e_report.ReportInterval(
+                report_interval = e_report.Interval(
                     id=row['interval_id'],
                     total_start_date=row['total_start_date'],
                     total_end_date=row['total_end_date'],

@@ -27,18 +27,23 @@ class BaseModel(DeclarativeBase):
         # noinspection PyTypeChecker
         return [str(col.key) for col in cls.__table__.columns]
 
-    def to_entity(self) -> Entity:
+    def to_entity(self, **kwargs) -> Entity:
         raise NotImplemented
 
 
 OrderBy = typing.Union[str, list[str]]
 DTO = typing.Union[PydanticModel, dict]
 
+Model = TypeVar(
+    'Model',
+    bound=BaseModel
+)
+
 
 class BaseWithSession:
     model: typing.Type[BaseModel]
 
-    async def _create_with_session(self, session: AsyncSession, data: DTO) -> BaseModel:
+    async def create_with_session(self, session: AsyncSession, data: DTO) -> Model:
         if isinstance(data, PydanticModel):
             data = data.dict()
         model = self.model(**data)
@@ -46,7 +51,7 @@ class BaseWithSession:
         await session.flush()
         return model
 
-    async def _create_bulk_with_session(self, session: AsyncSession, data: list[DTO]) -> list[core_types.Id_]:
+    async def create_bulk_with_session(self, session: AsyncSession, data: list[DTO]) -> list[core_types.Id_]:
         if len(data) == 0:
             raise ValueError
         if isinstance(data[0], PydanticModel):
@@ -60,7 +65,7 @@ class BaseWithSession:
         ids = list(result.scalars())
         return ids
 
-    async def _retrieve_with_session(self, session: AsyncSession, filter_by: dict) -> BaseModel:
+    async def retrieve_with_session(self, session: AsyncSession, filter_by: dict) -> Model:
         stmt = (
             select(self.model)
             .filter_by(**filter_by)
@@ -77,8 +82,8 @@ class BaseWithSession:
         model: BaseModel = rows[0]
         return model
 
-    async def _retrieve_bulk_with_session(self, session: AsyncSession,
-                                          filter_by: dict, order_by: OrderBy = None) -> list[BaseModel]:
+    async def retrieve_bulk_with_session(self, session: AsyncSession,
+                                         filter_by: dict, order_by: OrderBy = None) -> list[Model]:
 
         sorter = await self._get_sorter(order_by)
         stmt = select(self.model).filter_by(**filter_by).order_by(*sorter)
@@ -86,38 +91,38 @@ class BaseWithSession:
         models = list(result.scalars().fetchall())
         return models
 
-    async def _retrieve_bulk_as_records_with_session(self, session: AsyncSession,
-                                                     filter_by: dict, order_by: OrderBy = None) -> list[tuple]:
+    async def retrieve_bulk_as_records_with_session(self, session: AsyncSession,
+                                                    filter_by: dict, order_by: OrderBy = None) -> list[tuple]:
         sorter = await self._get_sorter(order_by)
         stmt = select(self.model.__table__).filter_by(**filter_by).order_by(*sorter)
         result: Result = await session.execute(stmt)
         records = list(result)
         return records
 
-    async def _retrieve_bulk_as_dicts_with_session(self, session: AsyncSession,
-                                                   filter_by: dict, order_by: OrderBy = None) -> list[dict]:
+    async def retrieve_bulk_as_dicts_with_session(self, session: AsyncSession,
+                                                  filter_by: dict, order_by: OrderBy = None) -> list[dict]:
         sorter = await self._get_sorter(order_by)
         stmt = select(self.model.__table__).filter_by(**filter_by).order_by(*sorter)
         result: Result = await session.execute(stmt)
         dicts = list(Result.mappings(result))
         return dicts
 
-    async def _retrieve_bulk_as_dataframe_with_session(self, session: AsyncSession,
-                                                       filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
+    async def retrieve_bulk_as_dataframe_with_session(self, session: AsyncSession,
+                                                      filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
         sorter = await self._get_sorter(order_by)
         stmt = select(self.model.__table__).filter_by(**filter_by).order_by(*sorter)
         result: Result = await session.execute(stmt)
-        df = pd.DataFrame.from_records(result, columns=self.model.get_columns())
+        df = pd.DataFrame.from_records(result.fetchall(), columns=self.model.get_columns())
         return df
 
-    async def _update_with_session(self, session: AsyncSession, filter_by: dict, data: DTO) -> BaseModel:
+    async def update_with_session(self, session: AsyncSession, filter_by: dict, data: DTO) -> Model:
         if isinstance(data, PydanticModel):
             data = data.dict()
         stmt = update(self.model).filter_by(**filter_by).values(**data).returning(self.model)
         result: Result = await session.execute(stmt)
         raise NotImplemented
 
-    async def _delete_with_session(self, session: AsyncSession, filter_: dict) -> core_types.Id_:
+    async def delete_with_session(self, session: AsyncSession, filter_: dict) -> core_types.Id_:
         result = await session.execute(
             delete(self.model)
             .filter_by(**filter_)
@@ -146,44 +151,44 @@ class BaseRepo(BaseWithSession):
 
     async def create(self, data: DTO) -> Entity:
         async with db.get_async_session() as session:
-            model = await super()._create_with_session(session, data)
+            model = await super().create_with_session(session, data)
             entity = model.to_entity()
             await session.commit()
             return entity
 
     async def create_bulk(self, data: list[DTO]) -> list[core_types.Id_]:
         async with db.get_async_session() as session:
-            result = await super()._create_bulk_with_session(session, data)
+            result = await super().create_bulk_with_session(session, data)
             await session.commit()
             return result
 
     async def retrieve(self, filter_by) -> Entity:
         async with db.get_async_session() as session:
-            model = await super()._retrieve_with_session(session, filter_by)
+            model = await super().retrieve_with_session(session, filter_by)
             entity = model.to_entity()
             return entity
 
     async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[Entity]:
         async with db.get_async_session() as session:
-            models = await super()._retrieve_bulk_with_session(session, filter_by)
+            models = await super().retrieve_bulk_with_session(session, filter_by)
             entity_list = [model.to_entity() for model in models]
             return entity_list
 
     async def retrieve_bulk_as_dataframe(self, filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
         async with db.get_async_session() as session:
-            return await super()._retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
+            return await super().retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
 
     async def retrieve_bulk_as_records(self, filter_by: dict, order_by: OrderBy = None) -> list[tuple]:
         async with db.get_async_session() as session:
-            return await super()._retrieve_bulk_as_records_with_session(session, filter_by, order_by)
+            return await super().retrieve_bulk_as_records_with_session(session, filter_by, order_by)
 
     async def retrieve_bulk_as_dicts(self, filter_by: dict, order_by: OrderBy = None) -> list[dict]:
         async with db.get_async_session() as session:
-            return await super()._retrieve_bulk_as_dicts_with_session(session, filter_by, order_by)
+            return await super().retrieve_bulk_as_dicts_with_session(session, filter_by, order_by)
 
     async def update(self, data: DTO, filter_by: dict) -> Entity:
         async with db.get_async_session() as session:
-            model = await super()._update_with_session(session, filter_by, data)
+            model = await super().update_with_session(session, filter_by, data)
             entity = model.to_entity()
             await session.commit()
             return entity
@@ -193,6 +198,6 @@ class BaseRepo(BaseWithSession):
 
     async def delete(self, filter_by: dict) -> core_types.Id_:
         async with db.get_async_session() as session:
-            deleted_id = await super()._delete_with_session(session, filter_by)
+            deleted_id = await super().delete_with_session(session, filter_by)
             await session.commit()
             return deleted_id

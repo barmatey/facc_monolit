@@ -38,7 +38,7 @@ class Group(BaseModel):
     sheet_id: core_types.Id_
 
 
-class ReportIntervalCreate(BaseModel):
+class IntervalCreate(BaseModel):
     period_year: int
     period_month: int
     period_day: int
@@ -48,7 +48,7 @@ class ReportIntervalCreate(BaseModel):
     total_end_date: typing.Optional[pd.Timestamp]
 
 
-class ReportInterval(ReportIntervalCreate):
+class Interval(IntervalCreate):
     id: core_types.Id_
 
 
@@ -57,7 +57,7 @@ class ReportCreate(BaseModel):
     category: enums.CategoryLiteral
     source_id: core_types.Id_
     group_id: core_types.Id_
-    interval: ReportIntervalCreate
+    interval: IntervalCreate
     sheet: SheetCreate
 
 
@@ -67,7 +67,7 @@ class Report(BaseModel):
     category: enums.CategoryLiteral
     source_id: core_types.Id_
     group_id: core_types.Id_
-    interval: ReportInterval
+    interval: Interval
     sheet_id: core_types.Id_
 
 

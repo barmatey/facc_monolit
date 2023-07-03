@@ -1,12 +1,11 @@
 import enum
 from abc import ABC, abstractmethod
 
-import loguru
 import pandas as pd
 
 import finrep
 
-from . import schema, enums
+from . import entities, enums
 
 
 class FinrepService(ABC):
@@ -16,7 +15,8 @@ class FinrepService(ABC):
         pass
 
     @abstractmethod
-    async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
+    async def create_report(self, wire_df: pd.DataFrame, group_df: pd.DataFrame,
+                            interval: entities.IntervalCreate) -> pd.DataFrame:
         pass
 
 
@@ -28,8 +28,19 @@ class BalanceService(FinrepService):
         balance_group: pd.DataFrame = balance.get_group()
         return balance_group
 
-    async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
-        raise NotImplemented
+    async def create_report(self, wire_df: pd.DataFrame, group_df: pd.DataFrame,
+                            interval: entities.IntervalCreate) -> pd.DataFrame:
+        interval = finrep.BalanceInterval(
+            start_date=interval.start_date,
+            end_date=interval.end_date,
+            iyear=interval.period_year,
+            imonth=interval.period_month,
+            iday=interval.period_day,
+        )
+        report = finrep.BalanceReport(wire_df, group_df, interval)
+        report.create_report()
+        report_df = report.get_report()
+        return report_df
 
 
 class LinkedFinrep(enum.Enum):

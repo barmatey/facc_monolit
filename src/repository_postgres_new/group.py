@@ -1,10 +1,8 @@
-import loguru
 import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
 from report import entities
-from report.enums import CategoryLiteral
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
@@ -48,7 +46,7 @@ class GroupRepo(BaseRepo):
                 drop_index=data.drop_index,
                 drop_columns=data.drop_columns,
             )
-            sheet_id = await self.sheet_repo()._create_with_session(session, sheet_data)
+            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
 
             # Create group model
             group_data = dict(
@@ -58,13 +56,13 @@ class GroupRepo(BaseRepo):
                 source_id=data.source_id,
                 sheet_id=sheet_id,
             )
-            group: Group = await super()._create_with_session(session, group_data)
+            group: Group = await super().create_with_session(session, group_data)
             entity = group.to_entity()
             await session.commit()
             return entity
 
     async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         async with db.get_async_session() as session:
-            group: Group = await self._retrieve_with_session(session, filter_by={"id": group_id})
-            df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, group.sheet_id)
+            group: Group = await self.retrieve_with_session(session, filter_by={"id": group_id})
+            df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, sheet_id=group.sheet_id)
             return df
