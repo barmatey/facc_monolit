@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 
 import core_types
 from . import entities
-import repository_postgres
+from src.repository_postgres_new import SheetRepo, RowRepo, ColRepo, CellRepo, SheetTableRepo, SheetSorterRepo, \
+    SheetFilterRepo
 
 
 class Repository(ABC):
@@ -57,13 +58,13 @@ class Repository(ABC):
 
 
 class PostgresRepo(Repository):
-    sheet_repo = repository_postgres.SheetRepo
-    sheet_row_repo = repository_postgres.RowRepo
-    sheet_col_repo = repository_postgres.ColRepo
-    sheet_cell_repo = repository_postgres.CellRepo
-    sheet_table_repo = repository_postgres.SheetTableRepo
-    sheet_filter_repo = repository_postgres.SheetFilterRepo
-    sheet_sorter_repo = repository_postgres.SheetSorterRepo
+    sheet_repo = SheetRepo
+    sheet_row_repo = RowRepo
+    sheet_col_repo = ColRepo
+    sheet_cell_repo = CellRepo
+    sheet_table_repo = SheetTableRepo
+    sheet_filter_repo = SheetFilterRepo
+    sheet_sorter_repo = SheetSorterRepo
 
     async def retrieve_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
         return await self.sheet_repo().retrieve_as_sheet(data=data)

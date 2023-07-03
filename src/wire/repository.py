@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pydantic
 
 from src import core_types
-from src.repository_postgres.source import SourceRepo
+from src.repository_postgres_new import SourceRepo
 from . import entities
 
 
@@ -39,4 +39,4 @@ class RepositoryPostgres(Repository):
         await self.source_repo().delete({"id": source_id})
 
     async def list(self) -> list[entities.Source]:
-        return await self.source_repo().retrieve_bulk()
+        return await self.source_repo().retrieve_bulk({})

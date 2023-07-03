@@ -1,10 +1,8 @@
-import loguru
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
 
-from repository_postgres.wire import WireRepo
+from src.repository_postgres_new.wire import WireRepo
 from src import core_types
-from . import entities
 from . import schema
 from .service import Service, ServiceSource
 

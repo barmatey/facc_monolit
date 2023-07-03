@@ -1,3 +1,5 @@
+from typing import TypedDict
+
 import pandas as pd
 from pydantic import BaseModel
 
@@ -14,6 +16,18 @@ class Source(BaseModel):
     total_start_date: pd.Timestamp
     total_end_date: pd.Timestamp
     wcols: list[str]
+
+
+class WireCreate(TypedDict):
+    source_id: core_types.Id_
+    date: pd.Timestamp
+    sender: float
+    receiver: float
+    debit: float
+    credit: float
+    subconto_first: str
+    subconto_second: str
+    comment: str
 
 
 class Wire(BaseModel):

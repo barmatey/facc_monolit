@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from src import core_types
 from src import repository_postgres_new as postgres
-from src import repository_postgres as postgres_old
 from . import enums, entities
 
 OrderBy = typing.Union[str, list[str]]
@@ -48,6 +47,6 @@ class ReportRepo(postgres.ReportRepo, CrudRepo):
     pass
 
 
-class WireRepo(postgres_old.WireRepo):
+class WireRepo(postgres.WireRepo):
     async def retrieve_wire_dataframe(self, filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
-        return await self.retrieve_wire_df(source_id=filter_by['source_id'])
+        return await self.retrieve_bulk_as_dataframe(filter_by, order_by)

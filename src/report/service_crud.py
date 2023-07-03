@@ -71,7 +71,7 @@ class ReportService(Service):
 
         report_create_data = entities.ReportCreate(
             title=data.title,
-            category='BALANCE',
+            category=data.category,
             source_id=data.source_id,
             group_id=data.group_id,
             interval=interval_create,
