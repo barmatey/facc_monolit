@@ -32,9 +32,3 @@ class Category(BaseModel):
 
 class CategoryRepo(BaseRepo):
     model = Category
-
-    # async def retrieve_bulk(self, filter_: dict = None,
-    #                         sort_by: str = None, ascending=True) -> list[enums.CategoryLiteral]:
-    #     # noinspection PyTypeChecker
-    #     categories: list[Category] = await self.re(filter_={})
-    #     return [c.to_category_literal() for c in categories]

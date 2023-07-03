@@ -4,7 +4,7 @@ from typing import TypeVar
 import loguru
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
-from sqlalchemy import insert, select, Result, delete
+from sqlalchemy import insert, select, Result, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -38,13 +38,13 @@ DTO = typing.Union[PydanticModel, dict]
 class BaseWithSession:
     model: typing.Type[BaseModel]
 
-    async def _create_with_session(self, session: AsyncSession, data: DTO) -> Entity:
+    async def _create_with_session(self, session: AsyncSession, data: DTO) -> BaseModel:
         if isinstance(data, PydanticModel):
             data = data.dict()
         model = self.model(**data)
         session.add(model)
         await session.flush()
-        return model.to_entity()
+        return model
 
     async def _create_bulk_with_session(self, session: AsyncSession, data: list[DTO]) -> list[core_types.Id_]:
         if len(data) == 0:
@@ -60,7 +60,7 @@ class BaseWithSession:
         ids = list(result.scalars())
         return ids
 
-    async def _retrieve_with_session(self, session: AsyncSession, filter_by: dict) -> Entity:
+    async def _retrieve_with_session(self, session: AsyncSession, filter_by: dict) -> BaseModel:
         stmt = (
             select(self.model)
             .filter_by(**filter_by)
@@ -75,17 +75,16 @@ class BaseWithSession:
             raise LookupError(f"there are to many objects with the {filter_by}; count objects: {len(rows)}")
 
         model: BaseModel = rows[0]
-        return model.to_entity()
+        return model
 
     async def _retrieve_bulk_with_session(self, session: AsyncSession,
-                                          filter_by: dict, order_by: OrderBy = None) -> list[Entity]:
+                                          filter_by: dict, order_by: OrderBy = None) -> list[BaseModel]:
 
         sorter = await self._get_sorter(order_by)
         stmt = select(self.model).filter_by(**filter_by).order_by(*sorter)
         result: Result = await session.execute(stmt)
-        models = result.scalars().fetchall()
-        entity_list: list[Entity] = [model.to_entity() for model in models]
-        return entity_list
+        models = list(result.scalars().fetchall())
+        return models
 
     async def _retrieve_bulk_as_records_with_session(self, session: AsyncSession,
                                                      filter_by: dict, order_by: OrderBy = None) -> list[tuple]:
@@ -110,6 +109,13 @@ class BaseWithSession:
         result: Result = await session.execute(stmt)
         df = pd.DataFrame.from_records(result, columns=self.model.get_columns())
         return df
+
+    async def _update_with_session(self, session: AsyncSession, filter_by: dict, data: DTO) -> BaseModel:
+        if isinstance(data, PydanticModel):
+            data = data.dict()
+        stmt = update(self.model).filter_by(**filter_by).values(**data).returning(self.model)
+        result: Result = await session.execute(stmt)
+        raise NotImplemented
 
     async def _delete_with_session(self, session: AsyncSession, filter_: dict) -> core_types.Id_:
         result = await session.execute(
@@ -140,7 +146,8 @@ class BaseRepo(BaseWithSession):
 
     async def create(self, data: DTO) -> Entity:
         async with db.get_async_session() as session:
-            entity = await super()._create_with_session(session, data)
+            model = await super()._create_with_session(session, data)
+            entity = model.to_entity()
             await session.commit()
             return entity
 
@@ -152,11 +159,15 @@ class BaseRepo(BaseWithSession):
 
     async def retrieve(self, filter_by) -> Entity:
         async with db.get_async_session() as session:
-            return await super()._retrieve_with_session(session, filter_by)
+            model = await super()._retrieve_with_session(session, filter_by)
+            entity = model.to_entity()
+            return entity
 
     async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[Entity]:
         async with db.get_async_session() as session:
-            return await super()._retrieve_bulk_with_session(session, filter_by)
+            models = await super()._retrieve_bulk_with_session(session, filter_by)
+            entity_list = [model.to_entity() for model in models]
+            return entity_list
 
     async def retrieve_bulk_as_dataframe(self, filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
         async with db.get_async_session() as session:
@@ -170,10 +181,14 @@ class BaseRepo(BaseWithSession):
         async with db.get_async_session() as session:
             return await super()._retrieve_bulk_as_dicts_with_session(session, filter_by, order_by)
 
-    async def partial_update(self, data: DTO, filter_by: dict) -> Entity:
-        pass
+    async def update(self, data: DTO, filter_by: dict) -> Entity:
+        async with db.get_async_session() as session:
+            model = await super()._update_with_session(session, filter_by, data)
+            entity = model.to_entity()
+            await session.commit()
+            return entity
 
-    async def partial_update_bulk(self, data: list[DTO], filter_by: dict) -> list[core_types.Id_]:
+    async def update_bulk(self, data: list[DTO], filter_by: dict) -> list[core_types.Id_]:
         pass
 
     async def delete(self, filter_by: dict) -> core_types.Id_:

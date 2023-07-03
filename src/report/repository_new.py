@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from src import core_types
 from src import repository_postgres_new as postgres
+from src import repository_postgres as postgres_old
 from . import enums, entities
 
 OrderBy = typing.Union[str, list[str]]
@@ -13,7 +14,7 @@ DTO = typing.Union[BaseModel, dict]
 Entity = typing.TypeVar(
     'Entity',
     entities.Group,
-    entities.Report
+    entities.Report,
 )
 
 
@@ -37,3 +38,16 @@ class CrudRepo(ABC):
 
 class CategoryRepo(postgres.CategoryRepo, CrudRepo):
     pass
+
+
+class GroupRepo(postgres.GroupRepo, CrudRepo):
+    pass
+
+
+class ReportRepo(postgres.ReportRepo):
+    pass
+
+
+class WireRepo(postgres_old.WireRepo):
+    async def retrieve_wire_dataframe(self, filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
+        return await self.retrieve_wire_df(source_id=filter_by['source_id'])

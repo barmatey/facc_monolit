@@ -1,4 +1,6 @@
 import typing
+
+import pandas as pd
 from pydantic import BaseModel
 
 from src import core_types
@@ -30,19 +32,35 @@ class Service:
 
 
 class CategoryService(Service):
-    pass
+    repo: repository.CrudRepo = repository.CategoryRepo()
 
 
 class GroupService(Service):
+    repo: repository.CrudRepo = repository.GroupRepo()
+    wire_repo: repository.WireRepo = repository.WireRepo()
 
     async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
-        finrep_service = get_finrep_service(data.category)
-        group = await finrep_service.create_group(data)
+        wire: pd.DataFrame = await self.wire_repo.retrieve_wire_dataframe({"source_id": data.source_id})
+        group: pd.DataFrame = await get_finrep_service(data.category).create_group(wire, data.columns)
+
+        group_create = entities.GroupCreate(
+            title=data.title,
+            source_id=data.source_id,
+            columns=data.columns,
+            dataframe=group,
+            drop_index=True,
+            drop_columns=False,
+            category=data.category,
+        )
+
+        group: entities.Group = await self.repo.create(group_create)
         return group
 
 
-class ReportSrvice(Service):
+class ReportService(Service):
+    repo: repository.CrudRepo = repository.ReportRepo()
+    wire_repo: repository.WireRepo = repository.WireRepo()
+
     async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
-        finrep_service = get_finrep_service(data.category)
-        report = await finrep_service.create_report(data)
-        return report
+
+        raise NotImplemented
