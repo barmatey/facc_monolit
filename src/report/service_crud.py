@@ -2,7 +2,9 @@ import typing
 from pydantic import BaseModel
 
 from src import core_types
+from .service_finrep import get_finrep_service
 from . import repository_new as repository
+from . import enums, entities, schema
 
 OrderBy = typing.Union[str, list[str]]
 DTO = typing.Union[BaseModel]
@@ -28,4 +30,19 @@ class Service:
 
 
 class CategoryService(Service):
-    repo: repository.CrudRepo = repository.CategoryRepo()
+    pass
+
+
+class GroupService(Service):
+
+    async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
+        finrep_service = get_finrep_service(data.category)
+        group = await finrep_service.create_group(data)
+        return group
+
+
+class ReportSrvice(Service):
+    async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
+        finrep_service = get_finrep_service(data.category)
+        report = await finrep_service.create_report(data)
+        return report

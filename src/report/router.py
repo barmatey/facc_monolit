@@ -8,7 +8,7 @@ import helpers
 from .. import core_types
 from .service import Service, BaseService, BalanceService
 from .service_crud import Service as ServiceNew
-from .service_crud import CategoryService
+from .service_crud import CategoryService, ReportSrvice, GroupService
 from . import schema, enums, entities
 
 
@@ -95,7 +95,7 @@ async def retrieve_report_list(category: enums.CategoryLiteral = None,
 
 @router_report.delete("/{report_id}")
 async def delete_report(report_id: core_types.Id_,
-                        service: Service = Depends(BaseService)) -> core_types.Id_:
+                        service: ServiceNew = Depends(BaseService)) -> core_types.Id_:
     deleted_id = await service.delete_report(report_id)
     return deleted_id
 
