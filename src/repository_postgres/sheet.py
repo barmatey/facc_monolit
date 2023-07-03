@@ -133,7 +133,7 @@ class CellRepo(BaseRepo):
             data = data.dict()
             data = {key: data[key] for key in data if data[key] is not None}
             filter_ = {'id': data.pop('id')} | {'sheet_id': sheet_id, 'is_readonly': False}
-            await self.update_with_session(session, filter_by=filter_, data=data)
+            _ = await self.update_with_session(session, filter_by=filter_, data=data)
             await session.commit()
 
 

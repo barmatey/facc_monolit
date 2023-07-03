@@ -119,21 +119,29 @@ class BaseWithSession:
             data = data.dict()
         stmt = update(self.model).filter_by(**filter_by).values(**data).returning(self.model)
         result: Result = await session.execute(stmt)
-        raise NotImplemented
+        models: list[Model] = list(result.scalars())
 
-    async def delete_with_session(self, session: AsyncSession, filter_: dict) -> core_types.Id_:
+        if len(models) == 0:
+            raise LookupError(f"there is not model with following filter: {filter_by}")
+
+        if len(models) > 1:
+            raise LookupError(f"there are to many models with following filter: {filter_by}. "
+                              f"Change filter or use bulk method to delete many models")
+        return models.pop()
+
+    async def delete_with_session(self, session: AsyncSession, filter_by: dict) -> core_types.Id_:
         result = await session.execute(
             delete(self.model)
-            .filter_by(**filter_)
+            .filter_by(**filter_by)
             .returning(self.model.id)
         )
 
         result = list(result.scalars())
         if len(result) == 0:
-            raise LookupError(f"there is not model with following filter: {filter_}")
+            raise LookupError(f"there is not model with following filter: {filter_by}")
 
         if len(result) > 1:
-            raise LookupError(f"there are to many models with following filter: {filter_}. "
+            raise LookupError(f"there are to many models with following filter: {filter_by}. "
                               f"Change filter or use bulk method to delete many models")
         return result[0]
 
