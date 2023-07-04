@@ -41,6 +41,7 @@ class GroupService(Service):
 
     async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
         group_df: pd.DataFrame = await get_finrep_service(data.category).create_group(data)
+
         group_create = entities.GroupCreate(
             title=data.title,
             source_id=data.source_id,
@@ -57,19 +58,17 @@ class GroupService(Service):
 
 class ReportService(Service):
     repo: repository.CrudRepo = repository.ReportRepo()
-    wire_repo: repository.WireRepo = repository.WireRepo()
-    group_repo: repository.GroupRepo = repository.GroupRepo()
 
     async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
         report_df = await get_finrep_service(data.category).create_report(data)
-
-        report_create_data = entities.ReportCreate(
+        sheet = entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False, readonly_all_cells=True)
+        report_create = entities.ReportCreate(
             title=data.title,
             category=data.category,
             source_id=data.source_id,
             group_id=data.group_id,
             interval=data.interval.to_interval_create_entity(),
-            sheet=entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False)
+            sheet=sheet,
         )
-        report = await self.repo.create(report_create_data)
+        report = await self.repo.create(report_create)
         return report

@@ -7,14 +7,8 @@ from alembic import context
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-from repository_postgres import BaseModel
-# from src.repository_postgres.report import Report
-# from src.repository_postgres.category import Category
-# from src.repository_postgres.group import Group
-# from src.repository_postgres.interval import Interval
-# from src.repository_postgres.source import Source
-# from src.repository_postgres.wire import Wire
-# from src.repository_postgres.sheet import Sheet
+from repository_postgres.base import BaseModel
+
 
 config = context.config
 

@@ -5,7 +5,6 @@ from starlette.middleware.cors import CORSMiddleware
 from src.wire.router import router_wire
 from src.sheet.router import router as router_sheet
 from src.report.router import router_report, router_group, router_category
-from src.report.router_temp import router as temp_router
 
 app = FastAPI()
 
@@ -21,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(temp_router)
 
 app.include_router(router_wire)
 app.include_router(router_group)

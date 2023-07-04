@@ -40,6 +40,7 @@ class SheetCreate(BaseModel):
     df: pd.DataFrame
     drop_index: bool
     drop_columns: bool
+    readonly_all_cells: bool = False
 
     class Config:
         arbitrary_types_allowed = True

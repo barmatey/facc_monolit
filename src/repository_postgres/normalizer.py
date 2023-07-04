@@ -7,10 +7,11 @@ from src.sheet import enums
 
 class Normalizer:
 
-    def __init__(self, df: pd.DataFrame, drop_index: bool, drop_columns: bool):
+    def __init__(self, df: pd.DataFrame, drop_index: bool, drop_columns: bool, readonly_all_cells: bool = False):
         self.df = df.copy()
         self.drop_index = drop_index
         self.drop_columns = drop_columns
+        self.readonly_all_cells = readonly_all_cells
 
         self.rows: pd.DataFrame = pd.DataFrame([])
         self.cols: pd.DataFrame = pd.DataFrame([])
@@ -38,6 +39,9 @@ class Normalizer:
         rows: pd.DataFrame = self.create_sindex_df(len(table.index), vertical_difference, 24)
         cols: pd.DataFrame = self.create_sindex_df(len(table.columns), horizontal_difference, 120)
         cells: pd.DataFrame = self.create_cell_df(rows, cols, table)
+
+        if self.readonly_all_cells:
+            cells['is_readonly'] = True
 
         self.rows = rows
         self.cols = cols

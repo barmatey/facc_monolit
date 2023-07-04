@@ -28,25 +28,22 @@ class BalanceService(BaseService):
 
     async def create_group(self, data: schema.GroupCreateSchema) -> pd.DataFrame:
         wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+
         balance = finrep.BalanceGroup(wire_df)
         balance.create_group(ccols=data.columns)
         balance_group: pd.DataFrame = balance.get_group()
+
         return balance_group
 
     async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
-        interval = finrep.BalanceInterval(
-            start_date=data.interval.start_date,
-            end_date=data.interval.end_date,
-            iyear=data.interval.iyear,
-            imonth=data.interval.imonth,
-            iday=data.interval.iday,
-        )
         wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
         group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
 
+        interval = finrep.BalanceInterval(**data.interval.dict())
         report = finrep.BalanceReport(wire_df, group_df, interval)
         report.create_report()
         report_df = report.get_report()
+
         return report_df
 
 

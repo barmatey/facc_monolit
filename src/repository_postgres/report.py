@@ -54,6 +54,7 @@ class ReportRepo(BaseRepo):
                 df=data.sheet.dataframe,
                 drop_index=data.sheet.drop_index,
                 drop_columns=data.sheet.drop_columns,
+                readonly_all_cells=data.sheet.readonly_all_cells,
             )
             sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
 
