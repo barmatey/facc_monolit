@@ -78,6 +78,9 @@ class PostgresRepo(Repository):
     async def update_col_filter(self, data: entities.ColFilter) -> None:
         await self.sheet_filter_repo().update_col_filter(data)
 
+    async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
+        await self.sheet_filter_repo().clear_all_filters(sheet_id)
+
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
         await self.sheet_sorter_repo().update_col_sorter(data)
 

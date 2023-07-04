@@ -54,9 +54,11 @@ async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSche
     return 1
 
 
-@router.patch("/{sheet_id}/clear-all-filters")
-async def clear_all_filters(sheet_id: core_types.Id_) -> JSONResponse:
-    raise NotImplemented
+@router.delete("/{sheet_id}/clear-all-filters")
+async def clear_all_filters(sheet_id: core_types.Id_,
+                            sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
+    await sheet_service.clear_all_filters(sheet_id)
+    return 1
 
 
 @router.patch("/{sheet_id}/update-col-sorter")

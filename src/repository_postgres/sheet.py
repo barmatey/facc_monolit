@@ -2,7 +2,7 @@ import typing
 
 import numpy as np
 import pandas as pd
-from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, delete
+from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, delete, update
 from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -267,6 +267,13 @@ class SheetFilterRepo:
         async with db.get_async_session() as session:
             await self._update_filtred_flag_in_cells_with_session(session, data)
             await self._update_filtred_flag_and_scroll_pos_in_rows_with_session(session, sheet_id=data['sheet_id'])
+            await session.commit()
+
+    async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
+        async with db.get_async_session() as session:
+            stmt = update(self.cell_model).where(self.cell_model.sheet_id == sheet_id)
+            await session.execute(stmt, {"is_filtred": True})
+            await self._update_filtred_flag_and_scroll_pos_in_rows_with_session(session, sheet_id=sheet_id)
             await session.commit()
 
     async def _retrieve_total_rows_with_session(self, session: AsyncSession,

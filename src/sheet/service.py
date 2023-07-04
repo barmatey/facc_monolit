@@ -25,6 +25,9 @@ class SheetService:
     async def update_col_filter(self, data: schema.ColFilterSchema) -> None:
         await self.repo().update_col_filter(data)
 
+    async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
+        await self.repo().clear_all_filters(sheet_id)
+
     async def update_col_sorter(self, data: schema.ColSorterSchema) -> None:
         await self.repo().update_col_sorter(data)
 
