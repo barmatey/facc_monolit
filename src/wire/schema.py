@@ -1,10 +1,8 @@
 import pydantic
 from . import entities
 
+SourceSchema = entities.Source
 
-class SourceSchema(entities.Source):
-    pass
+SourceCreateSchema = entities.SourceCreate
 
-
-class SourceCreateSchema(entities.SourceCreate):
-    pass
+WireSchema = entities.Wire

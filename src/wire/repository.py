@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pydantic
 
 from src import core_types
-from repository_postgres import SourceRepo
+from repository_postgres import SourceRepo, WireRepo
 from . import entities
 
 
@@ -18,15 +18,15 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, filter_by: dict) -> None:
+    async def retrieve_list(self, filter_by: dict) -> list[pydantic.BaseModel]:
         pass
 
     @abstractmethod
-    async def list(self) -> list[pydantic.BaseModel]:
+    async def delete(self, filter_by: dict) -> None:
         pass
 
 
-class RepositoryPostgres(Repository):
+class SourcePostgres(Repository):
     source_repo = SourceRepo
 
     async def create(self, data: entities.SourceCreate) -> entities.Source:
@@ -38,5 +38,5 @@ class RepositoryPostgres(Repository):
     async def delete(self, filter_by: dict) -> None:
         await self.source_repo().delete(filter_by)
 
-    async def list(self) -> list[entities.Source]:
-        return await self.source_repo().retrieve_bulk({})
+    async def retrieve_list(self, filter_by: dict) -> list[entities.Source]:
+        return await self.source_repo().retrieve_bulk(filter_by)
