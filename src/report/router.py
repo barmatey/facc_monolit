@@ -28,6 +28,7 @@ router_group = APIRouter(
 
 
 @router_group.post("/")
+@helpers.async_timeit
 async def create_group(data: schema.GroupCreateSchema,
                        service: Service = Depends(GroupService)) -> schema.GroupSchema:
     group = await service.create(data)
@@ -36,6 +37,7 @@ async def create_group(data: schema.GroupCreateSchema,
 
 
 @router_group.get("/{group_id}")
+@helpers.async_timeit
 async def retrieve_group(group_id: core_types.Id_,
                          service: Service = Depends(GroupService)) -> schema.GroupSchema:
     group: entities.Group = await service.retrieve({"id": group_id})
@@ -43,6 +45,7 @@ async def retrieve_group(group_id: core_types.Id_,
 
 
 @router_group.get("/")
+@helpers.async_timeit
 async def retrieve_group_list(
         category: enums.CategoryLiteral = None,
         service: Service = Depends(GroupService)) -> list[schema.GroupSchema]:
@@ -51,6 +54,7 @@ async def retrieve_group_list(
 
 
 @router_group.delete("/{group_id}")
+@helpers.async_timeit
 async def delete_group(group_id: core_types.Id_, service: Service = Depends(GroupService)) -> core_types.Id_:
     deleted_id = await service.delete({"id": group_id})
     return deleted_id
@@ -63,12 +67,14 @@ router_report = APIRouter(
 
 
 @router_report.post("/")
+@helpers.async_timeit
 async def create_report(data: schema.ReportCreateSchema, service: Service = Depends(ReportService)) -> schema.ReportSchema:
     report = await service.create(data)
     return report
 
 
 @router_report.get("/{report_id}")
+@helpers.async_timeit
 async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(ReportService)) -> schema.ReportSchema:
     report = await service.retrieve({"id": report_id})
     return report
@@ -83,6 +89,7 @@ async def retrieve_report_list(category: enums.CategoryLiteral = None,
 
 
 @router_report.delete("/{report_id}")
+@helpers.async_timeit
 async def delete_report(report_id: core_types.Id_,
                         service: Service = Depends(ReportService)) -> core_types.Id_:
     deleted_id = await service.delete({"id": report_id})

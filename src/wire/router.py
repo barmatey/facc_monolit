@@ -19,12 +19,12 @@ async def create_source(data: schema.SourceCreateSchema, service: Service = Depe
 
 @router_wire.get("/{source_id}", response_model=schema.SourceSchema)
 async def retrieve_source(source_id: core_types.Id_, service: Service = Depends(ServiceSource)):
-    return await service.retrieve(source_id)
+    return await service.retrieve(filter_by={"id": source_id})
 
 
 @router_wire.delete("/{source_id}", response_model=int)
 async def delete_source(source_id: core_types.Id_, service: Service = Depends(ServiceSource)):
-    await service.delete(source_id)
+    await service.delete(filter_by={"id": source_id})
     return 1
 
 

@@ -13,11 +13,11 @@ class Service(ABC):
     async def create(self, data: pydantic.BaseModel) -> pydantic.BaseModel:
         return await self.repo().create(data)
 
-    async def retrieve(self, source_id: core_types.Id_) -> pydantic.BaseModel:
-        return await self.repo().retrieve(source_id)
+    async def retrieve(self, filter_by: dict) -> pydantic.BaseModel:
+        return await self.repo().retrieve(filter_by)
 
-    async def delete(self, id_: core_types.Id_) -> None:
-        await self.repo().delete(id_)
+    async def delete(self, filter_by: dict) -> None:
+        await self.repo().delete(filter_by)
 
     async def retrieve_list(self) -> list[pydantic.BaseModel]:
         return await self.repo().list()

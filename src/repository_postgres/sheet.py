@@ -67,7 +67,7 @@ class SindexRepo(BaseRepo):
         stmt = select(func.count()).where(self.model.sheet_id == sheet_id)
         count = await session.scalar(stmt)
 
-        stmt = select(func.max(self.model.scroll_pos)).where(self.model.sheet_id == sheet_id)
+        stmt = select(func.sum(self.model.size)).where(self.model.sheet_id == sheet_id, self.model.is_filtred)
         scroll_size = await session.scalar(stmt)
 
         sindex_scroll_size = SindexScrollSize(

@@ -14,11 +14,11 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def retrieve(self, source_id: core_types.Id_) -> pydantic.BaseModel:
+    async def retrieve(self, filter_by: dict) -> pydantic.BaseModel:
         pass
 
     @abstractmethod
-    async def delete(self, source_id: core_types.Id_) -> None:
+    async def delete(self, filter_by: dict) -> None:
         pass
 
     @abstractmethod
@@ -32,11 +32,11 @@ class RepositoryPostgres(Repository):
     async def create(self, data: entities.SourceCreate) -> entities.Source:
         return await self.source_repo().create(data)
 
-    async def retrieve(self, source_id: core_types.Id_) -> entities.Source:
-        return await self.source_repo().retrieve(source_id)
+    async def retrieve(self, filter_by: dict) -> entities.Source:
+        return await self.source_repo().retrieve(filter_by)
 
-    async def delete(self, source_id: core_types.Id_) -> None:
-        await self.source_repo().delete({"id": source_id})
+    async def delete(self, filter_by: dict) -> None:
+        await self.source_repo().delete(filter_by)
 
     async def list(self) -> list[entities.Source]:
         return await self.source_repo().retrieve_bulk({})
