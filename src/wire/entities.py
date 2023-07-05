@@ -30,5 +30,5 @@ class WireCreate(TypedDict):
     comment: str
 
 
-class Wire(BaseModel):
-    pass
+class Wire(WireCreate):
+    id: core_types.Id_

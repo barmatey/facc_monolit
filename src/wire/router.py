@@ -4,7 +4,7 @@ from fastapi import APIRouter, UploadFile, Depends
 from repository_postgres import WireRepo
 from src import core_types
 from . import schema
-from .service import Service, ServiceSource
+from .service import Service, ServiceSource, ServiceWire
 
 router_source = APIRouter(
     prefix="/source-db",
@@ -30,7 +30,8 @@ async def delete_source(source_id: core_types.Id_, service: Service = Depends(Se
 
 @router_source.get("/", response_model=list[schema.SourceSchema])
 async def list_source(service: Service = Depends(ServiceSource)):
-    result = await service.retrieve_list(filter_by={})
+    retrieve_params = schema.SourceBulkRetrieveSchema(filter_by={})
+    result = await service.retrieve_list(retrieve_params)
     return result
 
 
@@ -49,5 +50,14 @@ router_wire = APIRouter(
 
 
 @router_wire.get("/")
-async def retrieve_list(source_id: core_types.Id_, page: int = None) -> list[schema.WireSchema]:
-    raise NotImplemented
+async def retrieve_list(source_id: core_types.Id_,
+                        paginate_from: int = None, paginate_to: int = None,
+                        service: ServiceWire = Depends(ServiceWire)) -> list[schema.WireSchema]:
+    retrieve_params = schema.WireBulkRetrieveSchema(
+        filter_by={"source_id": source_id},
+        order_by='date',
+        ascending=True,
+        paginate_from=paginate_from,
+        paginate_to=paginate_to,
+    )
+    return await service.retrieve_list(retrieve_params)

@@ -19,9 +19,13 @@ class Service(ABC):
     async def delete(self, filter_by: dict) -> None:
         await self.repo().delete(filter_by)
 
-    async def retrieve_list(self, filter_by: dict) -> list[pydantic.BaseModel]:
-        return await self.repo().retrieve_list(filter_by)
+    async def retrieve_list(self, retrieve_params: core_types.DTO) -> list[pydantic.BaseModel]:
+        return await self.repo().retrieve_list(retrieve_params)
 
 
 class ServiceSource(Service):
     repo: repository.Repository = repository.SourcePostgres
+
+
+class ServiceWire(Service):
+    repo: repository.Repository = repository.WirePostgres

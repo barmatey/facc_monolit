@@ -3,7 +3,7 @@ from typing import TypeVar
 
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
-from sqlalchemy import insert, select, Result, delete, update
+from sqlalchemy import insert, select, Result, delete, update, GenerativeSelect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -82,10 +82,15 @@ class BaseWithSession:
         return model
 
     async def retrieve_bulk_with_session(self, session: AsyncSession,
-                                         filter_by: dict, order_by: OrderBy = None) -> list[Model]:
+                                         filter_by: dict,
+                                         order_by: OrderBy = None,
+                                         ascending: bool = True,
+                                         paginate_from: int = None,
+                                         paginate_to: int = None) -> list[Model]:
 
         sorter = await self._get_sorter(order_by)
         stmt = select(self.model).filter_by(**filter_by).order_by(*sorter)
+        stmt = await self._paginate(stmt, paginate_from, paginate_to)
         result: Result = await session.execute(stmt)
         models = list(result.scalars().fetchall())
         return models
@@ -152,6 +157,12 @@ class BaseWithSession:
             return [self.model.__table__.c[order_by].asc()]
         return [self.model.__table__.c[col].asc() for col in order_by]
 
+    @staticmethod
+    async def _paginate(stmt: GenerativeSelect, paginate_from: int, paginate_to: int):
+        if paginate_from is not None and paginate_to is not None:
+            stmt = stmt.slice(paginate_from, paginate_to)
+        return stmt
+
 
 class BaseRepo(BaseWithSession):
     model: BaseModel
@@ -175,9 +186,15 @@ class BaseRepo(BaseWithSession):
             entity = model.to_entity()
             return entity
 
-    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[Entity]:
+    async def retrieve_bulk(self,
+                            filter_by: dict,
+                            order_by: OrderBy = None,
+                            ascending: bool = True,
+                            paginate_from: int = None,
+                            paginate_to: int = None) -> list[Entity]:
         async with db.get_async_session() as session:
-            models = await super().retrieve_bulk_with_session(session, filter_by)
+            models = await super().retrieve_bulk_with_session(session, filter_by, order_by, ascending, paginate_from,
+                                                              paginate_to)
             entity_list = [model.to_entity() for model in models]
             return entity_list
 

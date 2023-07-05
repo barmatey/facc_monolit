@@ -24,8 +24,19 @@ class Wire(BaseModel):
     comment: Mapped[str] = mapped_column(String(800), nullable=True)
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey(Source.id, ondelete='CASCADE'), nullable=False)
 
-    def to_entity(self, **kwargs):
-        raise NotImplemented
+    def to_entity(self, **kwargs) -> entities.Wire:
+        return entities.Wire(
+            id=self.id,
+            date=self.date,
+            sender=self.sender,
+            receiver=self.receiver,
+            debit=self.debit,
+            credit=self.credit,
+            subconto_first=self.subconto_first,
+            subconto_second=self.subconto_second,
+            comment=self.comment,
+            source_id=self.source_id,
+        )
 
 
 class WireSchema(pa.DataFrameModel):
@@ -75,6 +86,6 @@ class WireRepo(BaseRepo):
             raise LookupError(f'wires with source_id={source_id} is not found')
 
         WireSchema.validate(wire_df)
-        wire_df = wire_df[['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
+        wire_df = wire_df[
+            ['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
         return wire_df
-
