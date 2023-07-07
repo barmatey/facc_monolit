@@ -35,5 +35,4 @@ class Wire(WireCreate):
     id: core_types.Id_
 
 
-
 Entity = typing.Union[Source, Wire]
