@@ -7,9 +7,9 @@ from sqlalchemy import insert, select, Result, delete, update, GenerativeSelect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from report import entities
+from src.report import entities
 from src import core_types
-from repository_postgres import db
+from src.repository_postgres import db
 
 Entity = TypeVar(
     'Entity',

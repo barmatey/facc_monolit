@@ -15,8 +15,8 @@ def get_wcols():
 class Source(BaseModel):
     __tablename__ = "source"
     title: Mapped[int] = mapped_column(String(80), nullable=False)
-    total_start_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow, nullable=False)
-    total_end_date: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow, nullable=False)
+    total_start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.utcnow, nullable=False)
+    total_end_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.utcnow, nullable=False)
     wcols: Mapped[list[str]] = mapped_column(JSON, default=get_wcols, nullable=False)
 
     def to_entity(self) -> entities.Source:

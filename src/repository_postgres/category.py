@@ -3,7 +3,7 @@ from enum import Enum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from report import entities
+from src.report import entities
 from src.report import enums
 from .base import BaseModel, BaseRepo
 

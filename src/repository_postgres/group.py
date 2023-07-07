@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from report import entities
+from src.report import entities
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types

@@ -14,7 +14,7 @@ from .source import Source, SourceRepo
 
 class Wire(BaseModel):
     __tablename__ = "wire"
-    date: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=False)
+    date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     sender: Mapped[float] = mapped_column(Float, nullable=False)
     receiver: Mapped[float] = mapped_column(Float, nullable=False)
     debit: Mapped[float] = mapped_column(Float, nullable=False)
