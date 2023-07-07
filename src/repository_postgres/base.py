@@ -87,7 +87,7 @@ class BaseWithSession:
                                          ascending: bool = True,
                                          paginate_from: int = None,
                                          paginate_to: int = None) -> list[Model]:
-
+        filter_by = await self._dropna_from_filter(filter_by)
         sorter = await self._get_sorter(order_by)
         stmt = select(self.model).filter_by(**filter_by).order_by(*sorter)
         stmt = await self._paginate(stmt, paginate_from, paginate_to)
@@ -162,6 +162,10 @@ class BaseWithSession:
         if paginate_from is not None and paginate_to is not None:
             stmt = stmt.slice(paginate_from, paginate_to)
         return stmt
+
+    @staticmethod
+    async def _dropna_from_filter(filter_by: dict) -> dict:
+        return {key: value for key, value in filter_by.items() if value is not None}
 
 
 class BaseRepo(BaseWithSession):

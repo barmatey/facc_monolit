@@ -1,3 +1,4 @@
+import typing
 from typing import TypedDict
 
 import pandas as pd
@@ -32,3 +33,7 @@ class WireCreate(TypedDict):
 
 class Wire(WireCreate):
     id: core_types.Id_
+
+
+
+Entity = typing.Union[Source, Wire]

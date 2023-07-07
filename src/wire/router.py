@@ -1,6 +1,7 @@
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
 
+import helpers
 from repository_postgres import WireRepo
 from src import core_types
 from . import schema
@@ -50,11 +51,24 @@ router_wire = APIRouter(
 
 
 @router_wire.get("/")
+@helpers.async_timeit
 async def retrieve_list(source_id: core_types.Id_,
+                        date_filter: pd.Timestamp = None,
+                        sender_filter: float = None, receiver_filter: float = None,
+                        debit_filter: float = None, credit_filter: float = None,
                         paginate_from: int = None, paginate_to: int = None,
                         service: ServiceWire = Depends(ServiceWire)) -> list[schema.WireSchema]:
+    filter_by = {
+        "source_id": source_id,
+        "date": date_filter,
+        "sender": sender_filter,
+        "receiver": receiver_filter,
+        "debit": debit_filter,
+        "credit": credit_filter,
+    }
+
     retrieve_params = schema.WireBulkRetrieveSchema(
-        filter_by={"source_id": source_id},
+        filter_by=filter_by,
         order_by='date',
         ascending=True,
         paginate_from=paginate_from,
