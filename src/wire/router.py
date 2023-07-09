@@ -53,6 +53,12 @@ router_wire = APIRouter(
 )
 
 
+@router_wire.post("/")
+@helpers.async_timeit
+async def create(data: schema.WireCreateSchema, service: ServiceWire = Depends(ServiceWire)) -> schema.WireSchema:
+    return await service.create(data)
+
+
 @router_wire.get("/")
 @helpers.async_timeit
 async def retrieve_list(source_id: core_types.Id_,

@@ -6,10 +6,10 @@ import core_types
 from . import entities
 
 SourceSchema = entities.Source
-
 SourceCreateSchema = entities.SourceCreate
 
 WireSchema = entities.Wire
+WireCreateSchema = entities.WireCreate
 
 
 class SourceBulkRetrieveSchema(pydantic.BaseModel):

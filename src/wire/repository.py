@@ -46,7 +46,7 @@ class WirePostgres(Repository):
     wire_repo = WireRepo
 
     async def create(self, data: pydantic.BaseModel) -> pydantic.BaseModel:
-        raise NotImplemented
+        return await self.wire_repo().create(data)
 
     async def retrieve(self, filter_by: dict) -> pydantic.BaseModel:
         raise NotImplemented
