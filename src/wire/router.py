@@ -78,9 +78,17 @@ async def retrieve_list(source_id: core_types.Id_,
 
     retrieve_params = schema.WireBulkRetrieveSchema(
         filter_by=filter_by,
-        order_by='date',
+        order_by=['date', 'sender', 'receiver', ],
         ascending=True,
         paginate_from=paginate_from,
         paginate_to=paginate_to,
     )
     return await service.retrieve_list(retrieve_params)
+
+
+@router_wire.delete("/{wire_id}")
+@helpers.async_timeit
+async def delete(wire_id: core_types.Id_, service: ServiceWire = Depends(ServiceWire)) -> int:
+    filter_by = {"id": wire_id}
+    await service.delete(filter_by=filter_by)
+    return 1

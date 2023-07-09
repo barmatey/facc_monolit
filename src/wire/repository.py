@@ -52,7 +52,7 @@ class WirePostgres(Repository):
         raise NotImplemented
 
     async def delete(self, filter_by: dict) -> None:
-        raise NotImplemented
+        await self.wire_repo().delete(filter_by)
 
     async def retrieve_list(self, retrieve_params: schema.WireBulkRetrieveSchema) -> list[entities.Wire]:
         return await self.wire_repo().retrieve_bulk(**retrieve_params.dict())
