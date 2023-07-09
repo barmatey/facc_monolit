@@ -1,3 +1,6 @@
+import typing
+
+import numpy as np
 import pandas as pd
 import pandera as pa
 from sqlalchemy import Integer, ForeignKey, String, TIMESTAMP, Float
@@ -41,7 +44,7 @@ class Wire(BaseModel):
 
 class WireSchema(pa.DataFrameModel):
     source_id: pa.typing.Series[core_types.Id_]
-    date: pa.typing.Series[pd.Timestamp]
+    date: pa.typing.Series[typing.Any]
     sender: pa.typing.Series[float]
     receiver: pa.typing.Series[float]
     debit: pa.typing.Series[float]
