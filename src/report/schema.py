@@ -8,6 +8,7 @@ from . import enums
 from . import entities
 
 ReportCategorySchema = enums.CategoryLiteral
+ReportCategoryCreateSchema = entities.ReportCategoryCreate
 
 
 class GroupCreateSchema(pydantic.BaseModel):
@@ -46,3 +47,5 @@ class ReportCreateSchema(pydantic.BaseModel):
 
 
 ReportSchema = entities.Report
+
+

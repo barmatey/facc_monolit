@@ -1,8 +1,6 @@
 import enum
 
-import loguru
 from fastapi import APIRouter, Depends
-from loguru import logger
 
 import helpers
 from .. import core_types
@@ -32,7 +30,6 @@ router_group = APIRouter(
 async def create_group(data: schema.GroupCreateSchema,
                        service: Service = Depends(GroupService)) -> schema.GroupSchema:
     group = await service.create(data)
-    loguru.logger.debug(f'{group}')
     return group
 
 
@@ -68,7 +65,8 @@ router_report = APIRouter(
 
 @router_report.post("/")
 @helpers.async_timeit
-async def create_report(data: schema.ReportCreateSchema, service: Service = Depends(ReportService)) -> schema.ReportSchema:
+async def create_report(data: schema.ReportCreateSchema,
+                        service: Service = Depends(ReportService)) -> schema.ReportSchema:
     report = await service.create(data)
     return report
 
@@ -102,9 +100,16 @@ router_category = APIRouter(
 )
 
 
+@router_category.post("/")
+async def create(data: schema.ReportCategoryCreateSchema,
+                 service: Service = Depends(CategoryService)) -> entities.ReportCategory:
+    category: entities.ReportCategory = await service.create(data)
+    return category
+
+
 @router_category.get("/")
-async def retrieve_report_categories(service: Service = Depends(CategoryService)) -> list[
-    schema.ReportCategorySchema]:
+async def retrieve_report_categories(service: Service = Depends(CategoryService)
+                                     ) -> list[schema.ReportCategorySchema]:
     result: list[entities.ReportCategory] = await service.retrieve_bulk({})
     categories = [category.value for category in result]
     return categories

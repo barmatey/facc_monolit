@@ -72,6 +72,13 @@ class Report(BaseModel):
     sheet_id: core_types.Id_
 
 
+class ReportCategoryCreate(BaseModel):
+    value: enums.CategoryLiteral
+
+
 class ReportCategory(BaseModel):
     id: core_types.Id_
     value: enums.CategoryLiteral
+
+
+Entity = typing.Union[Group, Report, ReportCategory]

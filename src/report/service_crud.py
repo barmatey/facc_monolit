@@ -15,16 +15,16 @@ DTO = typing.Union[BaseModel]
 class Service:
     repo: repository.CrudRepo
 
-    async def create(self, data: BaseModel) -> BaseModel:
+    async def create(self, data: BaseModel) -> entities.Entity:
         return await self.repo.create(data)
 
-    async def retrieve(self, filter_by: dict) -> BaseModel:
+    async def retrieve(self, filter_by: dict) -> entities.Entity:
         return await self.repo.retrieve(filter_by)
 
-    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[BaseModel]:
+    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[entities.Entity]:
         return await self.repo.retrieve_bulk(filter_by, order_by)
 
-    async def partial_update(self, data: BaseModel, filter_by: dict) -> BaseModel:
+    async def partial_update(self, data: BaseModel, filter_by: dict) -> entities.Entity:
         raise NotImplemented
 
     async def delete(self, filter_by: dict) -> core_types.Id_:
