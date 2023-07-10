@@ -18,6 +18,10 @@ class Repository(ABC):
         pass
 
     @abstractmethod
+    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Entity:
+        pass
+
+    @abstractmethod
     async def retrieve_list(self, retrieve_params: core_types.DTO) -> list[entities.Entity]:
         pass
 
@@ -35,6 +39,9 @@ class SourcePostgres(Repository):
     async def retrieve(self, filter_by: dict) -> entities.Entity:
         return await self.source_repo().retrieve(filter_by)
 
+    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Entity:
+        return await self.source_repo().update(data, filter_by)
+
     async def delete(self, filter_by: dict) -> None:
         await self.source_repo().delete(filter_by)
 
@@ -50,6 +57,9 @@ class WirePostgres(Repository):
 
     async def retrieve(self, filter_by: dict) -> pydantic.BaseModel:
         raise NotImplemented
+
+    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Wire:
+        return await self.wire_repo().update(data, filter_by)
 
     async def delete(self, filter_by: dict) -> None:
         await self.wire_repo().delete(filter_by)

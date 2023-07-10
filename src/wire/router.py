@@ -86,6 +86,15 @@ async def retrieve_list(source_id: core_types.Id_,
     return await service.retrieve_list(retrieve_params)
 
 
+@router_wire.patch("/{wire_id}")
+@helpers.async_timeit
+async def update(wire_id: core_types.Id_, data: schema.WireCreateSchema,
+                 service: ServiceWire = Depends(ServiceWire)) -> schema.WireSchema:
+    filter_by = {"id": wire_id}
+    updated = await service.update(filter_by, data)
+    return updated
+
+
 @router_wire.delete("/{wire_id}")
 @helpers.async_timeit
 async def delete(wire_id: core_types.Id_, service: ServiceWire = Depends(ServiceWire)) -> int:

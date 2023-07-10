@@ -16,6 +16,9 @@ class Service(ABC):
     async def retrieve(self, filter_by: dict) -> entities.Entity:
         return await self.repo().retrieve(filter_by)
 
+    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Entity:
+        return await self.repo().update(filter_by, data)
+
     async def delete(self, filter_by: dict) -> None:
         await self.repo().delete(filter_by)
 
