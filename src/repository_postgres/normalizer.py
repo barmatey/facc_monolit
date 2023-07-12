@@ -1,7 +1,7 @@
-import loguru
 import numpy as np
 import pandas as pd
 
+from src import helpers
 from src.sheet import enums
 
 
@@ -112,34 +112,47 @@ class Denormalizer:
     def denormalize(self):
         top_index = self.rows['is_freeze'].sum()
         left_index = self.cols['is_freeze'].sum()
-        self.df = self.cells_to_table(self.cells, count_rows=len(self.rows), top_index=top_index, left_index=left_index)
+        self.df = self.cells_to_table(self.cells, count_cols=len(self.cols), top_index=top_index, left_index=left_index)
 
-    @staticmethod
-    def cells_to_table(cells: pd.DataFrame, count_rows: int, top_index: int, left_index: int) -> pd.DataFrame:
-        # todo I need processing boolean dtypes adn left index
+    def cells_to_table(self, cells: pd.DataFrame, count_cols: int, top_index: int, left_index: int) -> pd.DataFrame:
         text_type = enums.CellDtype.TEXT.value
         number_type = enums.CellDtype.NUMBER.value
+        bool_type = enums.CellDtype.BOOLEAN.value
 
         value = cells['value'].copy()
         value.loc[cells['dtype'] == text_type] = value.loc[cells['dtype'] == text_type].astype(str)
         value.loc[cells['dtype'] == number_type] = value.loc[cells['dtype'] == number_type].astype(float)
+        value.loc[cells['dtype'] == bool_type] = self._convert_to_boolean(value.loc[cells['dtype'] == bool_type])
 
         values_list = value.tolist()
-        table = np.array_split(values_list, count_rows)
+        table = helpers.array_split(values_list, count_cols)
         table = pd.DataFrame(table)
 
-        def create_index(data: pd.DataFrame) -> pd.Index:
-            if len(data) == 1:
-                index = pd.Index(data.iloc[0], name='index')
-                return index
-            elif len(data) > 1:
-                names = [f"lvl_{i}" for i in range(0, len(data))]
-                index = pd.MultiIndex.from_frame(data.transpose(), names=names)
-                return index
-            raise Exception
-
+        # todo I need processing left index
         if top_index > 0:
-            table.columns = create_index(table.head(top_index))
+            table.columns = self._create_index(table.head(top_index))
             table = table[:][top_index:].reset_index(drop=True)
 
+        if 'reverse' in table.columns:
+            table['reverse'] = table['reverse'].astype(bool)
+
         return table
+
+    @staticmethod
+    def _convert_to_boolean(series: pd.Series) -> pd.Series:
+        series: pd.Series = series.str.lower()
+        if len(set(series.unique()) - {'false', 'true'}):
+            raise ValueError(f"unique values are not true or false only; {sorted(series.unique().tolist())}")
+        converted = series.map({"true": True, "false": False})
+        return converted
+
+    @staticmethod
+    def _create_index(data: pd.DataFrame) -> pd.Index:
+        if len(data) == 1:
+            index = pd.Index(data.iloc[0], name='index')
+            return index
+        elif len(data) > 1:
+            names = [f"lvl_{i}" for i in range(0, len(data))]
+            index = pd.MultiIndex.from_frame(data.transpose(), names=names)
+            return index
+        raise Exception

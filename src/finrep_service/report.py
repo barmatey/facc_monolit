@@ -3,7 +3,7 @@ import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy
 
 from finrep_service import Wire
-from finrep_service.group import Group
+from finrep_service.group import Group, ProfitGroup
 from finrep_service.interval import Interval
 
 
@@ -87,17 +87,18 @@ class Report:
 
 
 class ProfitReport(Report):
-    async def create_report(self, wire: Wire, group: Group, interval: Interval) -> None:
-        wire = wire.get_wire_df()
-        group = group.get_group_df()
-        ccols = super()._find_ccols(wire.columns, group.columns)
-        gcols = super()._find_gcols(wire.columns, group.columns)
+    async def create_report(self, wire: Wire, group: ProfitGroup, interval: Interval) -> None:
+        wire_df = wire.get_wire_df()
+        group_df = group.get_group_df()
 
-        merged_wires = await super()._merge_wire_df_with_group_df(wire, group, ccols)
+        ccols = super()._find_ccols(wire_df.columns, group_df.columns)
+        gcols = super()._find_gcols(wire_df.columns, group_df.columns)
+
+        merged_wires = await super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
         grouped_wires = await super()._group_wires_by_gcols_and_intervals(merged_wires, interval, gcols)
 
         report = await super()._calculate_saldo_from_grouped_wires(grouped_wires, gcols)
-        report = await self._split_df_by_intervals(report)
+        report = await super()._split_df_by_intervals(report)
         report = await super()._drop_zero_rows(report)
 
         report = report.round(2)

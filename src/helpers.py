@@ -1,3 +1,5 @@
+import typing
+
 from loguru import logger
 from functools import wraps
 import time
@@ -27,3 +29,9 @@ def timeit(func):
         return result
 
     return timeit_wrapper
+
+
+def array_split(array: typing.Iterable, count_cols: int):
+    start = 0
+    end = len(array)
+    return [array[x:x + count_cols] for x in range(start, end, count_cols)]
