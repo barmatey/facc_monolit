@@ -1,3 +1,4 @@
+import loguru
 import numpy as np
 import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy
@@ -93,8 +94,13 @@ class ProfitReport(Report):
 
         ccols = super()._find_ccols(wire_df.columns, group_df.columns)
         gcols = super()._find_gcols(wire_df.columns, group_df.columns)
+        gcols.pop(gcols.index('reverse'))
 
         merged_wires = await super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
+        merged_wires.loc[merged_wires['reverse'], 'debit'] = -1 * merged_wires.loc[merged_wires['reverse'], 'debit']
+        merged_wires.loc[merged_wires['reverse'], 'credit'] = -1 * merged_wires.loc[merged_wires['reverse'], 'credit']
+        merged_wires = merged_wires.drop('reverse', axis=1)
+
         grouped_wires = await super()._group_wires_by_gcols_and_intervals(merged_wires, interval, gcols)
 
         report = await super()._calculate_saldo_from_grouped_wires(grouped_wires, gcols)
