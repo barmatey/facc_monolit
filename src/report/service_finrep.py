@@ -1,9 +1,9 @@
 import enum
+import typing
 from abc import ABC, abstractmethod
 
 import pandas as pd
 
-import finrep
 from .. import finrep_service
 from . import schema, enums, repository
 
@@ -20,58 +20,47 @@ class FinrepService(ABC):
 
 
 class BaseService(FinrepService, ABC):
-    wire_repo: repository.WireRepo = repository.WireRepo()
-    group_repo: repository.GroupRepo = repository.GroupRepo()
+    wire_repo: typing.Type[repository.WireRepo] = repository.WireRepo
+    group_repo: typing.Type[repository.GroupRepo] = repository.GroupRepo
 
+    interval: typing.Type[finrep_service.Interval] = finrep_service.Interval
+    wire: typing.Type[finrep_service.Wire] = finrep_service.Wire
 
-class BalanceService(BaseService):
-
-    async def create_group(self, data: schema.GroupCreateSchema) -> pd.DataFrame:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
-
-        balance = finrep.BalanceGroup(wire_df)
-        balance.create_group(ccols=data.columns)
-        balance_group: pd.DataFrame = balance.get_group()
-
-        return balance_group
-
-    async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
-        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
-
-        interval = finrep.BalanceInterval(**data.interval.dict())
-        report = finrep.BalanceReport(wire_df, group_df, interval)
-        report.create_report()
-        report_df = report.get_report()
-
-        return report_df
-
-
-class ProfitService(BaseService):
+    group: typing.Type[finrep_service.Group]
+    report: typing.Type[finrep_service.Report]
 
     async def create_group(self, data: schema.GroupCreateSchema) -> pd.DataFrame:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+        wire_df = await self.wire_repo().retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
 
-        wire = finrep_service.Wire(wire_df)
-        group = finrep_service.ProfitGroup()
+        wire = self.wire(wire_df)
+        group = self.group()
         await group.create_group(wire, ccols=data.columns)
-        group = group.get_group_df()
-
-        return group
+        group_df = group.get_group_df()
+        return group_df
 
     async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
-        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
+        wire_df = await self.wire_repo().retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+        group_df = await self.group_repo().retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
 
-        wire = finrep_service.Wire(wire_df)
-        group = finrep_service.ProfitGroup(group_df)
-        interval = finrep_service.Interval(**data.interval.dict())
+        wire = self.wire(wire_df)
+        group = self.group(group_df)
+        interval = self.interval(**data.interval.dict())
 
-        report = finrep_service.ProfitReport()
+        report = self.report()
         await report.create_report(wire, group, interval)
         report = report.get_report()
 
         return report
+
+
+class ProfitService(BaseService):
+    group = finrep_service.ProfitGroup
+    report = finrep_service.ProfitReport
+
+
+class BalanceService(BaseService):
+    group = finrep_service.BalanceGroup
+    report = finrep_service.BalanceReport
 
 
 class LinkedFinrep(enum.Enum):

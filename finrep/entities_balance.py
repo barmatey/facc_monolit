@@ -15,23 +15,23 @@ class BalanceGroup(entities.Group):
         self.wire = wire_df.copy()
         self.group = None
 
-    def create_group(self, ccols: list[str]) -> None:
-        df = self.wire
-
-        df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
-
-        # If you change name string be careful!
-        # ReportBalance class is using this data
-        levels = range(0, len(df.columns))
-        for level in levels:
-            name = f"Assets, level {level + 1}"
-            df[name] = df.iloc[:, level]
-
-        for level in levels:
-            name = f"Liabilities, level {level + 1}"
-            df[name] = df.iloc[:, level]
-
-        self.group = df
+    # def create_group(self, ccols: list[str]) -> None:
+    #     df = self.wire
+    #
+    #     df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
+    #
+    #     # If you change name string be careful!
+    #     # ReportBalance class is using this data
+    #     levels = range(0, len(df.columns))
+    #     for level in levels:
+    #         name = f"Assets, level {level + 1}"
+    #         df[name] = df.iloc[:, level]
+    #
+    #     for level in levels:
+    #         name = f"Liabilities, level {level + 1}"
+    #         df[name] = df.iloc[:, level]
+    #
+    #     self.group = df
 
     def get_group(self) -> pd.DataFrame:
         if self.group is None:
@@ -58,18 +58,18 @@ class BalanceReport(entities_base.BaseReport):
         report = report.round(2)
         self.report = report
 
-    def _create_balance_side(self, df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
-        group = df.groupby(gcols + ['interval'], as_index=False)
-        side: pd.DataFrame = group[gcols + ['debit', 'credit']].sum(numeric_only=True)
-        side['saldo'] = side['debit'] - side['credit']
-        side = side.drop(['debit', 'credit'], axis=1).set_index(gcols)
-        side = self._split_grouped_df_by_intervals(side)
-        side = side.cumsum(axis=1)
-        return side
+    # def _create_balance_side(self, df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
+    #     group = df.groupby(gcols + ['interval'], as_index=False)
+    #     side: pd.DataFrame = group[gcols + ['debit', 'credit']].sum(numeric_only=True)
+    #     side['saldo'] = side['debit'] - side['credit']
+    #     side = side.drop(['debit', 'credit'], axis=1).set_index(gcols)
+    #     side = self._split_grouped_df_by_intervals(side)
+    #     side = side.cumsum(axis=1)
+    #     return side
 
-    @staticmethod
-    def _calculate_saldo(report: pd.DataFrame) -> pd.DataFrame:
-        report = report.copy()
-        index = ('saldo',) * len(report.index.levels)
-        report.loc[index, :] = report.loc[('assets',), :].sum() - report.loc[('liabilities',), :].sum()
-        return report
+    # @staticmethod
+    # def _calculate_saldo(report: pd.DataFrame) -> pd.DataFrame:
+    #     report = report.copy()
+    #     index = ('saldo',) * len(report.index.levels)
+    #     report.loc[index, :] = report.loc[('assets',), :].sum() - report.loc[('liabilities',), :].sum()
+    #     return report

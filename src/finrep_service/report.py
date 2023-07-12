@@ -1,10 +1,9 @@
-import loguru
 import numpy as np
 import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy
 
 from finrep_service import Wire
-from finrep_service.group import Group, ProfitGroup
+from finrep_service.group import Group, ProfitGroup, BalanceGroup
 from finrep_service.interval import Interval
 
 
@@ -109,3 +108,45 @@ class ProfitReport(Report):
 
         report = report.round(2)
         self.report = report
+
+
+class BalanceReport(Report):
+    async def create_report(self, wire: Wire, group: BalanceGroup, interval: Interval) -> None:
+        wire_df = wire.get_wire_df()
+        group_df = group.get_group_df()
+
+        ccols = super()._find_ccols(wire_df.columns, group_df.columns)
+        gcols = super()._find_gcols(wire_df.columns, group_df.columns)
+
+        merged_wires = await super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
+        merged_wires["interval"] = pd.cut(merged_wires['date'], interval.get_intervals(), right=True)
+
+        gcols_assets = group.get_gcols_assets(gcols)
+        assets = await self._create_balance_side(merged_wires, gcols_assets)
+
+        gcols_liabs = group.get_gcols_liabs(gcols)
+        liabs = -1 * await self._create_balance_side(merged_wires, gcols_liabs)
+
+        report = pd.concat([assets, liabs], keys=['assets', 'liabs'])
+        report[report < 0] = 0
+        report = await super()._drop_zero_rows(report)
+        report = self._calculate_saldo(report)
+
+        report = report.round(2)
+        self.report = report
+
+    async def _create_balance_side(self, df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
+        group = df.groupby(gcols + ['interval'], as_index=False)
+        side: pd.DataFrame = group[gcols + ['debit', 'credit']].sum(numeric_only=True)
+        side['saldo'] = side['debit'] - side['credit']
+        side = side.drop(['debit', 'credit'], axis=1).set_index(gcols)
+        side = await super()._split_df_by_intervals(side)
+        side = side.cumsum(axis=1)
+        return side
+
+    @staticmethod
+    def _calculate_saldo(report: pd.DataFrame) -> pd.DataFrame:
+        report = report.copy()
+        index = ('saldo',) * len(report.index.levels)
+        report.loc[index, :] = report.loc[('assets',), :].sum() - report.loc[('liabs',), :].sum()
+        return report

@@ -37,7 +37,6 @@ class CategoryService(Service):
 
 class GroupService(Service):
     repo: repository.CrudRepo = repository.GroupRepo()
-    wire_repo: repository.WireRepo = repository.WireRepo()
 
     async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
         group_df: pd.DataFrame = await get_finrep_service(data.category).create_group(data)

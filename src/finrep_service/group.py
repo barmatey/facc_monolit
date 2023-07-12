@@ -1,5 +1,3 @@
-import typing
-
 import pandas as pd
 import pandera as pa
 
@@ -43,3 +41,29 @@ class ProfitGroup(Group):
 
         ProfitGroupSchema.validate(df)
         self.group = df
+
+
+class BalanceGroup(Group):
+
+    async def create_group(self, wire: Wire, ccols: list[str]) -> None:
+        df = wire.get_wire_df()
+        df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
+
+        levels = range(0, len(df.columns))
+        for level in levels:
+            name = f"assets, level {level + 1}"
+            df[name] = df.iloc[:, level]
+
+        for level in levels:
+            name = f"liabs, level {level + 1}"
+            df[name] = df.iloc[:, level]
+
+        self.group = df
+
+    @staticmethod
+    def get_gcols_assets(gcols: list[str]) -> list[str]:
+        return [x for x in gcols if 'assets' in x.lower()]
+
+    @staticmethod
+    def get_gcols_liabs(gcols: list[str]) -> list[str]:
+        return [x for x in gcols if 'liabs' in x.lower()]
