@@ -121,11 +121,8 @@ class BalanceReport(Report):
         merged_wires = await super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
         merged_wires["interval"] = pd.cut(merged_wires['date'], interval.get_intervals(), right=True)
 
-        gcols_assets = group.get_gcols_assets(gcols)
-        assets = await self._create_balance_side(merged_wires, gcols_assets)
-
-        gcols_liabs = group.get_gcols_liabs(gcols)
-        liabs = -1 * await self._create_balance_side(merged_wires, gcols_liabs)
+        assets = await self._create_balance_side(merged_wires, gcols=group.get_gcols_assets(gcols))
+        liabs = -1 * await self._create_balance_side(merged_wires, gcols=group.get_gcols_liabs(gcols))
 
         report = pd.concat([assets, liabs], keys=['assets', 'liabs'])
         report[report < 0] = 0
