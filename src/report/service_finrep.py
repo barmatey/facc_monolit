@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 import finrep
-
+from .. import finrep_service
 from . import schema, enums, repository
 
 
@@ -47,8 +47,25 @@ class BalanceService(BaseService):
         return report_df
 
 
+class ProfitService(BaseService):
+
+    async def create_group(self, data: schema.GroupCreateSchema) -> pd.DataFrame:
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+
+        wire = finrep_service.Wire(wire_df)
+        group = finrep_service.ProfitGroup(wire, ccols=data.columns)
+        await group.create_group()
+        group = await group.get_group()
+
+        return group
+
+    async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
+        raise NotImplemented
+
+
 class LinkedFinrep(enum.Enum):
     BALANCE = BalanceService
+    PROFIT = ProfitService
 
 
 def get_finrep_service(category: enums.CategoryLiteral) -> FinrepService:

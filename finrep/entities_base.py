@@ -52,7 +52,22 @@ class BaseInterval(entities.Interval):
         return deepcopy(self)
 
 
-class ReportBase(entities.Report):
+class BaseGroup(entities.Group):
+
+    def __init__(self, wire_df):
+        self.wire = wire_df.copy()
+        self.group = None
+
+    async def create_group(self, ccols: list[str]) -> None:
+        pass
+
+    async def get_group(self) -> pd.DataFrame:
+        if self.group is None:
+            raise Exception(f"group is None; you probably miss create_group() function")
+        return self.group
+
+
+class BaseReport(entities.Report):
 
     def __init__(self, wire: DataFrame[types.WireSchema], group: pd.DataFrame, interval: BaseInterval):
         self.ccols = self._find_ccols(wire.columns, group.columns)

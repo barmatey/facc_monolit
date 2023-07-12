@@ -39,7 +39,7 @@ class BalanceGroup(entities.Group):
         return self.group
 
 
-class BalanceReport(entities_base.ReportBase):
+class BalanceReport(entities_base.BaseReport):
     def create_report(self):
         df = self.merged_wire
         df["interval"] = pd.cut(df['date'], self.interval.get_intervals(), right=True)
