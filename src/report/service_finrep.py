@@ -53,14 +53,25 @@ class ProfitService(BaseService):
         wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
 
         wire = finrep_service.Wire(wire_df)
-        group = finrep_service.ProfitGroup(wire, ccols=data.columns)
-        await group.create_group()
-        group = await group.get_group()
+        group = finrep_service.ProfitGroup()
+        await group.create_group(wire, ccols=data.columns)
+        group = group.get_group_df()
 
         return group
 
     async def create_report(self, data: schema.ReportCreateSchema) -> pd.DataFrame:
-        raise NotImplemented
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
+
+        wire = finrep_service.Wire(wire_df)
+        group = finrep_service.ProfitGroup(group_df)
+        interval = finrep_service.Interval(**data.interval.dict())
+
+        report = finrep_service.ProfitReport()
+        await report.create_report(wire, group, interval)
+        report = report.get_report()
+
+        return report
 
 
 class LinkedFinrep(enum.Enum):

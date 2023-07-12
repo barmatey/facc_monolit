@@ -4,6 +4,7 @@ import pandas as pd
 import pandera as pa
 
 
+# todo need date validation
 class WireSchema(pa.DataFrameModel):
     date: pa.typing.Series[typing.Any]
     sender: pa.typing.Series[float]
