@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy
 
-from finrep_service import Wire
-from finrep_service.group import Group, ProfitGroup, BalanceGroup
-from finrep_service.interval import Interval
+from .wire import Wire
+from .group import Group, ProfitGroup, BalanceGroup
+from .interval import Interval
 
 
 class Report:

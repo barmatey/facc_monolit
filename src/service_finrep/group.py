@@ -1,7 +1,7 @@
 import pandas as pd
 import pandera as pa
 
-from finrep_service import Wire
+from .wire import Wire
 
 
 class Group:

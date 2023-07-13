@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-from .. import finrep_service
+from .. import service_finrep
 from . import schema, enums, repository
 
 
@@ -23,11 +23,11 @@ class BaseService(FinrepService, ABC):
     wire_repo: typing.Type[repository.WireRepo] = repository.WireRepo
     group_repo: typing.Type[repository.GroupRepo] = repository.GroupRepo
 
-    interval: typing.Type[finrep_service.Interval] = finrep_service.Interval
-    wire: typing.Type[finrep_service.Wire] = finrep_service.Wire
+    interval: typing.Type[service_finrep.Interval] = service_finrep.Interval
+    wire: typing.Type[service_finrep.Wire] = service_finrep.Wire
 
-    group: typing.Type[finrep_service.Group]
-    report: typing.Type[finrep_service.Report]
+    group: typing.Type[service_finrep.Group]
+    report: typing.Type[service_finrep.Report]
 
     async def create_group(self, data: schema.GroupCreateSchema) -> pd.DataFrame:
         wire_df = await self.wire_repo().retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
@@ -54,13 +54,13 @@ class BaseService(FinrepService, ABC):
 
 
 class ProfitService(BaseService):
-    group = finrep_service.ProfitGroup
-    report = finrep_service.ProfitReport
+    group = service_finrep.ProfitGroup
+    report = service_finrep.ProfitReport
 
 
 class BalanceService(BaseService):
-    group = finrep_service.BalanceGroup
-    report = finrep_service.BalanceReport
+    group = service_finrep.BalanceGroup
+    report = service_finrep.BalanceReport
 
 
 class LinkedFinrep(enum.Enum):
