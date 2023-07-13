@@ -51,5 +51,5 @@ class SheetService:
     async def update_cell(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
         await self.repo().update_cell(sheet_id, data)
 
-    async def delete_rows(self, sheet_id:  core_types.Id_, row_ids: list[core_types.Id_]) -> None:
+    async def delete_rows(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
         await self.repo().delete_rows(sheet_id, row_ids)

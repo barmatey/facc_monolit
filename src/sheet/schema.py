@@ -3,12 +3,8 @@ import typing
 from . import entities
 
 
-class SheetRetrieveSchema(entities.SheetRetrieve):
-    pass
-
-
-class SheetSchema(entities.Sheet):
-    pass
+SheetRetrieveSchema = entities.SheetRetrieve
+SheetSchema = entities.Sheet
 
 
 class ScrollSizeSchema(entities.ScrollSize):
@@ -26,8 +22,7 @@ class ColFilterRetrieveSchema(entities.ColFilterRetrieve):
     pass
 
 
-class ColFilterSchema(entities.ColFilter):
-    pass
+ColFilterSchema = entities.ColFilter
 
 
 class ColSorterSchema(entities.ColSorter):

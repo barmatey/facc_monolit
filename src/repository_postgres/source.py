@@ -21,6 +21,7 @@ def get_wcols():
     ]
 
 
+# todo i need to delete all linked sheets when i delete source
 class Source(BaseModel):
     __tablename__ = "source"
     title: Mapped[int] = mapped_column(String(80), nullable=False)

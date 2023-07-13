@@ -222,9 +222,9 @@ class SheetRepo(BaseRepo):
 
             sheet = entities.Sheet(
                 id=data.sheet_id,
-                rows=rows.to_dict(orient='records'),
-                cols=cols.to_dict(orient='records'),
-                cells=cells.to_dict(orient='records'),
+                rows=[entities.Sindex(**x) for x in rows.to_dict(orient='records')],
+                cols=[entities.Sindex(**x) for x in cols.to_dict(orient='records')],
+                cells=[entities.Cell(**x) for x in cells.to_dict(orient='records')],
             )
             return sheet
 
@@ -266,13 +266,14 @@ class SheetFilterRepo:
             )
             columns = [self.cell_model.value.key, self.cell_model.dtype.key, self.cell_model.is_filtred.key]
             items = pd.DataFrame.from_records(items.fetchall(), columns=columns).to_dict(orient='records')
-            col_filter = entities.ColFilter(col_id=col_id, sheet_id=sheet_id, items=items)
+            col_filter = entities.ColFilter(col_id=col_id, sheet_id=sheet_id,
+                                            items=[entities.FilterItem(**x) for x in items])
             return col_filter
 
     async def update_col_filter(self, data: entities.ColFilter) -> None:
         async with db.get_async_session() as session:
             await self._update_filtred_flag_in_cells_with_session(session, data)
-            await self._update_filtred_flag_and_scroll_pos_in_rows_with_session(session, sheet_id=data['sheet_id'])
+            await self._update_filtred_flag_and_scroll_pos_in_rows_with_session(session, sheet_id=data.sheet_id)
             await session.commit()
 
     async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
@@ -335,7 +336,7 @@ class SheetFilterRepo:
     async def _update_filtred_flag_in_cells_with_session(self, session: AsyncSession, data: entities.ColFilter) -> None:
         # Convert input data because "value" is reserved word in bindparam function
         items = (
-            pd.DataFrame(data['items'])
+            pd.DataFrame(data.items)
             .rename({'value': 'cell_value'}, axis=1)
             .to_dict(orient='records')
         )
@@ -343,7 +344,7 @@ class SheetFilterRepo:
         stmt = (
             self.cell_model.__table__.update()
             .where(self.cell_model.__table__.c.value == bindparam('cell_value'),
-                   self.cell_model.col_id == data['col_id'])
+                   self.cell_model.col_id == data.items)
             .values({"is_filtred": bindparam("is_filtred")})
         )
         _ = await session.execute(stmt, items)
