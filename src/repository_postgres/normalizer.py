@@ -99,6 +99,7 @@ class Normalizer:
             np.logical_and(col_is_freeze, row_is_freeze), '', flatten['value']
         )
         flatten['color'] = np.where(flatten['is_readonly'], '#f8fafd', 'white')
+        flatten['text_align'] = np.where(flatten['dtype'] == enums.CellDtype.NUMBER.value, 'left', 'right')
 
         return flatten
 
