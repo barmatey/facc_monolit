@@ -8,28 +8,29 @@ from src import core_types
 from . import enums
 
 
-class SindexCreate(TypedDict):
+class SindexCreate(BaseModel):
     index: int
     scroll_pos: int
     size: int
     is_freeze: bool
-    sheet_id: bool
+    sheet_id: core_types.Id_
 
 
 class Sindex(SindexCreate):
     id: core_types.Id_
 
 
-class CellCreate(TypedDict):
+class CellCreate(BaseModel):
     value: str
     dtype: enums.Dtype
     is_readonly: bool
     is_filtred: bool
     is_index: bool
     color: str
+    text_align: enums.CellTextAlign
 
 
-class Cell(TypedDict):
+class Cell(CellCreate):
     id: core_types.Id_
     row_id: core_types.Id_
     col_id: core_types.Id_
@@ -52,7 +53,7 @@ class SheetRetrieve(BaseModel):
     to_scroll: typing.Optional[int]
 
 
-class Sheet(TypedDict):
+class Sheet(BaseModel):
     id: core_types.Id_
     rows: list[Sindex]
     cols: list[Sindex]
@@ -66,12 +67,12 @@ class ScrollSize(BaseModel):
     scroll_width: int
 
 
-class ColFilterRetrieve(TypedDict):
+class ColFilterRetrieve(BaseModel):
     sheet_id: core_types.Id_
     col_id: core_types.Id_
 
 
-class FilterItem(TypedDict):
+class FilterItem(BaseModel):
     value: str
     dtype: enums.Dtype
     is_filtred: bool

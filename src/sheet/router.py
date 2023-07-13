@@ -1,6 +1,6 @@
-import loguru
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+from . import schema
 
 import core_types
 import helpers
@@ -19,14 +19,14 @@ async def retrieve(sheet_id: core_types.Id_,
                    from_scroll: int = None,
                    to_scroll: int = None,
                    sheet_service: service.SheetService = Depends(service.SheetService)
-                   ) -> JSONResponse:
+                   ) -> schema.SheetSchema:
     sheet_retrieve_schema = schema.SheetRetrieveSchema(
         sheet_id=sheet_id,
         from_scroll=from_scroll,
         to_scroll=to_scroll
     )
     sheet_schema = await sheet_service.retrieve_sheet(sheet_retrieve_schema)
-    return JSONResponse(content=sheet_schema)
+    return sheet_schema
 
 
 @router.get("/{sheet_id}/retrieve-scroll-size")
@@ -48,7 +48,7 @@ async def retrieve_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
 
 
 @router.patch("/{sheet_id}/update-col-filter")
-async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSchema,
+async def update_col_filter(_sheet_id: core_types.Id_, data: schema.ColFilterSchema,
                             sheet_service: service.SheetService = Depends(service.SheetService), ) -> int:
     await sheet_service.update_col_filter(data)
     return 1
