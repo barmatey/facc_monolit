@@ -42,6 +42,8 @@ class Normalizer:
 
         if self.readonly_all_cells:
             cells['is_readonly'] = True
+            rows['is_readonly'] = True
+            cols['is_readonly'] = True
 
         self.rows = rows
         self.cols = cols
@@ -52,17 +54,19 @@ class Normalizer:
         sindex = pd.DataFrame(
             [],
             index=range(0, total_item_count),
-            columns=['size', 'is_freeze', 'is_filtred', 'index', 'scroll_pos']
+            columns=['size', 'is_freeze', 'is_filtred', 'is_readonly', 'index', 'scroll_pos']
         )
         sindex['size'] = item_size
         sindex['is_freeze'] = False
         sindex['is_filtred'] = True
+        sindex['is_readonly'] = False
         sindex['index'] = sindex.index
         sindex['scroll_pos'] = sindex['size'].cumsum() - item_size * freeze_item_count
         sindex['scroll_pos'] = np.where(sindex['scroll_pos'] < 0, -1, sindex['scroll_pos'])
 
         if freeze_item_count > 0:
             sindex.iloc[0:freeze_item_count, 1] = True
+            sindex.iloc[0:freeze_item_count, 3] = True
 
         return sindex
 

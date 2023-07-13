@@ -24,6 +24,7 @@ class Sheet(BaseModel):
 class Row(BaseModel):
     __tablename__ = "sheet_row"
     size: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_readonly: Mapped[int] = mapped_column(Boolean, nullable=False)
     is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     index: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -34,6 +35,7 @@ class Row(BaseModel):
 class Col(BaseModel):
     __tablename__ = "sheet_col"
     size: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_readonly: Mapped[int] = mapped_column(Boolean, nullable=False)
     is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     index: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -89,7 +91,10 @@ class SindexRepo(BaseRepo):
             stmt = (
                 delete(self.model)
                 .where(self.model.sheet_id == sheet_id,
-                       self.model.id.in_(sindex_ids))
+                       self.model.id.in_(sindex_ids),
+                       ~self.model.is_freeze,
+                       ~self.model.is_readonly,
+                       )
             )
             _ = await session.execute(stmt)
             await self._update_scroll_pos_with_session(session, sheet_id)

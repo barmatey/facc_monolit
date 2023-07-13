@@ -66,6 +66,7 @@ class BalanceService(BaseService):
 class LinkedFinrep(enum.Enum):
     BALANCE = BalanceService
     PROFIT = ProfitService
+    CASHFLOW = ProfitService
 
 
 def get_finrep_service(category: enums.CategoryLiteral) -> FinrepService:
