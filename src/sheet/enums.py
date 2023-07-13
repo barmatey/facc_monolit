@@ -10,3 +10,4 @@ class CellDtype(enum.Enum):
     BOOLEAN = 'BOOLEAN'
 
 
+CellTextAlign = typing.Literal['left', 'center', 'right']

@@ -26,10 +26,11 @@ class CellCreate(TypedDict):
     is_readonly: bool
     is_filtred: bool
     is_index: bool
+    text_align: enums.CellTextAlign
     color: str
 
 
-class Cell(TypedDict):
+class Cell(CellCreate):
     id: core_types.Id_
     row_id: core_types.Id_
     col_id: core_types.Id_

@@ -51,6 +51,7 @@ class Cell(BaseModel):
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     is_index: Mapped[bool] = mapped_column(Boolean, nullable=False)
     color: Mapped[str] = mapped_column(String(16), nullable=True)
+    text_align: Mapped[str] = mapped_column(String(8), default='left')
     row_id: Mapped[int] = mapped_column(Integer, ForeignKey(Row.id, ondelete='CASCADE'), nullable=False, index=True)
     col_id: Mapped[int] = mapped_column(Integer, ForeignKey(Col.id, ondelete='CASCADE'), nullable=False, index=True)
     sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='CASCADE'), nullable=False, index=True)
