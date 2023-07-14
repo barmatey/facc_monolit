@@ -47,7 +47,7 @@ class Report:
         for interval in df['interval'].unique():
             series = df.loc[df['interval'] == interval].drop('interval', axis=1)
             splited.append(series)
-            columns.append(str(interval.right.date()))
+            columns.append(interval.right.date())
 
         splited = pd.concat(splited, axis=1)
         splited.columns = columns
