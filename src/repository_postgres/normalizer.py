@@ -1,3 +1,6 @@
+import datetime
+
+import loguru
 import numpy as np
 import pandas as pd
 
@@ -87,6 +90,8 @@ class Normalizer:
                 return enums.CellDtype.NUMBER.value
             if value_type is bool:
                 return enums.CellDtype.BOOLEAN.value
+            if isinstance(value, (datetime.date,  datetime.datetime)):
+                return enums.CellDtype.DATE.value
             return enums.CellDtype.TEXT.value
 
         flatten = pd.DataFrame(table.stack().values, columns=['value'])
@@ -99,7 +104,12 @@ class Normalizer:
             np.logical_and(col_is_freeze, row_is_freeze), '', flatten['value']
         )
         flatten['color'] = np.where(flatten['is_readonly'], '#f8fafd', 'white')
-        flatten['text_align'] = np.where(flatten['dtype'] == enums.CellDtype.NUMBER.value, 'left', 'right')
+
+        flatten['text_align'] = np.where(
+            np.logical_or(
+                flatten['dtype'] == enums.CellDtype.NUMBER.value, flatten['dtype'] == enums.CellDtype.DATE.value),
+            'right', 'left'
+        )
 
         return flatten
 
