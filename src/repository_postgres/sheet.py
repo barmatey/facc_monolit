@@ -7,6 +7,7 @@ from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
+from src import helpers
 from src import core_types
 from src.sheet import entities
 from . import db
@@ -176,6 +177,34 @@ class SheetRepo(BaseRepo):
         return sheet_id
 
     async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
+        if data.from_scroll is None or data.to_scroll is None:
+            return await self._retrieve_as_sheet_without_pagination(data)
+        return await self._retrieve_as_sheet_with_pagination(data)
+
+    @staticmethod
+    def _merge_into_sheet_entity(sheet_id, rows, cols, cells, ) -> entities.Sheet:
+        saved_cols = cells.columns.copy()
+        cells = pd.merge(cells, rows[['id', 'index', ]], left_on='row_id', right_on='id', suffixes=('', '_row'))
+        cells = pd.merge(cells, cols[['id', 'index', ]], left_on='col_id', right_on='id', suffixes=('', '_col'))
+        cells = cells.sort_values(['index', 'index_col'])[saved_cols]
+
+        sheet = entities.Sheet(
+            id=sheet_id,
+            rows=rows.to_dict(orient='records'),
+            cols=cols.to_dict(orient='records'),
+            cells=cells.to_dict(orient='records'),
+        )
+        return sheet
+
+    @helpers.async_timeit
+    async def _retrieve_as_sheet_without_pagination(self, data: entities.SheetRetrieve) -> entities.Sheet:
+        async with db.get_async_session() as session:
+            rows = await self.row_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": data.sheet_id})
+            cols = await self.col_repo().retrieve_bulk_as_dataframe_with_session(session, {'sheet_id': data.sheet_id})
+            cells = await self.cell_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": data.sheet_id})
+            return self._merge_into_sheet_entity(data.sheet_id, rows, cols, cells)
+
+    async def _retrieve_as_sheet_with_pagination(self, data: entities.SheetRetrieve) -> entities.Sheet:
         async with db.get_async_session() as session:
             # Find rows
             stmt = (
@@ -214,19 +243,7 @@ class SheetRepo(BaseRepo):
             result = await session.execute(stmt)
             cells = pd.DataFrame.from_records(result.fetchall(), columns=Cell.get_columns())
 
-            # Sort cells
-            saved_cols = cells.columns.copy()
-            cells = pd.merge(cells, rows[['id', 'index', ]], left_on='row_id', right_on='id', suffixes=('', '_row'))
-            cells = pd.merge(cells, cols[['id', 'index', ]], left_on='col_id', right_on='id', suffixes=('', '_col'))
-            cells = cells.sort_values(['index', 'index_col'])[saved_cols]
-
-            sheet = entities.Sheet(
-                id=data.sheet_id,
-                rows=[entities.Sindex(**x) for x in rows.to_dict(orient='records')],
-                cols=[entities.Sindex(**x) for x in cols.to_dict(orient='records')],
-                cells=[entities.Cell(**x) for x in cells.to_dict(orient='records')],
-            )
-            return sheet
+            return self._merge_into_sheet_entity(data.sheet_id, rows, cols, cells)
 
     async def retrieve_as_dataframe_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> pd.DataFrame:
         cells = await self.cell_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": sheet_id})
