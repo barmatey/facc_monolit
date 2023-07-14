@@ -8,7 +8,7 @@ from src import core_types
 from . import enums
 
 
-class SindexCreate(BaseModel):
+class SindexCreate(TypedDict):
     index: int
     scroll_pos: int
     size: int
@@ -20,7 +20,7 @@ class Sindex(SindexCreate):
     id: core_types.Id_
 
 
-class CellCreate(BaseModel):
+class CellCreate(TypedDict):
     value: str
     dtype: enums.Dtype
     is_readonly: bool
@@ -28,7 +28,6 @@ class CellCreate(BaseModel):
     is_index: bool
     text_align: enums.CellTextAlign
     color: str
-    text_align: enums.CellTextAlign
 
 
 class Cell(CellCreate):
