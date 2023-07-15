@@ -78,7 +78,9 @@ class FilterItem(BaseModel):
     is_filtred: bool
 
 
-class ColFilter(ColFilterRetrieve):
+class ColFilter(BaseModel):
+    sheet_id: core_types.Id_
+    col_id: core_types.Id_
     items: list[FilterItem]
 
 

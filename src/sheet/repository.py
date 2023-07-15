@@ -73,7 +73,7 @@ class PostgresRepo(Repository):
         return await self.sheet_repo().retrieve_scroll_size(id_=sheet_id)
 
     async def retrieve_col_filter(self, data: entities.ColFilterRetrieve) -> entities.ColFilter:
-        return await self.sheet_filter_repo().retrieve_col_filter(sheet_id=data['sheet_id'], col_id=data['col_id'])
+        return await self.sheet_filter_repo().retrieve_col_filter(sheet_id=data.sheet_id, col_id=data.col_id)
 
     async def update_col_filter(self, data: entities.ColFilter) -> None:
         await self.sheet_filter_repo().update_col_filter(data)

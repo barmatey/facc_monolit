@@ -1,5 +1,6 @@
 import typing
 
+import loguru
 import numpy as np
 import pandas as pd
 from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, delete, update
@@ -352,16 +353,15 @@ class SheetFilterRepo:
 
     async def _update_filtred_flag_in_cells_with_session(self, session: AsyncSession, data: entities.ColFilter) -> None:
         # Convert input data because "value" is reserved word in bindparam function
-        items = (
-            pd.DataFrame(data.items)
-            .rename({'value': 'cell_value'}, axis=1)
-            .to_dict(orient='records')
-        )
-
+        items = [{
+            'cell_value': x.value,
+            'is_filtred': x.is_filtred,
+            'dtype': x.dtype,
+        } for x in data.items]
         stmt = (
             self.cell_model.__table__.update()
             .where(self.cell_model.__table__.c.value == bindparam('cell_value'),
-                   self.cell_model.col_id == data.items)
+                   self.cell_model.col_id == data.col_id)
             .values({"is_filtred": bindparam("is_filtred")})
         )
         _ = await session.execute(stmt, items)
