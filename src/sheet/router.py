@@ -1,7 +1,5 @@
-import loguru
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from . import schema
 
 import core_types
 import helpers
@@ -16,18 +14,18 @@ router = APIRouter(
 
 @router.get("/{sheet_id}")
 @helpers.async_timeit
-async def retrieve(sheet_id: core_types.Id_,
-                   from_scroll: int = None,
-                   to_scroll: int = None,
-                   sheet_service: service.SheetService = Depends(service.SheetService)
-                   ) -> schema.SheetSchema:
+async def retrieve_sheet(sheet_id: core_types.Id_,
+                         from_scroll: int = None,
+                         to_scroll: int = None,
+                         sheet_service: service.SheetService = Depends(service.SheetService)
+                         ) -> JSONResponse:
     sheet_retrieve_schema = schema.SheetRetrieveSchema(
         sheet_id=sheet_id,
         from_scroll=from_scroll,
         to_scroll=to_scroll
     )
     sheet_schema = await sheet_service.retrieve_sheet(sheet_retrieve_schema)
-    return sheet_schema
+    return JSONResponse(content=sheet_schema)
 
 
 @router.get("/{sheet_id}/retrieve-scroll-size")

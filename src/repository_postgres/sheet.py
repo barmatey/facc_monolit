@@ -1,6 +1,5 @@
 import typing
 
-import loguru
 import numpy as np
 import pandas as pd
 from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, delete, update

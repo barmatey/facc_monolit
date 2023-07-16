@@ -53,7 +53,7 @@ class SheetRetrieve(BaseModel):
     to_scroll: typing.Optional[int]
 
 
-class Sheet(BaseModel):
+class Sheet(TypedDict):
     id: core_types.Id_
     rows: list[Sindex]
     cols: list[Sindex]
