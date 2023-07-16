@@ -39,8 +39,8 @@ class Normalizer:
         vertical_difference = len(table) - len(self.df)
         horizontal_difference = len(table.columns) - len(self.df.columns)
 
-        rows: pd.DataFrame = self.create_sindex_df(len(table.index), vertical_difference, 24)
-        cols: pd.DataFrame = self.create_sindex_df(len(table.columns), horizontal_difference, 120)
+        rows: pd.DataFrame = self.create_sindex_df(len(table.index), vertical_difference, item_size=30)
+        cols: pd.DataFrame = self.create_sindex_df(len(table.columns), horizontal_difference, item_size=120)
         cells: pd.DataFrame = self.create_cell_df(rows, cols, table)
 
         if self.readonly_all_cells:

@@ -199,8 +199,10 @@ class SheetRepo(BaseRepo):
     @helpers.async_timeit
     async def _retrieve_as_sheet_without_pagination(self, data: entities.SheetRetrieve) -> entities.Sheet:
         async with db.get_async_session() as session:
-            rows = await self.row_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": data.sheet_id})
-            cols = await self.col_repo().retrieve_bulk_as_dataframe_with_session(session, {'sheet_id': data.sheet_id})
+            rows = await self.row_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": data.sheet_id},
+                                                                                 'index')
+            cols = await self.col_repo().retrieve_bulk_as_dataframe_with_session(session, {'sheet_id': data.sheet_id},
+                                                                                 'index')
             cells = await self.cell_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": data.sheet_id})
             return self._merge_into_sheet_entity(data.sheet_id, rows, cols, cells)
 
@@ -231,6 +233,9 @@ class SheetRepo(BaseRepo):
             )
             result = await session.execute(stmt)
             cols = pd.DataFrame.from_records(result.fetchall(), columns=Col.get_columns())
+
+            if len(rows['id']) > 32_000 or len(cols['id']) > 32_000:
+                raise ValueError('to many conditions for request')
 
             # Find cells
             stmt = (
