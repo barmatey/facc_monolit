@@ -7,6 +7,10 @@ from pydantic import BaseModel
 from src import core_types
 from . import enums
 
+"""
+Sheet create
+"""
+
 
 class SindexCreate(TypedDict):
     index: int
@@ -14,10 +18,6 @@ class SindexCreate(TypedDict):
     size: int
     is_freeze: bool
     sheet_id: core_types.Id_
-
-
-class Sindex(SindexCreate):
-    id: core_types.Id_
 
 
 class CellCreate(TypedDict):
@@ -30,13 +30,6 @@ class CellCreate(TypedDict):
     color: str
 
 
-class Cell(CellCreate):
-    id: core_types.Id_
-    row_id: core_types.Id_
-    col_id: core_types.Id_
-    sheet_id: core_types.Id_
-
-
 class SheetCreate(BaseModel):
     df: pd.DataFrame
     drop_index: bool
@@ -47,10 +40,20 @@ class SheetCreate(BaseModel):
         arbitrary_types_allowed = True
 
 
-class SheetRetrieve(BaseModel):
+"""
+Sheet
+"""
+
+
+class Cell(CellCreate):
+    id: core_types.Id_
+    row_id: core_types.Id_
+    col_id: core_types.Id_
     sheet_id: core_types.Id_
-    from_scroll: typing.Optional[int]
-    to_scroll: typing.Optional[int]
+
+
+class Sindex(SindexCreate):
+    id: core_types.Id_
 
 
 class Sheet(TypedDict):
@@ -60,6 +63,12 @@ class Sheet(TypedDict):
     cells: list[Cell]
 
 
+class SheetRetrieve(BaseModel):
+    sheet_id: core_types.Id_
+    from_scroll: typing.Optional[int]
+    to_scroll: typing.Optional[int]
+
+
 class ScrollSize(BaseModel):
     count_rows: int
     count_cols: int
@@ -67,9 +76,9 @@ class ScrollSize(BaseModel):
     scroll_width: int
 
 
-class ColFilterRetrieve(BaseModel):
-    sheet_id: core_types.Id_
-    col_id: core_types.Id_
+"""
+ColFilter & ColSorter
+"""
 
 
 class FilterItem(BaseModel):
@@ -90,6 +99,16 @@ class ColSorter(BaseModel):
     ascending: bool
 
 
+class ColFilterRetrieve(BaseModel):
+    sheet_id: core_types.Id_
+    col_id: core_types.Id_
+
+
+"""
+Table Update
+"""
+
+
 class CopySindex(BaseModel):
     id: core_types.Id_
     index: int
@@ -104,11 +123,6 @@ class CopyCell(BaseModel):
     sheet_id: core_types.Id_
 
 
-class UpdateSindexSize(BaseModel):
-    sindex_id: core_types.Id_
-    new_size: int
-
-
 class UpdateCell(BaseModel):
     id: core_types.Id_
     value: str
@@ -116,3 +130,13 @@ class UpdateCell(BaseModel):
     is_selected: typing.Optional[bool]
     is_readonly: typing.Optional[bool]
     is_filtred: typing.Optional[bool]
+
+
+"""
+Sindex  update
+"""
+
+
+class UpdateSindexSize(BaseModel):
+    sindex_id: core_types.Id_
+    new_size: int
