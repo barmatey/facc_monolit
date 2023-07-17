@@ -1,6 +1,5 @@
 import typing
 
-import loguru
 import numpy as np
 import pandas as pd
 from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, delete, update
@@ -86,7 +85,7 @@ class SindexRepo(BaseRepo):
             await self.update_with_session(session,
                                            filter_by={'sheet_id': sheet_id, 'id': data.sindex_id},
                                            data={'size': data.new_size})
-            await self._update_scroll_pos_with_session(session, sheet_id)
+            await self._update_scroll_pos_and_indexes_with_session(session, sheet_id)
             await session.commit()
 
     async def delete_bulk(self, sheet_id: core_types.Id_, sindex_ids: list[core_types.Id_]) -> None:
@@ -100,27 +99,35 @@ class SindexRepo(BaseRepo):
                        )
             )
             _ = await session.execute(stmt)
-            await self._update_scroll_pos_with_session(session, sheet_id)
+            await self._update_scroll_pos_and_indexes_with_session(session, sheet_id)
             await session.commit()
 
-    async def _update_scroll_pos_with_session(self, session: AsyncSession, sheet_id: core_types.Id_) -> None:
+    async def _update_scroll_pos_and_indexes_with_session(self, session: AsyncSession,
+                                                          sheet_id: core_types.Id_) -> None:
         # Get data
-        sindexes = await self.retrieve_bulk_as_dataframe_with_session(session,
-                                                                      filter_by={"sheet_id": sheet_id},
-                                                                      order_by="index")
-        sindexes = sindexes[['id', 'size', 'is_freeze', 'is_filtred', 'scroll_pos']].rename({"id": "sindex_id"}, axis=1)
+        filter_by = {"sheet_id": sheet_id}
+        order_by = 'index'
+        sindexes = await self.retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
+        sindexes = sindexes.rename({"id": "sindex_id"}, axis=1)
 
         # Calculate new values
         sindexes.loc[~sindexes['is_filtred'] | sindexes['is_freeze'], 'size'] = 0
         sindexes['scroll_pos'] = sindexes['size'].cumsum().shift(1).fillna(0)
         sindexes.loc[sindexes['is_freeze'], 'scroll_pos'] = -1
+        sindexes['index_value'] = range(0, len(sindexes.index))
 
         # Update data
-        values: list[dict] = sindexes[['sindex_id', 'is_filtred', 'scroll_pos']].to_dict(orient='records')
+        values: list[dict] = sindexes[['sindex_id', 'is_filtred', 'scroll_pos', 'index_value']].to_dict(
+            orient='records')
         stmt = (
             self.model.__table__.update()
             .where(self.model.__table__.c.id == bindparam('sindex_id'))
-            .values({"scroll_pos": bindparam("scroll_pos"), "is_filtred": bindparam("is_filtred")})
+            .values(
+                {
+                    "scroll_pos": bindparam("scroll_pos"),
+                    "is_filtred": bindparam("is_filtred"),
+                    "index": bindparam("index_value"),
+                })
         )
         _ = await session.execute(stmt, values)
 
