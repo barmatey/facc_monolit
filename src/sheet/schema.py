@@ -26,8 +26,8 @@ ColFilterSchema = entities.ColFilter
 
 
 class ColSorterSchema(entities.ColSorter):
-    from_scroll: int
-    to_scroll: int
+    from_scroll: typing.Optional[int]
+    to_scroll: typing.Optional[int]
 
 
 class CopySindexSchema(entities.CopySindex):

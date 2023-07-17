@@ -62,7 +62,7 @@ async def clear_all_filters(sheet_id: core_types.Id_,
 
 
 @router.patch("/{sheet_id}/update-col-sorter")
-async def update_col_sorter(data: schema.ColSorterSchema,
+async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSchema,
                             sheet_service: service.SheetService = Depends(service.SheetService)) -> JSONResponse:
     await sheet_service.update_col_sorter(data)
     sheet_retrieve_schema = schema.SheetRetrieveSchema(
