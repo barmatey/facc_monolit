@@ -1,5 +1,6 @@
 import typing
 
+import loguru
 import numpy as np
 import pandas as pd
 from sqlalchemy import ForeignKey, Integer, Boolean, String, bindparam, delete, update
@@ -199,11 +200,11 @@ class SheetRepo(BaseRepo):
     @helpers.async_timeit
     async def _retrieve_as_sheet_without_pagination(self, data: entities.SheetRetrieve) -> entities.Sheet:
         async with db.get_async_session() as session:
-            rows = await self.row_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": data.sheet_id},
-                                                                                 'index')
-            cols = await self.col_repo().retrieve_bulk_as_dataframe_with_session(session, {'sheet_id': data.sheet_id},
-                                                                                 'index')
-            cells = await self.cell_repo().retrieve_bulk_as_dataframe_with_session(session, {"sheet_id": data.sheet_id})
+            filter_by = {"sheet_id": data.sheet_id, "is_filtred": True, }
+            order_by = 'index'
+            rows = await self.row_repo().retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
+            cols = await self.col_repo().retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
+            cells = await self.cell_repo().retrieve_bulk_as_dataframe_with_session(session, filter_by)
             return self._merge_into_sheet_entity(data.sheet_id, rows, cols, cells)
 
     async def _retrieve_as_sheet_with_pagination(self, data: entities.SheetRetrieve) -> entities.Sheet:
@@ -362,6 +363,7 @@ class SheetFilterRepo:
             'is_filtred': x.is_filtred,
             'dtype': x.dtype,
         } for x in data.items]
+
         stmt = (
             self.cell_model.__table__.update()
             .where(self.cell_model.__table__.c.value == bindparam('cell_value'),
