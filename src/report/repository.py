@@ -8,8 +8,6 @@ from src import core_types
 from src import repository_postgres as postgres
 from . import entities
 
-OrderBy = typing.Union[str, list[str]]
-DTO = typing.Union[BaseModel, dict]
 Entity = typing.TypeVar(
     'Entity',
     entities.Group,
@@ -19,7 +17,11 @@ Entity = typing.TypeVar(
 
 class CrudRepo(ABC):
     @abstractmethod
-    async def create(self, data: DTO) -> Entity:
+    async def create(self, data: core_types.DTO) -> Entity:
+        pass
+
+    @abstractmethod
+    async def retrieve_bulk(self, filter_by: dict, order_by: core_types.OrderBy) -> list[Entity]:
         pass
 
     @abstractmethod
@@ -27,7 +29,7 @@ class CrudRepo(ABC):
         pass
 
     @abstractmethod
-    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy) -> list[Entity]:
+    async def update(self, instance: Entity, data: core_types.DTO) -> Entity:
         pass
 
     @abstractmethod
@@ -39,8 +41,23 @@ class CategoryRepo(postgres.CategoryRepo, CrudRepo):
     pass
 
 
-class GroupRepo(postgres.GroupRepo, CrudRepo):
-    pass
+class GroupRepo(CrudRepo):
+    group_repo = postgres.GroupRepo
+
+    async def create(self, data: entities.GroupCreate) -> Entity:
+        return await self.group_repo().create(data)
+
+    async def retrieve_bulk(self, filter_by: dict, order_by: core_types.OrderBy) -> list[Entity]:
+        return await self.group_repo().retrieve_bulk(filter_by, order_by)
+
+    async def retrieve(self, filter_by: dict) -> Entity:
+        return await self.group_repo().retrieve(filter_by)
+
+    async def update(self, instance: Entity, data: core_types.DTO) -> Entity:
+        raise NotImplemented
+
+    async def delete(self, filter_by: dict) -> core_types.Id_:
+        return await self.group_repo().delete(filter_by)
 
 
 class ReportRepo(postgres.ReportRepo, CrudRepo):
@@ -48,5 +65,5 @@ class ReportRepo(postgres.ReportRepo, CrudRepo):
 
 
 class WireRepo(postgres.WireRepo):
-    async def retrieve_wire_dataframe(self, filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
+    async def retrieve_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
         return await self.retrieve_bulk_as_dataframe(filter_by, order_by)

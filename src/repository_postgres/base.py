@@ -222,7 +222,7 @@ class BaseRepo(BaseWithSession):
             return entity
 
     async def update_bulk(self, data: list[DTO], filter_by: dict) -> list[core_types.Id_]:
-        pass
+        raise NotImplemented
 
     async def delete(self, filter_by: dict) -> core_types.Id_:
         async with db.get_async_session() as session:
