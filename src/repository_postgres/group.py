@@ -30,6 +30,7 @@ class Group(BaseModel):
             category=CategoryEnum(self.category_id).name,
             sheet_id=self.sheet_id,
             source_id=self.source_id,
+            columns=list(self.columns),
         )
         return converted
 
@@ -66,3 +67,9 @@ class GroupRepo(BaseRepo):
             group: Group = await self.retrieve_with_session(session, filter_by={"id": group_id})
             df = await self.sheet_repo().retrieve_as_dataframe_with_session(session, sheet_id=group.sheet_id)
             return df
+
+    async def delete_linked_sheet(self, group_id: core_types.Id_):
+        async with db.get_async_session() as session:
+            group: Group = await self.retrieve_with_session(session, filter_by={"id": group_id})
+            await self.sheet_repo().delete_with_session(session, filter_by={"id": group.sheet_id})
+            await session.commit()

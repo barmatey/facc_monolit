@@ -35,6 +35,7 @@ class Group(BaseModel):
     id: core_types.Id_
     title: str
     category: enums.CategoryLiteral
+    columns: list[str]
     source_id: core_types.Id_
     sheet_id: core_types.Id_
 
