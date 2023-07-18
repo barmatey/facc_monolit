@@ -52,7 +52,7 @@ class SourcePostgres(Repository):
 class WirePostgres(Repository):
     wire_repo = WireRepo
 
-    async def create(self, data: pydantic.BaseModel) -> pydantic.BaseModel:
+    async def create(self, data: entities.WireCreate) -> pydantic.BaseModel:
         return await self.wire_repo().create(data)
 
     async def retrieve(self, filter_by: dict) -> pydantic.BaseModel:
