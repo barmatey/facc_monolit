@@ -1,4 +1,3 @@
-import loguru
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -66,7 +65,7 @@ async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSche
                             sheet_service: service.SheetService = Depends(service.SheetService)) -> JSONResponse:
     await sheet_service.update_col_sorter(data)
     sheet_retrieve_schema = schema.SheetRetrieveSchema(
-        sheet_id=data.sheet_id,
+        sheet_id=sheet_id,
         from_scroll=data.from_scroll,
         to_scroll=data.to_scroll,
     )
@@ -116,6 +115,7 @@ async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,
 
 
 @router.delete("/{sheet_id}/delete-rows")
+@helpers.async_timeit
 async def delete_rows(sheet_id: core_types.Id_, row_ids: list[core_types.Id_],
                       sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.delete_rows(sheet_id, row_ids)
