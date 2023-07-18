@@ -37,9 +37,11 @@ class CategoryService(Service):
 
 class GroupService(Service):
     repo: repository.CrudRepo = repository.GroupRepo()
+    wire_repo = repository.WireRepo()
 
     async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
-        group_df: pd.DataFrame = await get_finrep_service(data.category).create_group(data)
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+        group_df: pd.DataFrame = await get_finrep_service(data.category).create_group(wire_df, data.columns)
 
         group_create = entities.GroupCreate(
             title=data.title,
@@ -54,12 +56,27 @@ class GroupService(Service):
         group: entities.Group = await self.repo.create(group_create)
         return group
 
+    async def total_recalculate(self, instance: entities.Group) -> entities.Group:
+        # data = schema.GroupCreateSchema(
+        #     title=instance.title,
+        #     category=instance.category,
+        #     source_id=instance.source_id,
+        #     columns=instance.columns,
+        # )
+        # group_df = await get_finrep_service(instance.category).create_group(data)
+        raise NotImplemented
+
 
 class ReportService(Service):
     repo: repository.CrudRepo = repository.ReportRepo()
+    wire_repo = repository.WireRepo()
+    group_repo = repository.GroupRepo()
 
     async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
-        report_df = await get_finrep_service(data.category).create_report(data)
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
+
+        report_df = await get_finrep_service(data.category).create_report(wire_df, group_df, data.interval)
         sheet = entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False, readonly_all_cells=True)
         report_create = entities.ReportCreate(
             title=data.title,
