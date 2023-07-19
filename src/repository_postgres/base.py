@@ -123,6 +123,7 @@ class BaseWithSession:
     async def update_with_session(self, session: AsyncSession, filter_by: dict, data: DTO) -> Model:
         if isinstance(data, PydanticModel):
             data = data.dict()
+        data = {key: value for key, value in data.items() if value is not None}
         stmt = update(self.model).filter_by(**filter_by).values(**data).returning(self.model)
         result: Result = await session.execute(stmt)
         models: list[Model] = list(result.scalars())

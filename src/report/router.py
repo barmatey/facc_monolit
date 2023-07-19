@@ -50,6 +50,13 @@ async def retrieve_group_list(
     return groups
 
 
+@router_group.patch("/{group_id}")
+@helpers.async_timeit
+async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema,
+                               service: Service = Depends(GroupService)) -> entities.Group:
+    return await service.partial_update(data, filter_by={"id": group_id})
+
+
 @router_group.patch("/{group_id}/total-recalculate")
 @helpers.async_timeit
 async def total_recalculate(group_id: core_types.Id_, service: GroupService = Depends(GroupService)) -> entities.Group:

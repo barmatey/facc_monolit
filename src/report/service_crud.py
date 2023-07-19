@@ -25,7 +25,7 @@ class Service:
         return await self.repo.retrieve_bulk(filter_by, order_by)
 
     async def partial_update(self, data: BaseModel, filter_by: dict) -> entities.Entity:
-        raise NotImplemented
+        return await self.repo.update(data, filter_by)
 
     async def delete(self, filter_by: dict) -> core_types.Id_:
         return await self.repo.delete(filter_by)
@@ -47,12 +47,12 @@ class GroupService(Service):
             title=data.title,
             source_id=data.source_id,
             columns=data.columns,
+            fixed_columns=data.fixed_columns,
             dataframe=group_df,
             drop_index=True,
             drop_columns=False,
             category=data.category,
         )
-
         group: entities.Group = await self.repo.create(group_create)
         return group
 
@@ -61,7 +61,7 @@ class GroupService(Service):
 
         old_group_df = await self.repo.retrieve_linked_sheet_as_dataframe(instance.id)
         new_group_df = await get_finrep_service(instance.category).create_group(wire_df, instance.columns)
-        new_group_df = pd.merge(old_group_df, new_group_df, how='left')
+        new_group_df = pd.merge(old_group_df[instance.columns], new_group_df, on=instance.fixed_columns, how='left')
         data = schema.GroupSheetUpdateSchema(
             df=new_group_df,
             drop_index=True,

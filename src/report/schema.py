@@ -19,6 +19,14 @@ class GroupCreateSchema(pydantic.BaseModel):
     fixed_columns: list[str]
 
 
+class GroupPartialUpdateSchema(pydantic.BaseModel):
+    title: typing.Optional[str]
+    category: typing.Optional[enums.CategoryLiteral]
+    source_id: typing.Optional[core_types.Id_]
+    columns: typing.Optional[list[str]]
+    fixed_columns: typing.Optional[list[str]]
+
+
 class GroupSheetUpdateSchema(pydantic.BaseModel):
     df: pd.DataFrame
     drop_index: bool
