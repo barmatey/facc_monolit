@@ -1,5 +1,6 @@
 import typing
 
+import loguru
 import pandas as pd
 from pydantic import BaseModel
 
@@ -61,7 +62,11 @@ class GroupService(Service):
 
         old_group_df = await self.repo.retrieve_linked_sheet_as_dataframe(instance.id)
         new_group_df = await get_finrep_service(instance.category).create_group(wire_df, instance.columns)
-        new_group_df = pd.merge(old_group_df[instance.columns], new_group_df, on=instance.fixed_columns, how='left')
+        new_group_df = pd.merge(
+            old_group_df[instance.fixed_columns],
+            new_group_df,
+            on=instance.fixed_columns, how='left'
+        )
         data = schema.GroupSheetUpdateSchema(
             df=new_group_df,
             drop_index=True,

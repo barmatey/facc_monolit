@@ -12,7 +12,7 @@ def async_timeit(func):
         result = await func(*args, **kwargs)
         end_time = time.perf_counter()
         total_time = end_time - start_time
-        logger.success(f'function {func.__name__} took {total_time:.4f} seconds')
+        logger.success(f'function {func.__name__} took {total_time*1_000:.0f}ms')
         return result
 
     return timeit_wrapper
@@ -25,7 +25,7 @@ def timeit(func):
         result = func(*args, **kwargs)
         end_time = time.perf_counter()
         total_time = end_time - start_time
-        logger.success(f'function {func.__name__} took {total_time:.4f} seconds')
+        logger.success(f'function {func.__name__} took {total_time * 1000:.0f}ms')
         return result
 
     return timeit_wrapper
