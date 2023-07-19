@@ -18,6 +18,15 @@ class GroupCreateSchema(pydantic.BaseModel):
     columns: list[str]
 
 
+class GroupSheetUpdateSchema(pydantic.BaseModel):
+    df: pd.DataFrame
+    drop_index: bool
+    drop_columns: bool
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
 GroupSchema = entities.Group
 
 
@@ -47,5 +56,3 @@ class ReportCreateSchema(pydantic.BaseModel):
 
 
 ReportSchema = entities.Report
-
-

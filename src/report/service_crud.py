@@ -36,7 +36,7 @@ class CategoryService(Service):
 
 
 class GroupService(Service):
-    repo: repository.CrudRepo = repository.GroupRepo()
+    repo = repository.GroupRepo()
     wire_repo = repository.WireRepo()
 
     async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
@@ -57,14 +57,18 @@ class GroupService(Service):
         return group
 
     async def total_recalculate(self, instance: entities.Group) -> entities.Group:
-        # data = schema.GroupCreateSchema(
-        #     title=instance.title,
-        #     category=instance.category,
-        #     source_id=instance.source_id,
-        #     columns=instance.columns,
-        # )
-        # group_df = await get_finrep_service(instance.category).create_group(data)
-        raise NotImplemented
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": instance.source_id})
+
+        old_group_df = await self.repo.retrieve_linked_sheet_as_dataframe(instance.id)
+        new_group_df = await get_finrep_service(instance.category).create_group(wire_df, instance.columns)
+        new_group_df = pd.merge(old_group_df, new_group_df, how='left')
+        data = schema.GroupSheetUpdateSchema(
+            df=new_group_df,
+            drop_index=True,
+            drop_columns=False,
+        )
+        updated: entities.Group = await self.repo.update_sheet(instance, data)
+        return updated
 
 
 class ReportService(Service):

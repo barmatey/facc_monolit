@@ -50,6 +50,14 @@ async def retrieve_group_list(
     return groups
 
 
+@router_group.patch("/{group_id}/total-recalculate")
+@helpers.async_timeit
+async def total_recalculate(group_id: core_types.Id_, service: GroupService = Depends(GroupService)) -> entities.Group:
+    group = await service.retrieve({"id": group_id})
+    updated = await service.total_recalculate(group)
+    return updated
+
+
 @router_group.delete("/{group_id}")
 @helpers.async_timeit
 async def delete_group(group_id: core_types.Id_, service: Service = Depends(GroupService)) -> core_types.Id_:
