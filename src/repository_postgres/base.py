@@ -1,6 +1,7 @@
 import typing
 from typing import TypeVar
 
+import loguru
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
 from sqlalchemy import insert, select, Result, delete, update, GenerativeSelect

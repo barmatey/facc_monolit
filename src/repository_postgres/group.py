@@ -18,6 +18,7 @@ class Group(BaseModel):
     __tablename__ = "group"
     title: Mapped[str] = mapped_column(String(30), nullable=False)
     columns: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    fixed_columns: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     category_id: Mapped[int] = mapped_column(Integer, ForeignKey(Category.id, ondelete='CASCADE'), nullable=False)
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey(Source.id, ondelete='CASCADE'), nullable=False)
     sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(Sheet.id, ondelete='RESTRICT'), nullable=False,
@@ -31,6 +32,7 @@ class Group(BaseModel):
             sheet_id=self.sheet_id,
             source_id=self.source_id,
             columns=list(self.columns),
+            fixed_columns=list(self.fixed_columns)
         )
         return converted
 
@@ -54,6 +56,7 @@ class GroupRepo(BaseRepo):
                 title=data.title,
                 category_id=CategoryEnum[data.category].value,
                 columns=data.columns,
+                fixed_columns=data.fixed_columns,
                 source_id=data.source_id,
                 sheet_id=sheet_id,
             )

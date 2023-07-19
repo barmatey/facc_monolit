@@ -23,6 +23,7 @@ class GroupCreate(BaseModel):
     category: enums.CategoryLiteral
     source_id: int
     columns: list[str]
+    fixed_columns: list[str]
     dataframe: pd.DataFrame
     drop_index: bool
     drop_columns: bool
@@ -36,6 +37,7 @@ class Group(BaseModel):
     title: str
     category: enums.CategoryLiteral
     columns: list[str]
+    fixed_columns: list[str]
     source_id: core_types.Id_
     sheet_id: core_types.Id_
 

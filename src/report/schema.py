@@ -16,6 +16,7 @@ class GroupCreateSchema(pydantic.BaseModel):
     category: enums.CategoryLiteral
     source_id: core_types.Id_
     columns: list[str]
+    fixed_columns: list[str]
 
 
 class GroupSheetUpdateSchema(pydantic.BaseModel):
