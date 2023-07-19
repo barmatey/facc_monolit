@@ -7,7 +7,6 @@ from sqlalchemy import func, select, or_, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src import helpers
 from src import core_types
 from src.sheet import entities
 from . import db
@@ -204,7 +203,6 @@ class SheetRepo(BaseRepo):
         )
         return sheet
 
-    @helpers.async_timeit
     async def _retrieve_as_sheet_without_pagination(self, data: entities.SheetRetrieve) -> entities.Sheet:
         async with db.get_async_session() as session:
             filter_by = {"sheet_id": data.sheet_id, "is_filtred": True, }
