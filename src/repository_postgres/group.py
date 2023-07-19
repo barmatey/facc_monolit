@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import Integer, ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.report import entities
+from src.report import schema as schema_report
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
@@ -39,7 +39,7 @@ class GroupRepo(BaseRepo):
     model = Group
     sheet_repo = SheetRepo
 
-    async def create(self, data: entities_report.GroupCreate) -> entities.Group:
+    async def create(self, data: entities_report.GroupCreate) -> entities_report.Group:
         async with db.get_async_session() as session:
             # Create sheet model
             sheet_data = entities_sheet.SheetCreate(
@@ -61,6 +61,17 @@ class GroupRepo(BaseRepo):
             entity = group.to_entity()
             await session.commit()
             return entity
+
+    async def update_sheet(self, group: entities_report.Group,
+                           data: schema_report.GroupSheetUpdateSchema) -> entities_report.Group:
+        async with db.get_async_session() as session:
+            sheet_data = entities_sheet.SheetCreate(**data.dict())
+            sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
+            updated: Group = await self.update_with_session(session, {"id": group.id}, data={"sheet_id": sheet_id})
+            _ = await self.sheet_repo().delete_with_session(session, {"id": group.sheet_id})
+            session.expunge(updated)
+            await session.commit()
+            return updated.to_entity()
 
     async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         async with db.get_async_session() as session:
