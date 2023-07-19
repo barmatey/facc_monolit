@@ -73,6 +73,15 @@ class GroupRepo(BaseRepo):
             await session.commit()
             return updated.to_entity()
 
+    async def delete(self, filter_by: dict) -> core_types.Id_:
+        async with db.get_async_session() as session:
+            group: Group = await self.retrieve_with_session(session, filter_by)
+            await super().delete_with_session(session, filter_by)
+            await self.sheet_repo().delete_with_session(session, filter_by={"id": group.sheet_id})
+            session.expunge(group)
+            await session.commit()
+            return group.id
+
     async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         async with db.get_async_session() as session:
             group: Group = await self.retrieve_with_session(session, filter_by={"id": group_id})
