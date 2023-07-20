@@ -152,6 +152,10 @@ class BaseWithSession:
                               f"Change filter or use bulk method to delete many models")
         return result[0]
 
+    async def delete_bulk_with_session(self, session: AsyncSession, filter_by: dict) -> None:
+        stmt = delete(self.model).filter_by(**filter_by)
+        await session.execute(stmt)
+
     async def _get_sorter(self, order_by: OrderBy | None) -> list:
         if order_by is None:
             return [self.model.id.asc()]

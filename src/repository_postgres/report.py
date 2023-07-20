@@ -81,7 +81,12 @@ class ReportRepo(BaseRepo):
             interval: Interval = await self.interval_repo().retrieve_with_session(session, {"id": report.interval_id})
             return report.to_entity(interval.to_entity())
 
-    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[e_report.Report]:
+    async def retrieve_bulk(self,
+                            filter_by: dict,
+                            order_by: OrderBy = None,
+                            ascending: bool = True,
+                            paginate_from: int = None,
+                            paginate_to: int = None) -> list[e_report.Report]:
         async with db.get_async_session() as session:
             report: pd.DataFrame = await self.retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
             interval: pd.DataFrame = await self.interval_repo().retrieve_bulk_as_dataframe_with_session(session, {})
@@ -117,3 +122,14 @@ class ReportRepo(BaseRepo):
                 report_entities.append(report_entity)
 
             return report_entities
+
+    async def overwrite_linked_sheet(self, instance: e_report.Report, data: e_report.SheetCreate) -> None:
+        async with db.get_async_session() as session:
+            sheet_data = e_sheet.SheetCreate(
+                df=data.dataframe,
+                drop_index=data.drop_index,
+                drop_columns=data.drop_columns,
+                readonly_all_cells=data.readonly_all_cells
+            )
+            await self.sheet_repo().overwrite_with_session(session, instance.sheet_id, sheet_data)
+            await session.commit()

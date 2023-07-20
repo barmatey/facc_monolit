@@ -38,22 +38,23 @@ class GroupSheetUpdateSchema(pydantic.BaseModel):
 
 GroupSchema = entities.Group
 
+IntervalCreateSchema = entities.IntervalCreate
 
-class IntervalCreateSchema(pydantic.BaseModel):
-    start_date: pd.Timestamp
-    end_date: pd.Timestamp
-    iyear: int
-    imonth: int
-    iday: int
-
-    def to_interval_create_entity(self) -> entities.IntervalCreate:
-        return entities.IntervalCreate(
-            start_date=self.start_date,
-            end_date=self.end_date,
-            period_year=self.iyear,
-            period_month=self.imonth,
-            period_day=self.iday,
-        )
+# class IntervalCreateSchema(pydantic.BaseModel):
+#     start_date: pd.Timestamp
+#     end_date: pd.Timestamp
+#     iyear: int
+#     imonth: int
+#     iday: int
+#
+#     def to_interval_create_entity(self) -> entities.IntervalCreate:
+#         return entities.IntervalCreate(
+#             start_date=self.start_date,
+#             end_date=self.end_date,
+#             period_year=self.iyear,
+#             period_month=self.imonth,
+#             period_day=self.iday,
+#         )
 
 
 class ReportCreateSchema(pydantic.BaseModel):

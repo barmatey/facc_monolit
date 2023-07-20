@@ -37,7 +37,15 @@ class BaseService(FinrepService, ABC):
                             interval: schema.IntervalCreateSchema) -> pd.DataFrame:
         wire = self.wire(wire_df)
         group = self.group(group_df)
-        interval = self.interval(**interval.dict())
+        interval = self.interval(
+            start_date=interval.start_date,
+            end_date=interval.end_date,
+            total_start_date=interval.total_start_date,
+            total_end_date=interval.total_end_date,
+            iyear=interval.period_year,
+            imonth=interval.period_month,
+            iday=interval.period_day,
+        )
 
         report = self.report()
         await report.create_report(wire, group, interval)

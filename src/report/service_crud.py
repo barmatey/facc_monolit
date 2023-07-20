@@ -1,6 +1,5 @@
 import typing
 
-import loguru
 import pandas as pd
 from pydantic import BaseModel
 
@@ -70,17 +69,18 @@ class GroupService(Service):
                 on=instance.fixed_columns, how='left'
             )
 
-        data = schema.GroupSheetUpdateSchema(
-            df=new_group_df,
+        data = entities.SheetCreate(
+            dataframe=new_group_df,
             drop_index=True,
             drop_columns=False,
+            readonly_all_cells=False
         )
-        updated: entities.Group = await self.repo.update_sheet(instance, data)
-        return updated
+        await self.repo.overwrite_linked_sheet(instance, data)
+        return instance
 
 
 class ReportService(Service):
-    repo: repository.CrudRepo = repository.ReportRepo()
+    repo = repository.ReportRepo()
     wire_repo = repository.WireRepo()
     group_repo = repository.GroupRepo()
 
@@ -95,8 +95,18 @@ class ReportService(Service):
             category=data.category,
             source_id=data.source_id,
             group_id=data.group_id,
-            interval=data.interval.to_interval_create_entity(),
+            interval=data.interval,
             sheet=sheet,
         )
         report = await self.repo.create(report_create)
+        return report
+
+    async def total_recalculate(self, instance: entities.Report) -> entities.Report:
+        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": instance.source_id})
+        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=instance.group_id)
+
+        report_df = await get_finrep_service(instance.category).create_report(wire_df, group_df, instance.interval)
+        sheet = entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False, readonly_all_cells=True)
+
+        report = await self.repo.overwrite_linked_sheet(instance, sheet)
         return report

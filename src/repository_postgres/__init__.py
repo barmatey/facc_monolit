@@ -1,3 +1,4 @@
+from .base import BaseRepo
 from .source import SourceRepo
 from .wire import WireRepo
 from .sheet import SheetRepo, RowRepo, ColRepo, CellRepo, SheetTableRepo, SheetSorterRepo, SheetFilterRepo

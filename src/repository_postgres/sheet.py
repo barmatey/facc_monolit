@@ -162,7 +162,39 @@ class SheetRepo(BaseRepo):
     async def create_with_session(self, session: AsyncSession, data: entities.SheetCreate) -> core_types.Id_:
         sheet: Sheet = await super().create_with_session(session, {})
         sheet_id = sheet.id
+        await self._create_rows_cols_and_cells(session, sheet_id, data)
+        return sheet_id
 
+    async def overwrite_with_session(self, session: AsyncSession, sheet_id: core_types.Id_,
+                                     data: entities.SheetCreate) -> None:
+        # Delete old data
+        filter_by = {"sheet_id": sheet_id}
+        await self.row_repo().delete_bulk_with_session(session, filter_by)
+        await self.col_repo().delete_bulk_with_session(session, filter_by)
+        await self.cell_repo().delete_bulk_with_session(session, filter_by)
+        # Create new data
+        await self._create_rows_cols_and_cells(session, sheet_id, data)
+
+    async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
+        if data.from_scroll is None or data.to_scroll is None:
+            return await self._retrieve_as_sheet_without_pagination(data)
+        return await self._retrieve_as_sheet_with_pagination(data)
+
+    async def retrieve_scroll_size(self, id_: core_types.Id_) -> entities.ScrollSize:
+        async with db.get_async_session() as session:
+            row: SindexScrollSize = await self.row_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
+            col: SindexScrollSize = await self.col_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
+
+            scroll_size = entities.ScrollSize(
+                count_rows=row['count_sindexes'],
+                count_cols=col['count_sindexes'],
+                scroll_height=row['scroll_size'],
+                scroll_width=col['scroll_size'],
+            )
+            return scroll_size
+
+    async def _create_rows_cols_and_cells(self, session: AsyncSession,
+                                          sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
         # Create row, col and cell data from denormalized dataframe
         normalizer = self.normalizer(**data.dict())
         normalizer.normalize()
@@ -180,13 +212,6 @@ class SheetRepo(BaseRepo):
         cells = normalizer.get_normalized_cells().assign(
             sheet_id=sheet_id, row_id=repeated_row_ids, col_id=repeated_col_ids).to_dict(orient='records')
         _ = await self.cell_repo().create_bulk_with_session(session, cells)
-
-        return sheet_id
-
-    async def retrieve_as_sheet(self, data: entities.SheetRetrieve) -> entities.Sheet:
-        if data.from_scroll is None or data.to_scroll is None:
-            return await self._retrieve_as_sheet_without_pagination(data)
-        return await self._retrieve_as_sheet_with_pagination(data)
 
     @staticmethod
     def _merge_into_sheet_entity(sheet_id, rows, cols, cells, ) -> entities.Sheet:
@@ -265,19 +290,6 @@ class SheetRepo(BaseRepo):
         denormalizer.denormalize()
         df = denormalizer.get_denormalized()
         return df
-
-    async def retrieve_scroll_size(self, id_: core_types.Id_) -> entities.ScrollSize:
-        async with db.get_async_session() as session:
-            row: SindexScrollSize = await self.row_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
-            col: SindexScrollSize = await self.col_repo().retrieve_scroll_size_with_session(session, sheet_id=id_)
-
-            scroll_size = entities.ScrollSize(
-                count_rows=row['count_sindexes'],
-                count_cols=col['count_sindexes'],
-                scroll_height=row['scroll_size'],
-                scroll_width=col['scroll_size'],
-            )
-            return scroll_size
 
 
 class SheetFilterRepo:

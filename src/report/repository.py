@@ -42,8 +42,8 @@ class CategoryRepo(CrudRepo):
 class GroupRepo(CrudRepo):
     repo = postgres.GroupRepo()
 
-    async def update_sheet(self, instance: Entity, data: schema.GroupSheetUpdateSchema) -> entities.Group:
-        return await self.repo.update_sheet(instance, data)
+    async def overwrite_linked_sheet(self, instance: entities.Group, data: entities.SheetCreate) -> None:
+        await self.repo.overwrite_linked_sheet(instance, data)
 
     async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         return await self.repo.retrieve_linked_sheet_as_dataframe(group_id)
@@ -51,6 +51,9 @@ class GroupRepo(CrudRepo):
 
 class ReportRepo(CrudRepo):
     repo = postgres.ReportRepo()
+
+    async def overwrite_linked_sheet(self, instance: entities.Report, data: entities.SheetCreate):
+        await self.repo.overwrite_linked_sheet(instance, data)
 
 
 class WireRepo(CrudRepo):
