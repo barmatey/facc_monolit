@@ -109,6 +109,15 @@ async def delete_report(report_id: core_types.Id_,
     return deleted_id
 
 
+@router_report.patch("/{report_id}")
+@helpers.async_timeit
+async def total_recalculate(report_id: core_types.Id_,
+                            service: ReportService = Depends(ReportService)) -> entities.Report:
+    report = await service.retrieve({"id": report_id})
+    updated = await service.total_recalculate(report)
+    return updated
+
+
 router_category = APIRouter(
     prefix="/category",
     tags=['Category'],

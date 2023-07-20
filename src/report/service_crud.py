@@ -1,5 +1,6 @@
 import typing
 
+import loguru
 import pandas as pd
 from pydantic import BaseModel
 
@@ -108,5 +109,5 @@ class ReportService(Service):
         report_df = await get_finrep_service(instance.category).create_report(wire_df, group_df, instance.interval)
         sheet = entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False, readonly_all_cells=True)
 
-        report = await self.repo.overwrite_linked_sheet(instance, sheet)
-        return report
+        await self.repo.overwrite_linked_sheet(instance, sheet)
+        return instance
