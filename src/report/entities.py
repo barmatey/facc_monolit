@@ -42,6 +42,13 @@ class Group(BaseModel):
     sheet_id: core_types.Id_
 
 
+class ExpandedGroup(Group):
+    sheet_df: pd.DataFrame
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
 class IntervalCreate(BaseModel):
     period_year: int
     period_month: int

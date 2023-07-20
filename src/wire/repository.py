@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+import pandas as pd
 import pydantic
 
 from src import core_types
@@ -66,3 +67,6 @@ class WirePostgres(Repository):
 
     async def retrieve_list(self, retrieve_params: schema.WireBulkRetrieveSchema) -> list[entities.Wire]:
         return await self.wire_repo().retrieve_bulk(**retrieve_params.dict())
+
+    async def retrieve_bulk_as_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
+        return await self.wire_repo().retrieve_bulk_as_dataframe(filter_by, order_by)

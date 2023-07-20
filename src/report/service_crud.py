@@ -1,6 +1,5 @@
 import typing
 
-import loguru
 import pandas as pd
 from pydantic import BaseModel
 
@@ -57,9 +56,7 @@ class GroupService(Service):
         group: entities.Group = await self.repo.create(group_create)
         return group
 
-    async def total_recalculate(self, instance: entities.Group) -> entities.Group:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": instance.source_id})
-
+    async def total_recalculate(self, instance: entities.Group, wire_df: pd.DataFrame) -> entities.ExpandedGroup:
         old_group_df = await self.repo.retrieve_linked_sheet_as_dataframe(instance.id)
         new_group_df = await get_finrep_service(instance.category).create_group(wire_df, instance.columns)
 
@@ -77,7 +74,8 @@ class GroupService(Service):
             readonly_all_cells=False
         )
         await self.repo.overwrite_linked_sheet(instance, data)
-        return instance
+        expanded_group = entities.ExpandedGroup(**instance.dict(), sheet_df=new_group_df)
+        return expanded_group
 
 
 class ReportService(Service):
@@ -102,12 +100,9 @@ class ReportService(Service):
         report = await self.repo.create(report_create)
         return report
 
-    async def total_recalculate(self, instance: entities.Report) -> entities.Report:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": instance.source_id})
-        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=instance.group_id)
-
+    async def total_recalculate(self, instance: entities.Report,
+                                wire_df: pd.DataFrame, group_df: pd.DataFrame) -> entities.Report:
         report_df = await get_finrep_service(instance.category).create_report(wire_df, group_df, instance.interval)
         sheet = entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False, readonly_all_cells=True)
-
         await self.repo.overwrite_linked_sheet(instance, sheet)
         return instance

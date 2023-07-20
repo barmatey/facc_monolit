@@ -127,7 +127,9 @@ class BalanceReport(Report):
         report = pd.concat([assets, liabs], keys=['assets', 'liabs'])
         report[report < 0] = 0
         report = await super()._drop_zero_rows(report)
-        report = self._calculate_saldo(report)
+
+        saldo = assets.sum() + liabs.sum()
+        report.loc[('saldo',) * len(report.index.levels), :] = saldo
 
         report = report.round(2)
         self.report = report
@@ -140,10 +142,3 @@ class BalanceReport(Report):
         side = await super()._split_df_by_intervals(side)
         side = side.cumsum(axis=1)
         return side
-
-    @staticmethod
-    def _calculate_saldo(report: pd.DataFrame) -> pd.DataFrame:
-        report = report.copy()
-        index = ('saldo',) * len(report.index.levels)
-        report.loc[index, :] = report.loc[('assets',), :].sum() - report.loc[('liabs',), :].sum()
-        return report

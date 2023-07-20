@@ -1,6 +1,7 @@
 import typing
 from abc import ABC, abstractmethod
 
+import pandas as pd
 import pydantic
 
 from src import core_types
@@ -32,3 +33,6 @@ class ServiceSource(Service):
 
 class ServiceWire(Service):
     repo: repository.Repository = repository.WirePostgres
+
+    async def retrieve_bulk_as_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
+        return await self.repo().retrieve_bulk_as_dataframe(filter_by, order_by)
