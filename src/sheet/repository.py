@@ -103,7 +103,7 @@ class PostgresRepo(Repository):
         await self.sheet_cell_repo().update(sheet_id, data)
 
     async def update_cell_bulk(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
-        await self.sheet_cell_repo().update_bulk_by_ids(sheet_id, data)
+        await self.sheet_cell_repo().update_many(sheet_id, data)
 
     async def delete_rows(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
         await self.sheet_row_repo().delete_bulk(sheet_id, row_ids)

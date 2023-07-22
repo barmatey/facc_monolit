@@ -1,7 +1,6 @@
 import typing
 from typing import TypeVar
 
-import loguru
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
 from sqlalchemy import insert, select, Result, delete, update, GenerativeSelect
@@ -89,7 +88,7 @@ class BaseWithSession:
                                          paginate_from: int = None,
                                          paginate_to: int = None) -> list[Model]:
         filter_by = await self._dropna_from_filter(filter_by)
-        sorter = await self._get_sorter(order_by)
+        sorter = await self._get_sorter(order_by, asc=ascending)
         stmt = select(self.model).filter_by(**filter_by).order_by(*sorter)
         stmt = await self._paginate(stmt, paginate_from, paginate_to)
         result: Result = await session.execute(stmt)
@@ -156,12 +155,18 @@ class BaseWithSession:
         stmt = delete(self.model).filter_by(**filter_by)
         await session.execute(stmt)
 
-    async def _get_sorter(self, order_by: OrderBy | None) -> list:
+    async def _get_sorter(self, order_by: OrderBy | None, asc: bool = True) -> list:
         if order_by is None:
             return [self.model.id.asc()]
         if isinstance(order_by, str):
-            return [self.model.__table__.c[order_by].asc()]
-        return [self.model.__table__.c[col].asc() for col in order_by]
+            if asc:
+                return [self.model.__table__.c[order_by].asc()]
+            else:
+                return [self.model.__table__.c[order_by].desc()]
+        if asc:
+            return [self.model.__table__.c[col].asc() for col in order_by]
+        else:
+            return [self.model.__table__.c[col].desc() for col in order_by]
 
     @staticmethod
     async def _paginate(stmt: GenerativeSelect, paginate_from: int, paginate_to: int):

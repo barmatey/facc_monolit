@@ -150,7 +150,7 @@ class CellRepo(BaseRepo):
             _ = await self.update_with_session(session, filter_by=filter_, data=data)
             await session.commit()
 
-    async def update_bulk_by_ids(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+    async def update_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
         values = []
         for cell in data:
             c = cell.copy()
