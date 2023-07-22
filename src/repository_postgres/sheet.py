@@ -150,6 +150,31 @@ class CellRepo(BaseRepo):
             _ = await self.update_with_session(session, filter_by=filter_, data=data)
             await session.commit()
 
+    async def update_bulk_by_ids(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+        values = []
+        for cell in data:
+            c = cell.copy()
+            c['cell_id'] = c.pop('id')
+            c['cell_value'] = c.pop('value')
+            c['cell_dtype'] = c.pop('dtype')
+            values.append(c)
+
+        async with db.get_async_session() as session:
+            # Update
+            stmt = (
+                self.model.__table__.update()
+                .where(self.model.sheet_id == sheet_id,
+                       ~self.model.is_readonly,
+                       self.model.id == bindparam('cell_id'),
+                       )
+                .values({
+                    "value": bindparam("cell_value"),
+                    "dtype": bindparam("cell_dtype"),
+                })
+            )
+            _ = await session.execute(stmt, values)
+            await session.commit()
+
 
 class SheetRepo(BaseRepo):
     model = Sheet
@@ -462,60 +487,29 @@ class SheetTableRepo:
     row_model = Row
     col_model = Col
 
-    async def copy_cells(self, sheet_id: core_types.Id_, copy_from: list[entities.CopyCell],
-                         copy_to: list[entities.CopyCell]):
+    async def copy_cells(self, sheet_id: core_types.Id_, data: list[list[entities.Cell]]):
         async with db.get_async_session() as session:
-            # Change row and col indexes
-            if len(copy_from) == 1:
-                records = [x.dict() for x in copy_to]
-                table = pd.DataFrame(records)
-                table['value'] = copy_from[0].value
-                table['dtype'] = copy_from[0].dtype
-            else:
-                records = [x.dict() for x in copy_from]
-                table = pd.DataFrame(records)
-                row_offset = copy_from[0].row_index - copy_to[0].row_index
-                col_offset = copy_from[0].col_index - copy_to[0].col_index
-                table['row_index'] = table['row_index'] - row_offset
-                table['col_index'] = table['col_index'] - col_offset
-
-            # Find target row ids
-            stmt = (
-                select(self.row_model.__table__.c.id,
-                       self.row_model.__table__.c.index)
-                .where(self.row_model.sheet_id == sheet_id,
-                       self.row_model.index.in_(table['row_index']))
-            )
-            result = await session.execute(stmt)
-            target_rows = pd.DataFrame.from_records(result.fetchall(), columns=['row_id_target', 'row_index'])
-
-            # Find target col ids
-            stmt = (
-                select(self.col_model.__table__.c.id,
-                       self.col_model.__table__.c.index)
-                .where(self.col_model.sheet_id == sheet_id,
-                       self.col_model.index.in_(table['col_index']))
-            )
-            result = await session.execute(stmt)
-            target_cols = pd.DataFrame.from_records(result.fetchall(), columns=['col_id_target', 'col_index'])
+            values = [
+                {
+                    "cell_id": pair[1]['id'],
+                    "cell_value": pair[0]['value'],
+                    "cell_dtype": pair[0]['dtype'],
+                } for pair in data
+            ]
 
             # Update
-            table = table.merge(target_rows, on='row_index').merge(target_cols, on='col_index')
-            values = table[['value', 'dtype', 'row_id_target', 'col_id_target', 'sheet_id']].to_dict(orient='records')
             stmt = (
                 self.cell_model.__table__.update()
                 .where(self.cell_model.sheet_id == sheet_id,
                        ~self.cell_model.is_readonly,
-                       self.cell_model.row_id == bindparam('row_id_target'),
-                       self.cell_model.col_id == bindparam('col_id_target'), )
+                       self.cell_model.id == bindparam('cell_id'),
+                       )
                 .values({
-                    "value": bindparam("value"),
-                    "dtype": bindparam("dtype"),
+                    "value": bindparam("cell_value"),
+                    "dtype": bindparam("cell_dtype"),
                 })
             )
             _ = await session.execute(stmt, values)
-            await session.commit()
-
             await session.commit()
 
     async def copy_rows(self, sheet_id: core_types.Id_,

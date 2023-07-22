@@ -2,7 +2,6 @@ import typing
 
 from . import entities
 
-
 SheetRetrieveSchema = entities.SheetRetrieve
 SheetSchema = entities.Sheet
 
@@ -34,8 +33,7 @@ class CopySindexSchema(entities.CopySindex):
     pass
 
 
-class CellSchema(entities.Cell):
-    pass
+CellSchema = entities.Cell
 
 
 class CopyCellSchema(entities.CopyCell):

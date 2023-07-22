@@ -40,8 +40,7 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def copy_cells(self, sheet_id: core_types.Id_, copy_from: list[entities.CopyCell],
-                         copy_to: list[entities.CopyCell]) -> None:
+    async def copy_cells(self, sheet_id: core_types.Id_, data: list[list[entities.Cell]]) -> None:
         pass
 
     @abstractmethod
@@ -94,15 +93,17 @@ class PostgresRepo(Repository):
                         copy_to: list[entities.CopySindex]) -> None:
         await self.sheet_table_repo().copy_cols(sheet_id, copy_from, copy_to)
 
-    async def copy_cells(self, sheet_id: core_types.Id_,
-                         copy_from: list[entities.CopyCell], copy_to: list[entities.CopyCell]) -> None:
-        await self.sheet_table_repo().copy_cells(sheet_id, copy_from, copy_to)
+    async def copy_cells(self, sheet_id: core_types.Id_, data: list[list[entities.Cell]]) -> None:
+        await self.sheet_table_repo().copy_cells(sheet_id, data)
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         await self.sheet_col_repo().update_sindex_size(sheet_id, data)
 
     async def update_cell(self, sheet_id: core_types.Id_, data: entities.UpdateCell) -> None:
         await self.sheet_cell_repo().update(sheet_id, data)
+
+    async def update_cell_bulk(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+        await self.sheet_cell_repo().update_bulk_by_ids(sheet_id, data)
 
     async def delete_rows(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
         await self.sheet_row_repo().delete_bulk(sheet_id, row_ids)

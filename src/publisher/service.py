@@ -1,5 +1,3 @@
-import loguru
-
 from src.report.entities import Group, ExpandedGroup, Report
 from src import core_types
 from src.report import service_crud as report_service
@@ -25,5 +23,4 @@ async def total_recalculate_entities_linked_with_source(source_id: core_types.Id
     linked_reports: list[Report] = await r_service.retrieve_bulk({"source_id": source_id})
     for report in linked_reports:
         group = get_group_by_id(report.group_id)
-        loguru.logger.debug(f'\n{group.sheet_df}')
         _ = await r_service.total_recalculate(report, wire_df, group.sheet_df)

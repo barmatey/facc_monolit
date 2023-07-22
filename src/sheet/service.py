@@ -2,7 +2,7 @@ import typing
 
 import core_types
 
-from . import schema
+from . import schema, entities
 from .repository import Repository, PostgresRepo
 
 
@@ -44,12 +44,14 @@ class SheetService:
                         copy_to: list[schema.CopySindexSchema]) -> None:
         await self.repo().copy_cols(sheet_id, copy_from, copy_to)
 
-    async def copy_cells(self, sheet_id: core_types.Id_,
-                         copy_from: list[schema.CopyCellSchema], copy_to: list[schema.CopyCellSchema]) -> None:
-        await self.repo().copy_cells(sheet_id, copy_from, copy_to)
+    async def copy_cells(self, sheet_id: core_types.Id_, data: list[list[entities.Cell]]) -> None:
+        await self.repo().copy_cells(sheet_id, data)
 
     async def update_cell(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
         await self.repo().update_cell(sheet_id, data)
+
+    async def update_cell_bulk(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+        await self.repo().update_cell_bulk(sheet_id, data)
 
     async def delete_rows(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
         await self.repo().delete_rows(sheet_id, row_ids)

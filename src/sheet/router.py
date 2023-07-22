@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 import core_types
 import helpers
-from . import schema
+from . import schema, entities
 from . import service
 
 router = APIRouter(
@@ -93,10 +93,9 @@ async def copy_cols(sheet_id: core_types.Id_,
 
 @router.patch("/{sheet_id}/copy-cells")
 async def copy_cells(sheet_id: core_types.Id_,
-                     copy_from: list[schema.CopyCellSchema],
-                     copy_to: list[schema.CopyCellSchema],
+                     data: list[list[entities.Cell]],
                      sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
-    await sheet_service.copy_cells(sheet_id, copy_from, copy_to, )
+    await sheet_service.copy_cells(sheet_id, data)
     return 1
 
 
@@ -111,6 +110,13 @@ async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSi
 async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,
                       sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.update_cell(sheet_id, data)
+    return 1
+
+
+@router.patch("/{sheet_id}/update-cell-bulk")
+async def update_cell_bulk(sheet_id: core_types.Id_, data: list[entities.Cell],
+                           sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
+    await sheet_service.update_cell_bulk(sheet_id, data)
     return 1
 
 
