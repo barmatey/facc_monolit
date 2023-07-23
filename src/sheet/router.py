@@ -73,24 +73,6 @@ async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSche
     return JSONResponse(content=sheet_schema)
 
 
-@router.patch("/{sheet_id}/copy-rows")
-async def copy_rows(sheet_id: core_types.Id_,
-                    copy_from: list[schema.CopySindexSchema],
-                    copy_to: list[schema.CopySindexSchema],
-                    sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
-    await sheet_service.copy_rows(sheet_id, copy_from, copy_to)
-    return 1
-
-
-@router.patch("/{sheet_id}/copy-cols")
-async def copy_cols(sheet_id: core_types.Id_,
-                    copy_from: list[schema.CopySindexSchema],
-                    copy_to: list[schema.CopySindexSchema],
-                    sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
-    await sheet_service.copy_cols(sheet_id, copy_from, copy_to)
-    return 1
-
-
 @router.patch("/{sheet_id}/update-col-width")
 async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema,
                            sheet_service: service.SheetService = Depends(service.SheetService)) -> int:

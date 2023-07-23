@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 
 import core_types
 from . import entities
-from repository_postgres import SheetRepo, RowRepo, ColRepo, CellRepo, SheetTableRepo, SheetSorterRepo, \
-    SheetFilterRepo
+from repository_postgres import SheetRepo, RowRepo, ColRepo, CellRepo, SheetSorterRepo, SheetFilterRepo
 
 
 class Repository(ABC):
@@ -28,18 +27,6 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def copy_rows(self, sheet_id: core_types.Id_,
-                        copy_from: list[entities.CopySindex],
-                        copy_to: list[entities.CopySindex]) -> None:
-        pass
-
-    @abstractmethod
-    async def copy_cols(self, sheet_id: core_types.Id_,
-                        copy_from: list[entities.CopySindex],
-                        copy_to: list[entities.CopySindex]) -> None:
-        pass
-
-    @abstractmethod
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         pass
 
@@ -61,7 +48,6 @@ class PostgresRepo(Repository):
     sheet_row_repo = RowRepo
     sheet_col_repo = ColRepo
     sheet_cell_repo = CellRepo
-    sheet_table_repo = SheetTableRepo
     sheet_filter_repo = SheetFilterRepo
     sheet_sorter_repo = SheetSorterRepo
 
@@ -82,16 +68,6 @@ class PostgresRepo(Repository):
 
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
         await self.sheet_sorter_repo().update_col_sorter(data)
-
-    async def copy_rows(self, sheet_id: core_types.Id_,
-                        copy_from: list[entities.CopySindex],
-                        copy_to: list[entities.CopySindex]) -> None:
-        await self.sheet_table_repo().copy_rows(sheet_id, copy_from, copy_to)
-
-    async def copy_cols(self, sheet_id: core_types.Id_,
-                        copy_from: list[entities.CopySindex],
-                        copy_to: list[entities.CopySindex]) -> None:
-        await self.sheet_table_repo().copy_cols(sheet_id, copy_from, copy_to)
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         await self.sheet_col_repo().update_sindex_size(sheet_id, data)
