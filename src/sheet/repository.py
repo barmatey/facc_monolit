@@ -40,15 +40,15 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def copy_cells(self, sheet_id: core_types.Id_, data: list[list[entities.Cell]]) -> None:
-        pass
-
-    @abstractmethod
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         pass
 
     @abstractmethod
     async def update_cell(self, sheet_id: core_types.Id_, data: entities.UpdateCell) -> None:
+        pass
+
+    @abstractmethod
+    async def update_cell_bulk(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
         pass
 
     @abstractmethod
@@ -92,9 +92,6 @@ class PostgresRepo(Repository):
                         copy_from: list[entities.CopySindex],
                         copy_to: list[entities.CopySindex]) -> None:
         await self.sheet_table_repo().copy_cols(sheet_id, copy_from, copy_to)
-
-    async def copy_cells(self, sheet_id: core_types.Id_, data: list[list[entities.Cell]]) -> None:
-        await self.sheet_table_repo().copy_cells(sheet_id, data)
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: entities.UpdateSindexSize) -> None:
         await self.sheet_col_repo().update_sindex_size(sheet_id, data)

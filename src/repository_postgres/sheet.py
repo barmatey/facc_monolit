@@ -487,31 +487,6 @@ class SheetTableRepo:
     row_model = Row
     col_model = Col
 
-    async def copy_cells(self, sheet_id: core_types.Id_, data: list[list[entities.Cell]]):
-        async with db.get_async_session() as session:
-            values = [
-                {
-                    "cell_id": pair[1]['id'],
-                    "cell_value": pair[0]['value'],
-                    "cell_dtype": pair[0]['dtype'],
-                } for pair in data
-            ]
-
-            # Update
-            stmt = (
-                self.cell_model.__table__.update()
-                .where(self.cell_model.sheet_id == sheet_id,
-                       ~self.cell_model.is_readonly,
-                       self.cell_model.id == bindparam('cell_id'),
-                       )
-                .values({
-                    "value": bindparam("cell_value"),
-                    "dtype": bindparam("cell_dtype"),
-                })
-            )
-            _ = await session.execute(stmt, values)
-            await session.commit()
-
     async def copy_rows(self, sheet_id: core_types.Id_,
                         copy_from: list[entities.CopySindex], copy_to: list[entities.CopySindex]) -> None:
         async with db.get_async_session() as session:
