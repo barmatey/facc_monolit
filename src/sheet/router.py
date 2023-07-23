@@ -38,6 +38,7 @@ async def retrieve_scroll_size(sheet_id: core_types.Id_,
 
 
 @router.get("/{sheet_id}/retrieve-unique-cells")
+@helpers.async_timeit
 async def retrieve_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
                               sheet_service: service.SheetService = Depends(service.SheetService),
                               ) -> schema.ColFilterSchema:
@@ -47,6 +48,7 @@ async def retrieve_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
 
 
 @router.patch("/{sheet_id}/update-col-filter")
+@helpers.async_timeit
 async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSchema,
                             sheet_service: service.SheetService = Depends(service.SheetService), ) -> int:
     await sheet_service.update_col_filter(data)
@@ -54,6 +56,7 @@ async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSche
 
 
 @router.delete("/{sheet_id}/clear-all-filters")
+@helpers.async_timeit
 async def clear_all_filters(sheet_id: core_types.Id_,
                             sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.clear_all_filters(sheet_id)
@@ -61,6 +64,7 @@ async def clear_all_filters(sheet_id: core_types.Id_,
 
 
 @router.patch("/{sheet_id}/update-col-sorter")
+@helpers.async_timeit
 async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSchema,
                             sheet_service: service.SheetService = Depends(service.SheetService)) -> JSONResponse:
     await sheet_service.update_col_sorter(data)
@@ -74,6 +78,7 @@ async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSche
 
 
 @router.patch("/{sheet_id}/update-col-width")
+@helpers.async_timeit
 async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema,
                            sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.update_col_size(sheet_id, data)
@@ -81,6 +86,7 @@ async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSi
 
 
 @router.patch("/{sheet_id}/update-cell")
+@helpers.async_timeit
 async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,
                       sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.update_cell(sheet_id, data)
@@ -88,6 +94,7 @@ async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,
 
 
 @router.patch("/{sheet_id}/update-cell-bulk")
+@helpers.async_timeit
 async def update_cell_bulk(sheet_id: core_types.Id_, data: list[entities.Cell],
                            sheet_service: service.SheetService = Depends(service.SheetService)) -> int:
     await sheet_service.update_cell_bulk(sheet_id, data)
