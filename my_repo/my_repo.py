@@ -1,81 +1,44 @@
 from abc import ABC, abstractmethod
 import pandas as pd
-import pydantic
+import typing
+
+from .my_order import OrderBy
 
 from .my_dto import DTO
-from .my_filter import MyFilter
+
+Entity = typing.TypeVar("Entity")
 
 
 class Repository(ABC):
 
     @abstractmethod
-    async def create_one(self, data: DTO) -> DTO:
+    async def create_one(self, data: DTO) -> Entity:
         pass
 
     @abstractmethod
-    async def create_many(self, data: list[DTO]) -> list[DTO]:
+    async def create_many(self, data: list[DTO], without_return=False) -> list[Entity]:
         pass
 
     @abstractmethod
-    async def get_one(self, filter_by: MyFilter) -> DTO:
+    async def get_one(self, filter_by: dict) -> Entity:
         pass
 
     @abstractmethod
-    async def get_many(self, filter_by: MyFilter) -> list[DTO]:
+    async def get_many(self, filter_by: dict, order_by: OrderBy, asc: bool = True) -> list[Entity]:
         pass
 
     @abstractmethod
-    async def get_many_as_frame(self, filter_by: MyFilter) -> pd.DataFrame:
+    async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy, asc: bool = True) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    async def get_many_as_dicts(self, filter_by: MyFilter) -> list[dict]:
+    async def get_many_as_dicts(self, filter_by: dict) -> list[dict]:
         pass
 
     @abstractmethod
-    async def get_many_as_records(self, filter_by: MyFilter) -> list[tuple]:
+    async def get_many_as_records(self, filter_by: dict) -> list[tuple]:
         pass
 
-
-class RepositoryPostgres(Repository):
-    class Meta:
-        entity: DTO
-
-    async def create_one(self, data: DTO) -> DTO:
+    @abstractmethod
+    async def update_one(self, data: DTO, filter_by: dict) -> Entity:
         pass
-
-    async def create_many(self, data: list[DTO]) -> list[DTO]:
-        pass
-
-    async def get_one(self, filter_by: MyFilter) -> DTO:
-        pass
-
-    async def get_many(self, filter_by: MyFilter) -> list[DTO]:
-        pass
-
-    async def get_many_as_frame(self, filter_by: MyFilter) -> pd.DataFrame:
-        pass
-
-    async def get_many_as_dicts(self, filter_by: MyFilter) -> list[dict]:
-        pass
-
-    async def get_many_as_records(self, filter_by: MyFilter) -> list[tuple]:
-        pass
-
-
-"""
-Test
-"""
-
-
-class TestModel(pydantic.BaseModel):
-    field: int
-
-
-class Repo(RepositoryPostgres):
-    pass
-
-
-async def foo():
-    my_repo = Repo()
-    entity: TestModel = await my_repo.get_one(MyFilter())
