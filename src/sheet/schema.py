@@ -4,6 +4,7 @@ from . import entities
 
 SheetRetrieveSchema = entities.SheetRetrieve
 SheetSchema = entities.Sheet
+SheetCreateSchema = entities.SheetCreate
 
 
 class ScrollSizeSchema(entities.ScrollSize):
