@@ -5,11 +5,10 @@ from sqlalchemy.orm import DeclarativeBase
 import pydantic
 from typing import Generic, Type, Callable
 
-from .my_dto import DTO
-from .my_filter import MyFilter
-from .my_order import MyOrder, OrderBy
-from .my_repo import Repository, Entity
-from .my_updater import MyUpdate
+from frepository.postgres_old.my_filter import MyFilter
+from frepository.postgres_old.my_order import MyOrder, OrderBy
+from frepository.my_repo import Entity, DTO
+from frepository.postgres_old.my_return import ReturnValue
 
 
 class Model(DeclarativeBase):
@@ -22,12 +21,11 @@ class Model(DeclarativeBase):
         raise NotImplemented
 
 
-class RepositoryPostgres(Repository, Generic[Entity]):
+class RepositoryPostgres(Generic[Entity]):
     model: Type[Model]
     async_session_maker: Callable
     my_filter = MyFilter
     my_order = MyOrder
-    my_updater = MyUpdate
 
     async def create_one(self, data: DTO) -> Entity:
         async with self.async_session_maker() as session:
@@ -36,9 +34,12 @@ class RepositoryPostgres(Repository, Generic[Entity]):
             await session.commit()
             return entity
 
-    async def create_many(self, data: list[DTO], without_return=False) -> list[Entity]:
+    async def create_many(self,
+                          data: list[DTO],
+                          return_value: ReturnValue = 'ENTITY',
+                          model_keys: list[str] = None) -> list[Entity]:
         async with self.async_session_maker() as session:
-            result = await self.s_create_many(session, data, without_return)
+            result = await self.s_create_many(session, data, return_value, model_keys)
             await session.commit()
             return result
 
@@ -89,7 +90,9 @@ class RepositoryPostgres(Repository, Generic[Entity]):
         await session.flush()
         return model
 
-    async def s_create_many(self, session: AS, data: list[DTO], without_return=False) -> list[Model]:
+    async def s_create_many(self, session: AS, data: list[DTO],
+                            return_value: ReturnValue = 'MODEL',
+                            model_keys: list[str] = None) -> list[Model]:
         if len(data) == 0:
             raise ValueError
         if isinstance(data[0], pydantic.BaseModel):
@@ -97,7 +100,7 @@ class RepositoryPostgres(Repository, Generic[Entity]):
 
         stmt = insert(self.model).returning(self.model)
         result = await session.execute(stmt, data)
-        models = list(result.scalars()) if not without_return else []
+        models = list(result.scalars()) if return_value == 'MODEL' else []
         return models
 
     async def s_get_one(self, session: AS, filter_by: dict) -> Model:
@@ -115,7 +118,7 @@ class RepositoryPostgres(Repository, Generic[Entity]):
         model: Model = rows[0]
         return model
 
-    async def s_get_many(self, session: AS, filter_by: dict, order_by: list = None, asc: bool = True) -> list[Model]:
+    async def s_get_many(self, session: AS, filter_by: dict, order_by: OrderBy = None, asc: bool = True) -> list[Model]:
         filters = self.my_filter(filter_by, self.model).get_filters()
         order = self.my_order(order_by, asc, self.model).get_sorter()
         stmt = select(self.model).where(*filters).order_by(*order)
@@ -123,7 +126,7 @@ class RepositoryPostgres(Repository, Generic[Entity]):
         models = list(result.scalars().fetchall())
         return models
 
-    async def s_get_many_as_frame(self, session, filter_by: dict, order_by: list = None, asc=True) -> pd.DataFrame:
+    async def s_get_many_as_frame(self, session, filter_by: dict, order_by: OrderBy = None, asc=True) -> pd.DataFrame:
         sorter = self.my_order(order_by, asc, self.model).get_sorter()
         filters = self.my_filter(filter_by, self.model)
         stmt = select(self.model.__table__).where(*filters).order_by(*sorter)
