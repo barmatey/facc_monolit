@@ -1,5 +1,6 @@
 import typing
 
+from sqlalchemy import bindparam
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -11,6 +12,10 @@ class MyFilter:
     def get_filters(self) -> list:
         result = []
         for key, value in self.data.items():
-            x = self.model.__table__.c[key] == value
+            if value.startswith('$linked:'):
+                value = value.split('$linked')[1]
+                x = self.model.__table__.c[key] == bindparam(value)
+            else:
+                x = self.model.__table__.c[key] == value
             result.append(x)
         return result

@@ -1,5 +1,5 @@
 import pandas as pd
-from sqlalchemy import insert, select, Result, update
+from sqlalchemy import insert, select, Result, update, bindparam
 from sqlalchemy.ext.asyncio import AsyncSession as AS
 from sqlalchemy.orm import DeclarativeBase
 import pydantic
@@ -9,6 +9,7 @@ from .my_dto import DTO
 from .my_filter import MyFilter
 from .my_order import MyOrder, OrderBy
 from .my_repo import Repository, Entity
+from .my_updater import MyUpdate
 
 
 class Model(DeclarativeBase):
@@ -26,6 +27,7 @@ class RepositoryPostgres(Repository, Generic[Entity]):
     async_session_maker: Callable
     my_filter = MyFilter
     my_order = MyOrder
+    my_updater = MyUpdate
 
     async def create_one(self, data: DTO) -> Entity:
         async with self.async_session_maker() as session:
@@ -46,20 +48,20 @@ class RepositoryPostgres(Repository, Generic[Entity]):
             entity = model.to_entity()
             return entity
 
-    async def get_many(self, filter_by: dict, order_by: list, asc: bool = True) -> list[Entity]:
+    async def get_many(self, filter_by: dict, order_by: OrderBy, asc: bool = True) -> list[Entity]:
         async with self.async_session_maker() as session:
             models = await self.s_get_many(session, filter_by, order_by, asc)
             entity_list = [model.to_entity() for model in models]
             return entity_list
 
-    async def get_many_as_frame(self, filter_by: dict, order_by: list, asc=True) -> pd.DataFrame:
+    async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy, asc=True) -> pd.DataFrame:
         async with self.async_session_maker() as session:
             return await self.s_get_many_as_frame(session, filter_by, order_by)
 
-    async def get_many_as_dicts(self, filter_by: dict) -> list[dict]:
+    async def get_many_as_dicts(self, filter_by: dict, order_by: OrderBy, asc=True) -> list[dict]:
         pass
 
-    async def get_many_as_records(self, filter_by: dict) -> list[tuple]:
+    async def get_many_as_records(self, filter_by: dict, order_by: OrderBy, asc=True) -> list[tuple]:
         pass
 
     async def update_one(self, data: DTO, filter_by: dict) -> Entity:
@@ -68,6 +70,14 @@ class RepositoryPostgres(Repository, Generic[Entity]):
             entity = model.to_entity()
             await session.commit()
             return entity
+
+    async def update_many(self, data: list[DTO], values_mapper: dict,
+                          filter_by: dict, without_return=False) -> list[Entity]:
+        async with self.async_session_maker() as session:
+            models = await self.s_update_many(session, data, values_mapper, filter_by, without_return)
+            entities = [x.to_entity() for x in models]
+            await session.commit()
+            return entities
 
     """With session"""
 
@@ -137,3 +147,18 @@ class RepositoryPostgres(Repository, Generic[Entity]):
             raise LookupError(f"there are to many models with following filter: {filter_by}. "
                               f"Change filter or use bulk method to delete many models")
         return models.pop()
+
+    async def s_update_many(self, session: AS, data: list[DTO], values_mapper: dict,
+                            filter_by: dict, without_return=False) -> list[Model]:
+        if len(data) == 0:
+            raise ValueError
+        if isinstance(data[0], pydantic.BaseModel):
+            data = [x.__dict__ for x in data]
+
+        values_mapper = {key: bindparam(value) for key, value in values_mapper.items(),}
+        filters = self.my_filter(filter_by, self.model).get_filters()
+        stmt = self.model.__table__.update().where(*filters).values(values_mapper)
+        result = await session.execute(stmt, data)
+        if without_return:
+            return []
+        return list(result.fetchall())

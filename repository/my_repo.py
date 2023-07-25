@@ -32,13 +32,17 @@ class Repository(ABC):
         pass
 
     @abstractmethod
-    async def get_many_as_dicts(self, filter_by: dict) -> list[dict]:
+    async def get_many_as_dicts(self, filter_by: dict, order_by: OrderBy, asc=True) -> list[dict]:
         pass
 
     @abstractmethod
-    async def get_many_as_records(self, filter_by: dict) -> list[tuple]:
+    async def get_many_as_records(self, filter_by: dict, order_by: OrderBy, asc=True) -> list[tuple]:
         pass
 
     @abstractmethod
     async def update_one(self, data: DTO, filter_by: dict) -> Entity:
+        pass
+
+    @abstractmethod
+    async def update_many(self, data: list[DTO], mapper: dict, filter_by: dict, without_return=False) -> list[Entity]:
         pass
