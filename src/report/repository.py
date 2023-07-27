@@ -41,9 +41,11 @@ class CrudRepo(ABC):
 
 class GroupRepo(CrudRepo, ABC):
 
+    @abstractmethod
     async def overwrite_linked_sheet(self, instance: entities.Group, data: entities.SheetCreate) -> None:
         raise NotImplemented
 
+    @abstractmethod
     async def get_group_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         raise NotImplemented
 
@@ -51,11 +53,13 @@ class GroupRepo(CrudRepo, ABC):
 class ReportRepo(CrudRepo, ABC):
     repo = postgres.ReportRepo()
 
+    @abstractmethod
     async def overwrite_linked_sheet(self, instance: entities.Report, data: entities.SheetCreate) -> None:
         raise NotImplemented
 
 
 class WireRepo(CrudRepo, ABC):
 
+    @abstractmethod
     async def get_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
         raise NotImplemented

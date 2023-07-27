@@ -1,6 +1,10 @@
+import pandas as pd
+import pandera as pa
+import typing
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core_types import OrderBy
+from repository_postgres.wire import Wire as WireModel
 from src import core_types
 from src.report.repository import Entity
 from src.report.repository import WireRepo
@@ -8,22 +12,36 @@ from src.report.repository import WireRepo
 from .base import BasePostgres
 
 
+class WireSchema(pa.DataFrameModel):
+    source_id: pa.typing.Series[core_types.Id_]
+    date: pa.typing.Series[typing.Any]
+    sender: pa.typing.Series[float]
+    receiver: pa.typing.Series[float]
+    debit: pa.typing.Series[float]
+    credit: pa.typing.Series[float]
+    subconto_first: pa.typing.Series[str] = pa.Field(str_length={'max_value': 800})
+    subconto_second: pa.typing.Series[str] = pa.Field(str_length={'max_value': 800})
+    comment: pa.typing.Series[str] = pa.Field(str_length={'max_value': 800})
+
+    @classmethod
+    async def drop_extra_columns(cls, df: pd.DataFrame) -> pd.DataFrame:
+        df = df[['source_id', 'date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second',
+                 'comment']]
+        return df
+
+
 class WireRepoPostgres(BasePostgres, WireRepo):
-    def __init__(self, session: AsyncSession):
-        super().__init__(session)
+    model = WireModel
 
-    async def create_one(self, data: core_types.DTO) -> Entity:
-        raise NotImplemented
+    async def get_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
+        source_id = filter_by['source_id']
 
-    async def get_one(self, filter_by: dict) -> Entity:
-        raise NotImplemented
+        wire_df = await super().get_many(filter_by, order_by)
+        if len(wire_df) == 0:
+            raise LookupError(f'wires with source_id={source_id} is not found')
 
-    async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
-                       slice_from: int = None, slice_to: int = None):
-        raise NotImplemented
+        WireSchema.validate(wire_df)
+        wire_df = wire_df[
+            ['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
+        return wire_df
 
-    async def update_one(self, data: core_types.DTO, filter_by: dict) -> Entity:
-        raise NotImplemented
-
-    async def delete_one(self, filter_by: dict) -> core_types.Id_:
-        raise NotImplemented

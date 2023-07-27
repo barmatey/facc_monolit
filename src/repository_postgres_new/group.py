@@ -1,4 +1,5 @@
 import pandas as pd
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.report import entities as entities_report
@@ -35,6 +36,7 @@ class GroupRepoPostgres(BasePostgres, GroupRepo):
             drop_index=data.drop_index,
             drop_columns=data.drop_columns,
         )
+        logger.debug(self.__sheet_repo.__dict__)
         sheet = await self.__sheet_repo.create_one(sheet_data)
 
         # Create group model
@@ -83,3 +85,6 @@ class GroupRepoPostgres(BasePostgres, GroupRepo):
             group: Group = await self.retrieve_with_session(session, filter_by={"id": group_id})
             await self.sheet_repo().delete_with_session(session, filter_by={"id": group.sheet_id})
             await session.commit()
+
+    async def get_group_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
+        raise NotImplemented

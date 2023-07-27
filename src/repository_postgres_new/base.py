@@ -164,6 +164,13 @@ class BasePostgres:
         result = self._parse_result_many(result)
         return result
 
+    async def update_one(self, data: core_types.DTO, filter_by: dict) -> Entity:
+        raise NotImplemented
+
+    async def delete_one(self, filter_by: dict) -> core_types.Id_:
+        raise NotImplemented
+
+
 
 class BaseWithSession:
     model: typing.Type[BaseModel]

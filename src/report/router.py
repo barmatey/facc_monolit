@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from loguru import logger
 
 from src import helpers, db
-from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres
+from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres, CategoryRepoPostgres
 from .. import core_types
 from .service_crud import Service, ReportService, GroupService
 from . import schema, enums, entities
@@ -32,7 +32,7 @@ router_group = APIRouter(
 async def create_group(data: schema.GroupCreateSchema) -> schema.GroupSchema:
     async with db.get_async_session() as session:
         group_repo = GroupRepoPostgres(session)
-        wire_repo = WireRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session, returning="FRAME")
         group_service = GroupService(group_repo, wire_repo)
         group = await group_service.create_one(data)
         # await session.commit()
@@ -157,17 +157,19 @@ router_category = APIRouter(
     tags=['Category'],
 )
 
-#
+
 # @router_category.post("/")
 # async def create(data: schema.ReportCategoryCreateSchema,
 #                  service: Service = Depends(CategoryService)) -> entities.ReportCategory:
 #     category: entities.ReportCategory = await service.create(data)
 #     return category
 #
-#
-# @router_category.get("/")
-# async def retrieve_report_categories(service: Service = Depends(CategoryService)
-#                                      ) -> list[schema.ReportCategorySchema]:
-#     result: list[entities.ReportCategory] = await service.retrieve_bulk({})
-#     categories = [category.value for category in result]
-#     return categories
+
+@router_category.get("/")
+async def retrieve_report_categories() -> list[schema.ReportCategorySchema]:
+    async with db.get_async_session() as session:
+        category_repo = CategoryRepoPostgres(session)
+        category_service = Service(category_repo)
+        result: list[entities.ReportCategory] = await category_service.get_many({})
+        categories = [category.value for category in result]
+        return categories
