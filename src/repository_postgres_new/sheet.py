@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import insert, select, func, bindparam, update
+from sqlalchemy import insert, select, func, bindparam, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import core_types
@@ -27,6 +27,48 @@ class SheetSindex(BasePostgres):
         result = await session.execute(stmt, data)
         ids = list(result.scalars())
         return ids
+
+    async def delete_many(self, filter_by: dict) -> None:
+        sheet_id: core_types.Id_ = filter_by['sheet_id']
+        sindex_ids: list[core_types.Id_] = filter_by['row_ids']
+        stmt = (
+            delete(self.model)
+            .where(self.model.sheet_id == sheet_id,
+                   self.model.id.in_(sindex_ids),
+                   ~self.model.is_freeze,
+                   ~self.model.is_readonly,
+                   )
+        )
+        _ = await self._session.execute(stmt)
+        await self._update_scroll_pos_and_indexes(sheet_id)
+
+    async def _update_scroll_pos_and_indexes(self, sheet_id: core_types.Id_) -> None:
+        # Get data
+        filter_by = {"sheet_id": sheet_id}
+        order_by = 'index'
+        sindexes = await super().get_many_as_frame(filter_by, order_by)
+        sindexes = sindexes.rename({"id": "sindex_id"}, axis=1)
+
+        # Calculate new values
+        sindexes.loc[~sindexes['is_filtred'] | sindexes['is_freeze'], 'size'] = 0
+        sindexes['scroll_pos'] = sindexes['size'].cumsum().shift(1).fillna(0)
+        sindexes.loc[sindexes['is_freeze'], 'scroll_pos'] = -1
+        sindexes['index_value'] = range(0, len(sindexes.index))
+
+        # Update data
+        values: list[dict] = sindexes[['sindex_id', 'is_filtred', 'scroll_pos', 'index_value']].to_dict(
+            orient='records')
+        stmt = (
+            self.model.__table__.update()
+            .where(self.model.__table__.c.id == bindparam('sindex_id'))
+            .values(
+                {
+                    "scroll_pos": bindparam("scroll_pos"),
+                    "is_filtred": bindparam("is_filtred"),
+                    "index": bindparam("index_value"),
+                })
+        )
+        _ = await self._session.execute(stmt, values)
 
 
 class SheetRow(SheetSindex):
@@ -320,7 +362,8 @@ class SheetRepoPostgres(SheetRepo):
         await self.__sheet_cell.update_many(sheet_id, data)
 
     async def delete_row_many(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
-        raise NotImplemented
+        filter_by = {"sheet_id": sheet_id, "row_ids": row_ids, }
+        await self.__sheet_row.delete_many(filter_by)
 
     async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> entities.ColFilter:
         return await self.__sheet_filter.get_col_filter(data)
