@@ -140,13 +140,8 @@ class SheetRepo(BasePostgres):
     normalizer = Normalizer
     denormalizer = Denormalizer
 
-    def __init__(self,
-                 session: AsyncSession,
-                 returning: ReturningEntity = "ENTITY",
-                 fields: list[str] = None,
-                 scalars: bool = False,
-                 ):
-        super().__init__(session, returning, fields, scalars)
+    def __init__(self, session: AsyncSession, ):
+        super().__init__(session)
         self.__cell_repo = CellRepo()
         self.__row_repo = RowRepo()
         self.__col_repo = ColRepo()

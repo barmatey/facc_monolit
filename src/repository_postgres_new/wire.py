@@ -1,12 +1,8 @@
 import pandas as pd
 import pandera as pa
 import typing
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from core_types import OrderBy
 from repository_postgres.wire import Wire as WireModel
 from src import core_types
-from src.report.repository import Entity
 from src.report.repository import WireRepo
 
 from .base import BasePostgres
@@ -36,12 +32,12 @@ class WireRepoPostgres(BasePostgres, WireRepo):
     async def get_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
         source_id = filter_by['source_id']
 
-        wire_df = await super().get_many(filter_by, order_by)
+        wire_df = await super().get_many_as_frame(filter_by, order_by)
         if len(wire_df) == 0:
             raise LookupError(f'wires with source_id={source_id} is not found')
 
         WireSchema.validate(wire_df)
-        wire_df = wire_df[
-            ['date', 'sender', 'receiver', 'debit', 'credit', 'subconto_first', 'subconto_second', 'comment']]
+        wire_df = wire_df[['date', 'sender', 'receiver', 'debit', 'credit',
+                           'subconto_first', 'subconto_second', 'comment']]
         return wire_df
 

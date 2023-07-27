@@ -3,7 +3,7 @@ import typing
 import pandas as pd
 import pydantic
 
-from .. import core_types
+from src import core_types
 from . import enums
 from . import entities
 
