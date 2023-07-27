@@ -56,6 +56,7 @@ async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSche
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
         await sheet_service.update_col_filter(data)
+        await session.commit()
         return 1
 
 
@@ -66,6 +67,7 @@ async def clear_all_filters(sheet_id: core_types.Id_,) -> int:
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
         await sheet_service.clear_all_filters(sheet_id)
+        await session.commit()
         return 1
 
 
@@ -82,6 +84,7 @@ async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSche
             to_scroll=data.to_scroll,
         )
         sheet_schema = await sheet_service.get_one(sheet_retrieve_schema)
+        await session.commit()
         return JSONResponse(content=sheet_schema)
 
 
@@ -92,6 +95,7 @@ async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSi
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
         await sheet_service.update_col_size(sheet_id, data)
+        await session.commit()
         return 1
 
 
@@ -108,11 +112,12 @@ async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,) 
 
 @router.patch("/{sheet_id}/update-cell-bulk")
 @helpers.async_timeit
-async def update_cell_bulk(sheet_id: core_types.Id_, data: list[entities.Cell],) -> int:
+async def update_cell_many(sheet_id: core_types.Id_, data: list[entities.Cell],) -> int:
     async with db.get_async_session() as session:
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
         await sheet_service.update_cell_many(sheet_id, data)
+        await session.commit()
         return 1
 
 
@@ -123,4 +128,5 @@ async def delete_rows(sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
         await sheet_service.delete_row_many(sheet_id, row_ids)
+        await session.commit()
         return 1

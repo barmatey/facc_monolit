@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import insert
+from sqlalchemy import insert, select, func, bindparam, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import core_types
@@ -51,25 +51,185 @@ class SheetCell(BasePostgres):
         filter_by = {'id': data.pop('id')} | {'sheet_id': sheet_id, 'is_readonly': False}
         _ = await super().update_one(data, filter_by)
 
-    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
-        raise NotImplemented
+    async def update_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+        values = []
+        for cell in data:
+            c = cell.copy()
+            c['cell_id'] = c.pop('id')
+            c['cell_value'] = c.pop('value')
+            c['cell_dtype'] = c.pop('dtype')
+            values.append(c)
+
+        # Update
+        stmt = (
+            self.model.__table__.update()
+            .where(self.model.sheet_id == sheet_id,
+                   ~self.model.is_readonly,
+                   self.model.id == bindparam('cell_id'),
+                   )
+            .values({
+                "value": bindparam("cell_value"),
+                "dtype": bindparam("cell_dtype"),
+            })
+        )
+        _ = await self._session.execute(stmt, values)
 
 
-class SheetFilter(BasePostgres):
-    model = NotImplemented
+class SheetFilter:
+    __row_model = RowModel
+    __cell_model = CellModel
+
+    def __init__(self, session: AsyncSession):
+        self._session = session
 
     async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> entities.ColFilter:
-        raise NotImplemented
+        stmt = (
+            select(self.__cell_model.value, self.__cell_model.dtype, self.__cell_model.is_filtred)
+            .distinct()
+            .filter_by(sheet_id=data.sheet_id, col_id=data.col_id, is_index=False)
+            .order_by(self.__cell_model.value)
+        )
+        items = await self._session.execute(stmt)
+        columns = [self.__cell_model.value.key, self.__cell_model.dtype.key, self.__cell_model.is_filtred.key]
+        items = pd.DataFrame.from_records(items.fetchall(), columns=columns).to_dict(orient='records')
+        col_filter = entities.ColFilter(col_id=data.col_id, sheet_id=data.sheet_id,
+                                        items=[entities.FilterItem(**x) for x in items])
+        return col_filter
 
     async def update_col_filter(self, data: entities.ColFilter) -> None:
-        raise NotImplemented
+        await self._update_filtred_flag_in_cells(data)
+        await self._update_filtred_flag_and_scroll_pos_in_rows(sheet_id=data.sheet_id)
+
+    async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
+        stmt = update(self.__cell_model).where(self.__cell_model.sheet_id == sheet_id)
+        await self._session.execute(stmt, {"is_filtred": True})
+        await self._update_filtred_flag_and_scroll_pos_in_rows(sheet_id=sheet_id)
+
+    async def _retrieve_total_rows(self, sheet_id: core_types.Id_) -> pd.DataFrame:
+        stmt = (
+            select(
+                self.__row_model.__table__.c.id,
+                self.__row_model.__table__.c.size,
+                self.__row_model.__table__.c.is_freeze,
+                self.__row_model.__table__.c.scroll_pos, )
+            .filter_by(sheet_id=sheet_id)
+            .order_by(self.__row_model.index)
+        )
+        rows = await self._session.execute(stmt)
+        rows = pd.DataFrame.from_records(rows.fetchall(), columns=['row_id', 'size', 'is_freeze', 'scroll_pos'])
+        return rows
+
+    async def _retrieve_filtred_rows(self, sheet_id: core_types.Id_) -> pd.DataFrame:
+        stmt = (
+            select(self.__cell_model.row_id, func.count(self.__cell_model.is_filtred)
+                   .filter(~self.__cell_model.is_filtred))
+            .group_by(self.__cell_model.row_id)
+            .filter(self.__cell_model.sheet_id == sheet_id)
+        )
+        result = await self._session.execute(stmt)
+        filtred_rows = pd.DataFrame.from_records(result.fetchall(), columns=['row_id', 'is_filtred'])
+        filtred_rows['is_filtred'] = ~filtred_rows['is_filtred'].astype(bool)
+        return filtred_rows
+
+    async def _update_filtred_flag_and_scroll_pos_in_rows(self, sheet_id: core_types.Id_) -> None:
+        rows = await self._retrieve_total_rows(sheet_id)
+        filtred_rows = await self._retrieve_filtred_rows(sheet_id)
+
+        if len(rows) != len(filtred_rows):
+            raise Exception
+
+        rows = pd.merge(rows, filtred_rows, on='row_id', how='inner')
+
+        rows.loc[~rows['is_filtred'] | rows['is_freeze'], 'size'] = 0
+        rows['scroll_pos'] = rows['size'].cumsum().shift(1).fillna(0)
+        rows.loc[rows['is_freeze'], 'scroll_pos'] = -1
+
+        values: list[dict] = rows[['row_id', 'is_filtred', 'scroll_pos']].to_dict(orient='records')
+        stmt = (
+            self.__row_model.__table__.update()
+            .where(self.__row_model.__table__.c.id == bindparam('row_id'))
+            .values({"scroll_pos": bindparam("scroll_pos"), "is_filtred": bindparam("is_filtred")})
+        )
+        _ = await self._session.execute(stmt, values)
+
+    async def _update_filtred_flag_in_cells(self, data: entities.ColFilter) -> None:
+        # Convert input data because "value" is reserved word in bindparam function
+        items = [{
+            'cell_value': x.value,
+            'is_filtred': x.is_filtred,
+            'dtype': x.dtype,
+        } for x in data.items]
+
+        stmt = (
+            self.__cell_model.__table__.update()
+            .where(self.__cell_model.__table__.c.value == bindparam('cell_value'),
+                   self.__cell_model.col_id == data.col_id)
+            .values({"is_filtred": bindparam("is_filtred")})
+        )
+        _ = await self._session.execute(stmt, items)
 
 
-class SheetSorter(BasePostgres):
-    model = NotImplemented
+class SheetSorter:
+    __row_model = RowModel
+    __cell_model = CellModel
+
+    def __init__(self, session: AsyncSession):
+        self._session = session
 
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
-        raise NotImplemented
+        sorted_rows = await self._retrieve_sorted_rows(data.sheet_id, data.col_id, data.ascending)
+        filtred_rows = await self._retrieve_filtred_rows(data.sheet_id)
+        await self._update_row_index_and_scroll_pos(sorted_rows, filtred_rows)
+
+    async def _update_row_index_and_scroll_pos(self, sorted_rows: pd.DataFrame, filtred_rows: pd.DataFrame) -> None:
+        merged = pd.merge(filtred_rows, sorted_rows, on='row_id', how='left').sort_values('row_index')
+        merged.loc[merged['is_index'], 'size'] = 0
+        merged['scroll_pos'] = merged['size'].cumsum().shift(1).fillna(0)
+        merged.loc[merged['is_index'], 'scroll_pos'] = -1
+
+        values = merged[['row_id', 'row_index', 'scroll_pos']].to_dict(orient='records')
+
+        stmt = (
+            self.__row_model.__table__.update()
+            .where(self.__row_model.__table__.c.id == bindparam('row_id'))
+            .values({"scroll_pos": bindparam("scroll_pos"), "index": bindparam("row_index")})
+        )
+        _ = await self._session.execute(stmt, values)
+
+    async def _retrieve_filtred_rows(self, sheet_id: core_types.Id_) -> pd.DataFrame:
+        stmt = (
+            select(
+                self.__row_model.__table__.c.id,
+                self.__row_model.__table__.c.size
+            )
+            .where(
+                self.__row_model.sheet_id == sheet_id,
+                self.__row_model.__table__.c.is_filtred)
+        )
+        rows = await self._session.execute(stmt)
+        rows = pd.DataFrame.from_records(rows.fetchall(), columns=['row_id', 'size'])
+        return rows
+
+    async def _retrieve_sorted_rows(self, sheet_id: core_types.Id_, col_id: core_types.Id_, asc: bool) -> pd.DataFrame:
+        # Retrieving
+        stmt = (
+            select(
+                self.__cell_model.__table__.c.row_id,
+                self.__cell_model.__table__.c.value,
+                self.__cell_model.__table__.c.is_index)
+            .where(
+                self.__cell_model.sheet_id == sheet_id,
+                self.__cell_model.col_id == col_id, )
+        )
+        result = await self._session.execute(stmt)
+
+        # Sorting
+        result = pd.DataFrame.from_records(result.fetchall(), columns=['row_id', 'cell_value', 'is_index'])
+        freeze_part = result.loc[result['is_index']]
+        free_part = result.loc[~result['is_index']].sort_values('cell_value', ascending=asc)
+        sorted_df = pd.concat([freeze_part, free_part], ignore_index=True)
+        sorted_df['row_index'] = range(len(sorted_df))
+        return sorted_df
 
 
 class SheetCrud(BasePostgres):
@@ -132,13 +292,14 @@ class SheetCrud(BasePostgres):
 
 
 class SheetRepoPostgres(SheetRepo):
-    model = SheetModel
 
     def __init__(self, session: AsyncSession):
         self.__sheet_crud = SheetCrud(session)
         self.__sheet_cell = SheetCell(session)
         self.__sheet_row = SheetRow(session)
         self.__sheet_col = SheetCol(session)
+        self.__sheet_filter = SheetFilter(session)
+        self.__sheet_sorter = SheetSorter(session)
 
     async def create_one(self, data: schema.SheetCreateSchema) -> core_types.Id_:
         return await self.__sheet_crud.create_one(data)
@@ -156,19 +317,19 @@ class SheetRepoPostgres(SheetRepo):
         await self.__sheet_cell.update_one(sheet_id, data)
 
     async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
-        raise NotImplemented
+        await self.__sheet_cell.update_many(sheet_id, data)
 
     async def delete_row_many(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
         raise NotImplemented
 
     async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> entities.ColFilter:
-        raise NotImplemented
+        return await self.__sheet_filter.get_col_filter(data)
 
     async def update_col_filter(self, data: entities.ColFilter) -> None:
-        raise NotImplemented
+        await self.__sheet_filter.update_col_filter(data)
 
     async def update_col_sorter(self, data: entities.ColSorter) -> None:
-        raise NotImplemented
+        await self.__sheet_sorter.update_col_sorter(data)
 
     async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
-        raise NotImplemented
+        await self.__sheet_filter.clear_all_filters(sheet_id)
