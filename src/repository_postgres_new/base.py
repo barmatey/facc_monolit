@@ -45,7 +45,7 @@ class BasePostgres:
     model: typing.Type[Model] = NotImplemented
 
     def __init__(self, session: AsyncSession, ):
-        self.__session = session
+        self._session = session
 
     def _parse_filters(self, filter_by: dict) -> list:
         result = [self.model.__table__.c[key] == value for key, value in filter_by.items() if value is not None]
@@ -87,7 +87,7 @@ class BasePostgres:
 
     async def create_one(self, data: DTO) -> Model:
         data = self._parse_dto(data)
-        session = self.__session
+        session = self._session
 
         model = self.model(**data)
         session.add(model)
@@ -95,7 +95,7 @@ class BasePostgres:
         return model
 
     async def create_many(self, data: list[DTO]) -> list[Model]:
-        session = self.__session
+        session = self._session
         data = self._parse_dto(data)
         stmt = insert(self.model).returning(self.model)
         result = await session.execute(stmt, data)
@@ -103,7 +103,7 @@ class BasePostgres:
         return result
 
     async def get_one(self, filter_by: dict) -> Model:
-        session = self.__session
+        session = self._session
         filters = self._parse_filters(filter_by)
         stmt = select(self.model).where(*filters)
         result = await session.execute(stmt)
@@ -112,7 +112,7 @@ class BasePostgres:
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
                        slice_from: int = None, slice_to: int = None) -> list[Model]:
-        session = self.__session
+        session = self._session
 
         filters = self._parse_filters(filter_by)
         orders = self._parse_orders(order_by, asc)
@@ -125,7 +125,7 @@ class BasePostgres:
 
     async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy = None, asc=True,
                                 slice_from: int = None, slice_to: int = None) -> pd.DataFrame:
-        session = self.__session
+        session = self._session
 
         filters = self._parse_filters(filter_by)
         orders = self._parse_orders(order_by, asc)

@@ -1,44 +1,44 @@
-import typing
-
 import core_types
 
 from . import schema, entities
-from .repository import Repository, PostgresRepo
+from .repository import SheetRepo
 
 
 class SheetService:
-    repo: typing.Type[Repository] = PostgresRepo
 
-    async def retrieve_sheet(self, data: schema.SheetRetrieveSchema) -> schema.SheetSchema:
-        sheet_schema = await self.repo().retrieve_sheet(data=data)
+    def __init__(self, sheet_repo: SheetRepo):
+        self.sheet_repo = sheet_repo
+
+    async def get_one(self, data: schema.SheetRetrieveSchema) -> schema.SheetSchema:
+        sheet_schema = await self.sheet_repo.get_one(data=data)
         return sheet_schema
 
-    async def retrieve_scroll_size(self, sheet_id: core_types.Id_) -> schema.ScrollSizeSchema:
-        scroll_size = await self.repo().retrieve_scroll_size(sheet_id=sheet_id)
+    async def get_scroll_size(self, sheet_id: core_types.Id_) -> entities.ScrollSize:
+        scroll_size = await self.sheet_repo.get_scroll_size(sheet_id=sheet_id)
         scroll_size = schema.ScrollSizeSchema.from_scroll_size_entity(scroll_size)
         return scroll_size
 
-    async def retrieve_col_filter(self, data: schema.ColFilterRetrieveSchema) -> schema.ColFilterSchema:
-        col_filter = await self.repo().retrieve_col_filter(data)
+    async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> schema.ColFilterSchema:
+        col_filter = await self.sheet_repo.get_col_filter(data)
         return col_filter
 
     async def update_col_filter(self, data: schema.ColFilterSchema) -> None:
-        await self.repo().update_col_filter(data)
+        await self.sheet_repo.update_col_filter(data)
 
     async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
-        await self.repo().clear_all_filters(sheet_id)
+        await self.sheet_repo.clear_all_filters(sheet_id)
 
     async def update_col_sorter(self, data: schema.ColSorterSchema) -> None:
-        await self.repo().update_col_sorter(data)
+        await self.sheet_repo.update_col_sorter(data)
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
-        await self.repo().update_col_size(sheet_id, data)
+        await self.sheet_repo.update_col_size(sheet_id, data)
 
-    async def update_cell(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
-        await self.repo().update_cell(sheet_id, data)
+    async def update_cell(self, sheet_id: core_types.Id_, data: entities.Cell) -> None:
+        await self.sheet_repo.update_cell_one(sheet_id, data)
 
-    async def update_cell_bulk(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
-        await self.repo().update_cell_bulk(sheet_id, data)
+    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+        await self.sheet_repo.update_cell_many(sheet_id, data)
 
-    async def delete_rows(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
-        await self.repo().delete_rows(sheet_id, row_ids)
+    async def delete_row_many(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
+        await self.sheet_repo.delete_row_many(sheet_id, row_ids)

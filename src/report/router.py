@@ -29,13 +29,13 @@ router_group = APIRouter(
 
 @router_group.post("/")
 @helpers.async_timeit
-async def create_group(data: schema.GroupCreateSchema) -> schema.GroupSchema:
+async def create_group(data: schema.GroupCreateSchema) -> entities.Group:
     async with db.get_async_session() as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
         group = await group_service.create_one(data)
-        # await session.commit()
+        await session.commit()
         return group
 
 

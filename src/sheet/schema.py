@@ -18,32 +18,12 @@ class ScrollSizeSchema(entities.ScrollSize):
         )
 
 
-class ColFilterRetrieveSchema(entities.ColFilterRetrieve):
-    pass
-
-
+ColFilterRetrieveSchema = entities.ColFilterRetrieve
 ColFilterSchema = entities.ColFilter
-
-
-class ColSorterSchema(entities.ColSorter):
-    from_scroll: typing.Optional[int]
-    to_scroll: typing.Optional[int]
-
-
-class CopySindexSchema(entities.CopySindex):
-    pass
-
-
+ColSorterSchema = entities.ColSorter
+CopySindexSchema = entities.CopySindex
 CellSchema = entities.Cell
+CopyCellSchema = entities.CopyCell
 
-
-class CopyCellSchema(entities.CopyCell):
-    pass
-
-
-class UpdateSindexSizeSchema(entities.UpdateSindexSize):
-    pass
-
-
-class UpdateCellSchema(entities.UpdateCell):
-    pass
+UpdateSindexSizeSchema = entities.UpdateSindexSize
+UpdateCellSchema = entities.UpdateCell
