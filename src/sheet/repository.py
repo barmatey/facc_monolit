@@ -22,7 +22,7 @@ class SheetRepo(ABC):
         pass
 
     @abstractmethod
-    async def update_cell_one(self, sheet_id: core_types.Id_, data: entities.Cell) -> None:
+    async def update_cell_one(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
         pass
 
     @abstractmethod

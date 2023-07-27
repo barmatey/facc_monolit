@@ -137,7 +137,13 @@ class BasePostgres:
         return result
 
     async def update_one(self, data: core_types.DTO, filter_by: dict) -> Model:
-        raise NotImplemented
+        session = self._session
+        filters = self._parse_filters(filter_by)
+        data = self._parse_dto(data)
+        stmt = update(self.model).where(*filters).values(**data).returning(self.model)
+        result: Result = await session.execute(stmt)
+        models: list[Model] = list(result.scalars())
+        return models[0]
 
     async def delete_one(self, filter_by: dict) -> Model:
         raise NotImplemented

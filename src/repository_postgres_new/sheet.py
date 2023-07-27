@@ -46,8 +46,10 @@ class SheetCell(BasePostgres):
         stmt = insert(self.model).returning(self.model)
         _ = await session.execute(stmt, data)
 
-    async def update_cell_one(self, sheet_id: core_types.Id_, data: entities.Cell) -> None:
-        raise NotImplemented
+    async def update_one(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
+        data = {key: value for key, value in data.dict().items() if value is not None}
+        filter_by = {'id': data.pop('id')} | {'sheet_id': sheet_id, 'is_readonly': False}
+        _ = await super().update_one(data, filter_by)
 
     async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
         raise NotImplemented
@@ -150,8 +152,8 @@ class SheetRepoPostgres(SheetRepo):
     async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
         raise NotImplemented
 
-    async def update_cell_one(self, sheet_id: core_types.Id_, data: entities.Cell) -> None:
-        raise NotImplemented
+    async def update_cell_one(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
+        await self.__sheet_cell.update_one(sheet_id, data)
 
     async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
         raise NotImplemented

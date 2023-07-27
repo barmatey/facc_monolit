@@ -97,11 +97,12 @@ async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSi
 
 @router.patch("/{sheet_id}/update-cell")
 @helpers.async_timeit
-async def update_cell(sheet_id: core_types.Id_, data: entities.Cell,) -> int:
+async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,) -> int:
     async with db.get_async_session() as session:
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
         await sheet_service.update_cell(sheet_id, data)
+        await session.commit()
         return 1
 
 
