@@ -1,6 +1,9 @@
 from fastapi import APIRouter
-from .base import Repository
+
+import helpers
+from .base import BasePostgres
 from src.repository_postgres.group import Group
+from src.repository_postgres.sheet import Cell
 from loguru import logger
 
 router_dev = APIRouter(
@@ -10,8 +13,8 @@ router_dev = APIRouter(
 
 
 @router_dev.get("/")
+@helpers.async_timeit
 async def create_group():
     filter_by = {}
-    result = await Repository(Group, "ENTITY").get_one(filter_by)
-    logger.debug(result)
+    result = await BasePostgres(Cell, "FRAME").get_many(filter_by)
     return 12

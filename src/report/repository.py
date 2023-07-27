@@ -2,8 +2,8 @@ import typing
 from abc import ABC, abstractmethod
 
 import pandas as pd
-from pydantic import BaseModel
 
+from core_types import OrderBy
 from src import core_types
 from src import repository_postgres as postgres
 from . import entities, schema
@@ -17,47 +17,45 @@ Entity = typing.TypeVar(
 
 
 class CrudRepo(ABC):
-    repo: postgres.BaseRepo
+    @abstractmethod
+    async def create_one(self, data: core_types.DTO) -> Entity:
+        raise NotImplemented
 
-    async def create(self, data: core_types.DTO) -> Entity:
-        return await self.repo.create(data)
+    @abstractmethod
+    async def get_one(self, filter_by: dict) -> Entity:
+        raise NotImplemented
 
-    async def retrieve_bulk(self, filter_by: dict, order_by: core_types.OrderBy) -> list[Entity]:
-        return await self.repo.retrieve_bulk(filter_by, order_by)
+    @abstractmethod
+    async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
+                       slice_from: int = None, slice_to: int = None):
+        raise NotImplemented
 
-    async def retrieve(self, filter_by: dict) -> Entity:
-        return await self.repo.retrieve(filter_by)
+    @abstractmethod
+    async def update_one(self, data: core_types.DTO, filter_by: dict) -> Entity:
+        raise NotImplemented
 
-    async def update(self, data: core_types.DTO, filter_by: dict) -> Entity:
-        return await self.repo.update(data, filter_by)
-
-    async def delete(self, filter_by: dict) -> core_types.Id_:
-        return await self.repo.delete(filter_by)
-
-
-class CategoryRepo(CrudRepo):
-    repo = postgres.CategoryRepo()
+    @abstractmethod
+    async def delete_one(self, filter_by: dict) -> core_types.Id_:
+        raise NotImplemented
 
 
-class GroupRepo(CrudRepo):
-    repo = postgres.GroupRepo()
+class GroupRepo(CrudRepo, ABC):
 
     async def overwrite_linked_sheet(self, instance: entities.Group, data: entities.SheetCreate) -> None:
-        await self.repo.overwrite_linked_sheet(instance, data)
+        raise NotImplemented
 
-    async def retrieve_linked_sheet_as_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
-        return await self.repo.retrieve_linked_sheet_as_dataframe(group_id)
+    async def get_group_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
+        raise NotImplemented
 
 
-class ReportRepo(CrudRepo):
+class ReportRepo(CrudRepo, ABC):
     repo = postgres.ReportRepo()
 
-    async def overwrite_linked_sheet(self, instance: entities.Report, data: entities.SheetCreate):
-        await self.repo.overwrite_linked_sheet(instance, data)
+    async def overwrite_linked_sheet(self, instance: entities.Report, data: entities.SheetCreate) -> None:
+        raise NotImplemented
 
 
-class WireRepo(CrudRepo):
-    repo = postgres.WireRepo()
+class WireRepo(CrudRepo, ABC):
 
-    async def retrieve_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
-        return await self.repo.retrieve_bulk_as_dataframe(filter_by, order_by)
+    async def get_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
+        raise NotImplemented

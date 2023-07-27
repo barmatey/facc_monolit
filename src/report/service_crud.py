@@ -13,34 +13,35 @@ DTO = typing.Union[BaseModel]
 
 
 class Service:
-    repo: repository.CrudRepo
 
-    async def create(self, data: BaseModel) -> entities.Entity:
-        return await self.repo.create(data)
+    def __init__(self, repo: repository.CrudRepo):
+        self.repo = repo
 
-    async def retrieve(self, filter_by: dict) -> entities.Entity:
-        return await self.repo.retrieve(filter_by)
+    async def create_one(self, data: BaseModel) -> entities.Entity:
+        return await self.repo.create_one(data)
 
-    async def retrieve_bulk(self, filter_by: dict, order_by: OrderBy = None) -> list[entities.Entity]:
-        return await self.repo.retrieve_bulk(filter_by, order_by)
+    async def get_one(self, filter_by: dict) -> entities.Entity:
+        return await self.repo.get_one(filter_by)
 
-    async def partial_update(self, data: BaseModel, filter_by: dict) -> entities.Entity:
-        return await self.repo.update(data, filter_by)
+    async def get_many(self, filter_by: dict, order_by: OrderBy = None) -> list[entities.Entity]:
+        return await self.repo.get_many(filter_by, order_by)
 
-    async def delete(self, filter_by: dict) -> core_types.Id_:
-        return await self.repo.delete(filter_by)
+    async def update_one(self, data: BaseModel, filter_by: dict) -> entities.Entity:
+        return await self.repo.update_one(data, filter_by)
 
-
-class CategoryService(Service):
-    repo: repository.CrudRepo = repository.CategoryRepo()
+    async def delete_one(self, filter_by: dict) -> core_types.Id_:
+        return await self.repo.delete_one(filter_by)
 
 
 class GroupService(Service):
-    repo = repository.GroupRepo()
-    wire_repo = repository.WireRepo()
 
-    async def create(self, data: schema.GroupCreateSchema) -> entities.Group:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
+    def __init__(self, group_repo: repository.GroupRepo, wire_repo: repository.WireRepo):
+        super().__init__(group_repo)
+        self.group_repo = group_repo
+        self.wire_repo = wire_repo
+
+    async def create_one(self, data: schema.GroupCreateSchema) -> entities.Group:
+        wire_df = await self.wire_repo.get_wire_dataframe(filter_by={"source_id": data.source_id})
         group_df: pd.DataFrame = await get_finrep_service(data.category).create_group(wire_df, data.columns)
 
         group_create = entities.GroupCreate(
@@ -53,11 +54,11 @@ class GroupService(Service):
             drop_columns=False,
             category=data.category,
         )
-        group: entities.Group = await self.repo.create(group_create)
+        group: entities.Group = await self.group_repo.create_one(group_create)
         return group
 
     async def total_recalculate(self, instance: entities.Group, wire_df: pd.DataFrame) -> entities.ExpandedGroup:
-        old_group_df = await self.repo.retrieve_linked_sheet_as_dataframe(instance.id)
+        old_group_df = await self.group_repo.get_group_dataframe(instance.id)
         new_group_df = await get_finrep_service(instance.category).create_group(wire_df, instance.columns)
 
         if len(instance.fixed_columns):
@@ -73,15 +74,18 @@ class GroupService(Service):
             drop_columns=False,
             readonly_all_cells=False
         )
-        await self.repo.overwrite_linked_sheet(instance, data)
+        await self.group_repo.overwrite_linked_sheet(instance, data)
         expanded_group = entities.ExpandedGroup(**instance.dict(), sheet_df=new_group_df)
         return expanded_group
 
 
 class ReportService(Service):
-    repo = repository.ReportRepo()
-    wire_repo = repository.WireRepo()
-    group_repo = repository.GroupRepo()
+
+    def __init__(self, report_repo: repository.ReportRepo,
+                 wire_repo: repository.WireRepo, group_repo: repository.GroupRepo):
+        super().__init__(report_repo)
+        self.wire_repo = wire_repo
+        self.group_repo = group_repo
 
     async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
         wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})

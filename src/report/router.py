@@ -1,10 +1,12 @@
 import enum
 
 from fastapi import APIRouter, Depends
+from loguru import logger
 
-import helpers
+from src import helpers, db
+from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres
 from .. import core_types
-from .service_crud import Service, CategoryService, ReportService, GroupService
+from .service_crud import Service, ReportService, GroupService
 from . import schema, enums, entities
 
 
@@ -27,113 +29,145 @@ router_group = APIRouter(
 
 @router_group.post("/")
 @helpers.async_timeit
-async def create_group(data: schema.GroupCreateSchema,
-                       service: Service = Depends(GroupService)) -> schema.GroupSchema:
-    group = await service.create(data)
-    return group
+async def create_group(data: schema.GroupCreateSchema) -> schema.GroupSchema:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = GroupService(group_repo, wire_repo)
+        group = await group_service.create_one(data)
+        # await session.commit()
+        return group
 
 
 @router_group.get("/{group_id}")
 @helpers.async_timeit
-async def retrieve_group(group_id: core_types.Id_,
-                         service: Service = Depends(GroupService)) -> schema.GroupSchema:
-    group: entities.Group = await service.retrieve({"id": group_id})
-    return group
+async def get_group(group_id: core_types.Id_, ) -> entities.Group:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = GroupService(group_repo, wire_repo)
+        group: entities.Group = await group_service.get_one({"id": group_id})
+        return group
 
 
 @router_group.get("/")
 @helpers.async_timeit
-async def retrieve_group_list(
-        category: enums.CategoryLiteral = None,
-        service: Service = Depends(GroupService)) -> list[schema.GroupSchema]:
-    groups: list[schema.GroupSchema] = await service.retrieve_bulk({})
-    return groups
+async def get_many(category: enums.CategoryLiteral = None) -> list[schema.GroupSchema]:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = GroupService(group_repo, wire_repo)
+        groups: list[entities.Group] = await group_service.get_many({})
+        return groups
 
 
 @router_group.patch("/{group_id}")
 @helpers.async_timeit
-async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema,
-                               service: Service = Depends(GroupService)) -> entities.Group:
-    return await service.partial_update(data, filter_by={"id": group_id})
+async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema) -> entities.Group:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = GroupService(group_repo, wire_repo)
+        updated: entities.Group = await group_service.update_one(data, filter_by={"id": group_id})
+        await session.commit()
+        return updated
 
 
 @router_group.patch("/{group_id}/total-recalculate")
 @helpers.async_timeit
-async def total_recalculate(group_id: core_types.Id_, service: GroupService = Depends(GroupService)) -> entities.Group:
-    group = await service.retrieve({"id": group_id})
-    updated = await service.total_recalculate(group)
-    return updated
+async def total_recalculate(group_id: core_types.Id_) -> entities.Group:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = GroupService(group_repo, wire_repo)
+        instance = group_service.get_one({"id": group_id})
+        updated: entities.Group = await group_service.total_recalculate(instance)
+        await session.commit()
+        return updated
 
 
 @router_group.delete("/{group_id}")
 @helpers.async_timeit
-async def delete_group(group_id: core_types.Id_, service: Service = Depends(GroupService)) -> core_types.Id_:
-    deleted_id = await service.delete({"id": group_id})
-    return deleted_id
+async def delete_group(group_id: core_types.Id_) -> core_types.Id_:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = GroupService(group_repo, wire_repo)
+        deleted_id = await group_service.delete_one({"id": group_id})
+        return deleted_id
 
+
+"""
+REPORT
+"""
 
 router_report = APIRouter(
     prefix="/report",
     tags=['Report'],
 )
 
+#
+# @router_report.post("/")
+# @helpers.async_timeit
+# async def create_report(data: schema.ReportCreateSchema,
+#                         service: Service = Depends(ReportService)) -> schema.ReportSchema:
+#     report = await service.create(data)
+#     return report
+#
+#
+# @router_report.get("/{report_id}")
+# @helpers.async_timeit
+# async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(ReportService)) -> schema.ReportSchema:
+#     report = await service.retrieve({"id": report_id})
+#     return report
+#
+#
+# @router_report.get("/")
+# @helpers.async_timeit
+# async def retrieve_report_list(category: enums.CategoryLiteral = None,
+#                                service: Service = Depends(ReportService)) -> list[schema.ReportSchema]:
+#     reports = await service.retrieve_bulk({"category_id": get_category_id(category)})
+#     return reports
+#
+#
+# @router_report.delete("/{report_id}")
+# @helpers.async_timeit
+# async def delete_report(report_id: core_types.Id_,
+#                         service: Service = Depends(ReportService)) -> core_types.Id_:
+#     deleted_id = await service.delete({"id": report_id})
+#     return deleted_id
+#
+#
+# @router_report.patch("/{report_id}")
+# @helpers.async_timeit
+# async def total_recalculate(report_id: core_types.Id_,
+#                             service: ReportService = Depends(ReportService)) -> entities.Report:
+#     report = await service.retrieve({"id": report_id})
+#     updated = await service.total_recalculate(report)
+#     return updated
+#
+#
 
-@router_report.post("/")
-@helpers.async_timeit
-async def create_report(data: schema.ReportCreateSchema,
-                        service: Service = Depends(ReportService)) -> schema.ReportSchema:
-    report = await service.create(data)
-    return report
-
-
-@router_report.get("/{report_id}")
-@helpers.async_timeit
-async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(ReportService)) -> schema.ReportSchema:
-    report = await service.retrieve({"id": report_id})
-    return report
-
-
-@router_report.get("/")
-@helpers.async_timeit
-async def retrieve_report_list(category: enums.CategoryLiteral = None,
-                               service: Service = Depends(ReportService)) -> list[schema.ReportSchema]:
-    reports = await service.retrieve_bulk({"category_id": get_category_id(category)})
-    return reports
-
-
-@router_report.delete("/{report_id}")
-@helpers.async_timeit
-async def delete_report(report_id: core_types.Id_,
-                        service: Service = Depends(ReportService)) -> core_types.Id_:
-    deleted_id = await service.delete({"id": report_id})
-    return deleted_id
-
-
-@router_report.patch("/{report_id}")
-@helpers.async_timeit
-async def total_recalculate(report_id: core_types.Id_,
-                            service: ReportService = Depends(ReportService)) -> entities.Report:
-    report = await service.retrieve({"id": report_id})
-    updated = await service.total_recalculate(report)
-    return updated
-
+"""
+CATEGORY
+"""
 
 router_category = APIRouter(
     prefix="/category",
     tags=['Category'],
 )
 
-
-@router_category.post("/")
-async def create(data: schema.ReportCategoryCreateSchema,
-                 service: Service = Depends(CategoryService)) -> entities.ReportCategory:
-    category: entities.ReportCategory = await service.create(data)
-    return category
-
-
-@router_category.get("/")
-async def retrieve_report_categories(service: Service = Depends(CategoryService)
-                                     ) -> list[schema.ReportCategorySchema]:
-    result: list[entities.ReportCategory] = await service.retrieve_bulk({})
-    categories = [category.value for category in result]
-    return categories
+#
+# @router_category.post("/")
+# async def create(data: schema.ReportCategoryCreateSchema,
+#                  service: Service = Depends(CategoryService)) -> entities.ReportCategory:
+#     category: entities.ReportCategory = await service.create(data)
+#     return category
+#
+#
+# @router_category.get("/")
+# async def retrieve_report_categories(service: Service = Depends(CategoryService)
+#                                      ) -> list[schema.ReportCategorySchema]:
+#     result: list[entities.ReportCategory] = await service.retrieve_bulk({})
+#     categories = [category.value for category in result]
+#     return categories

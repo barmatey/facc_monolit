@@ -1,38 +1,19 @@
 import typing
 from loguru import logger
 from typing import TypeVar
-from contextlib import asynccontextmanager
 
-import loguru
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
-from sqlalchemy import insert, select, Result, delete, update, GenerativeSelect
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy import ForeignKey
-from sqlalchemy import func
+from sqlalchemy import insert, Result, delete, update, GenerativeSelect
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.ext.asyncio import async_sessionmaker
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import selectinload
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
 
-from sqlalchemy.ext.asyncio import async_sessionmaker
-
+from core_types import OrderBy, DTO
 from src.report import entities
 from src import core_types
-from . import db
-
+import db
 
 Entity = TypeVar(
     'Entity',
@@ -52,9 +33,7 @@ class BaseModel(AsyncAttrs, DeclarativeBase):
         raise NotImplemented
 
 
-OrderBy = typing.Union[str, list[str]]
-DTO = typing.Union[PydanticModel, dict]
-ReturningEntity = typing.Literal["MODEL", "ENTITY", "DICT", "FRAME"]
+ReturningEntity = typing.Literal["MODEL", "ENTITY", "DICT", "FRAME", "FIELD"] | None
 
 Model = TypeVar(
     'Model',
@@ -62,38 +41,128 @@ Model = TypeVar(
 )
 
 
-class Repository:
+class BasePostgres:
+    model: typing.Type[Model] = NotImplemented
+
     def __init__(self,
-                 model: typing.Type[BaseModel],
-                 returning_entity: ReturningEntity = "ENTITY",
+                 session: AsyncSession,
+                 returning: ReturningEntity = "ENTITY",
                  fields: list[str] = None,
                  scalars: bool = False,
-                 session: AsyncSession = None, ):
-        self.__model = model
-        self.__returning_entities = returning_entity
+                 ):
+        self.__session = session
+        self.__returning_entity = returning
         self.__fields = fields
         self.__scalars = scalars
-        self.__session = session
 
-    @asynccontextmanager
-    async def _get_async_session(self):
-        if self.__session is None:
-            async with db.get_async_session() as session:
-                yield session
-        else:
-            yield self.__session
-
-    def get_filters(self, filter_by: dict) -> list:
-        result = [self.__model.__table__.c[key] == value for key, value in filter_by.items() if value is not None]
+    def _get_filters(self, filter_by: dict) -> list:
+        result = [self.model.__table__.c[key] == value for key, value in filter_by.items() if value is not None]
         return result
 
+    def _get_orders(self, order_by: OrderBy | None, asc: bool = True) -> list:
+        if order_by is None:
+            return [self.model.id.asc()]
+        if isinstance(order_by, str):
+            if asc:
+                return [self.model.__table__.c[order_by].asc()]
+            else:
+                return [self.model.__table__.c[order_by].desc()]
+        if asc:
+            return [self.model.__table__.c[col].asc() for col in order_by]
+        else:
+            return [self.model.__table__.c[col].desc() for col in order_by]
+
+    def _get_returning(self) -> list:
+        result = [self.model.id]
+        logger.warning('todo: do it well!')
+        return result
+
+    @staticmethod
+    def _paginate(stmt: GenerativeSelect, paginate_from: int, paginate_to: int):
+        if paginate_from is not None and paginate_to is not None:
+            stmt = stmt.slice(paginate_from, paginate_to)
+        return stmt
+
+    def _parse_result_one(self, model: BaseModel):
+        if self.__returning_entity == "MODEL":
+            result = model
+        elif self.__returning_entity == "ENTITY":
+            return model.to_entity()
+        else:
+            raise ValueError
+        logger.success(f'{model}')
+        return result
+
+    def _parse_result_many(self, result: Result) -> list | pd.DataFrame:
+        if self.__returning_entity == "FRAME":
+            result = pd.DataFrame.from_records(result.fetchall(), columns=self.model.get_columns())
+
+        elif self.__returning_entity == "DICT":
+            result = list(Result.mappings(result))
+
+        elif self.__returning_entity == 'ENTITY':
+            result = [
+                self.model(**x).to_entity()
+                for x in pd.DataFrame
+                .from_records(result.fetchall(), columns=self.model.get_columns())
+                .to_dict(orient='records')
+            ]
+
+        elif self.__returning_entity == 'FIELD':
+            if self.__scalars:
+                result = result.scalars()
+            return result.fetchall()
+
+        elif self.__returning_entity is None:
+            result = []
+
+        else:
+            raise ValueError(f"argument __returning_entity '{self.__returning_entity}' not in {ReturningEntity}")
+
+        return result
+
+    async def create_one(self, data: DTO):
+        if isinstance(data, PydanticModel):
+            data = data.dict()
+
+        session = self.__session
+
+        model = self.model(**data)
+        session.add(model)
+        await session.flush()
+        return self._parse_result_one(model)
+
+    async def create_many(self, data: list[DTO]):
+        session = self.__session
+        if len(data) == 0:
+            raise ValueError
+        if isinstance(data[0], PydanticModel):
+            data = [d.__dict__ for d in data]
+
+        stmt = insert(self.model).returning(*self._get_returning())
+        result = await session.execute(stmt, data)
+        return self._parse_result_many(result)
+
     async def get_one(self, filter_by: dict):
-        async with self._get_async_session() as session:
-            filters = self.get_filters(filter_by)
-            stmt = select(self.__model.__table__).where(*filters)
-            result = await session.execute(stmt)
-            result = result.fetchall()
-            return result
+        session = self.__session
+        filters = self._get_filters(filter_by)
+        stmt = select(self.model).where(*filters)
+        result = await session.execute(stmt)
+        result = result.scalars().fetchall()[0]
+        return self._parse_result_one(result)
+
+    async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
+                       slice_from: int = None, slice_to: int = None):
+        session = self.__session
+
+        filters = self._get_filters(filter_by)
+        orders = self._get_orders(order_by, asc)
+        stmt = select(self.model.__table__).where(*filters).order_by(*orders)
+        stmt = self._paginate(stmt, slice_from, slice_to)
+
+        result = await session.execute(stmt)
+        result = self._parse_result_many(result)
+        return result
 
 
 class BaseWithSession:
