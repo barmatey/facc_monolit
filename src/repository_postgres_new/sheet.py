@@ -87,7 +87,12 @@ class SheetCrud(BasePostgres):
         return sheet.id
 
     async def get_one(self, data: schema.SheetRetrieveSchema) -> entities.Sheet:
-        raise NotImplemented
+        filter_by = {"sheet_id": data.sheet_id, "is_filtred": True, }
+        order_by = 'index'
+        rows = await self.__sheet_row.get_many_as_frame(filter_by, order_by)
+        cols = await self.__sheet_col.get_many_as_frame(filter_by, order_by)
+        cells = await self.__sheet_cell.get_many_as_frame(filter_by)
+        return self._merge_into_sheet_entity(data.sheet_id, rows, cols, cells)
 
     async def _create_rows_cols_and_cells(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
         # Create row, col and cell data from denormalized dataframe
@@ -108,6 +113,21 @@ class SheetCrud(BasePostgres):
             sheet_id=sheet_id, row_id=repeated_row_ids, col_id=repeated_col_ids).to_dict(orient='records')
         _ = await self.__sheet_cell.create_many(cells)
 
+    @staticmethod
+    def _merge_into_sheet_entity(sheet_id, rows, cols, cells, ) -> entities.Sheet:
+        saved_cols = cells.columns.copy()
+        cells = pd.merge(cells, rows[['id', 'index', ]], left_on='row_id', right_on='id', suffixes=('', '_row'))
+        cells = pd.merge(cells, cols[['id', 'index', ]], left_on='col_id', right_on='id', suffixes=('', '_col'))
+        cells = cells.sort_values(['index', 'index_col'])[saved_cols]
+
+        sheet = entities.Sheet(
+            id=sheet_id,
+            rows=rows.to_dict(orient='records'),
+            cols=cols.to_dict(orient='records'),
+            cells=cells.to_dict(orient='records'),
+        )
+        return sheet
+
 
 class SheetRepoPostgres(SheetRepo):
     model = SheetModel
@@ -122,7 +142,7 @@ class SheetRepoPostgres(SheetRepo):
         return await self.__sheet_crud.create_one(data)
 
     async def get_one(self, data: schema.SheetRetrieveSchema) -> entities.Sheet:
-        raise NotImplemented
+        return await self.__sheet_crud.get_one(data)
 
     async def get_scroll_size(self, sheet_id: core_types.Id_) -> entities.ScrollSize:
         raise NotImplemented
