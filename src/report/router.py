@@ -109,15 +109,19 @@ router_report = APIRouter(
 )
 
 
-#
-# @router_report.post("/")
-# @helpers.async_timeit
-# async def create_report(data: schema.ReportCreateSchema,
-#                         service: Service = Depends(ReportService)) -> schema.ReportSchema:
-#     report = await service.create(data)
-#     return report
-#
-#
+@router_report.post("/")
+@helpers.async_timeit
+async def create_report(data: schema.ReportCreateSchema, ) -> entities.Report:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        report_repo = ReportRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        report_service = ReportService(report_repo, wire_repo, group_repo)
+        report: entities.Report = await report_service.create_one(data)
+        await session.commit()
+        return report
+
+
 @router_report.get("/{report_id}")
 @helpers.async_timeit
 async def retrieve_report(report_id: core_types.Id_) -> entities.Report:
@@ -144,13 +148,18 @@ async def retrieve_report_list(category: enums.CategoryLiteral = None) -> list[e
         return reports
 
 
-# @router_report.delete("/{report_id}")
-# @helpers.async_timeit
-# async def delete_report(report_id: core_types.Id_,
-#                         service: Service = Depends(ReportService)) -> core_types.Id_:
-#     deleted_id = await service.delete({"id": report_id})
-#     return deleted_id
-#
+@router_report.delete("/{report_id}")
+@helpers.async_timeit
+async def delete_report(report_id: core_types.Id_,) -> core_types.Id_:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        report_repo = ReportRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        report_service = ReportService(report_repo, wire_repo, group_repo)
+        deleted_id = await report_service.delete_one({"id": report_id})
+        await session.commit()
+        return deleted_id
+
 #
 # @router_report.patch("/{report_id}")
 # @helpers.async_timeit

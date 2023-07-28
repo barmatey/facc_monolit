@@ -87,9 +87,9 @@ class ReportService(Service):
         self.wire_repo = wire_repo
         self.group_repo = group_repo
 
-    async def create(self, data: schema.ReportCreateSchema) -> entities.Report:
-        wire_df = await self.wire_repo.retrieve_wire_dataframe(filter_by={"source_id": data.source_id})
-        group_df = await self.group_repo.retrieve_linked_sheet_as_dataframe(group_id=data.group_id)
+    async def create_one(self, data: schema.ReportCreateSchema) -> entities.Report:
+        wire_df = await self.wire_repo.get_wire_dataframe(filter_by={"source_id": data.source_id})
+        group_df = await self.group_repo.get_linked_dataframe(group_id=data.group_id)
 
         report_df = await get_finrep_service(data.category).create_report(wire_df, group_df, data.interval)
         sheet = entities.SheetCreate(dataframe=report_df, drop_index=False, drop_columns=False, readonly_all_cells=True)
@@ -101,7 +101,7 @@ class ReportService(Service):
             interval=data.interval,
             sheet=sheet,
         )
-        report = await self.repo.create(report_create)
+        report = await self.repo.create_one(report_create)
         return report
 
     async def total_recalculate(self, instance: entities.Report,
