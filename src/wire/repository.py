@@ -4,7 +4,6 @@ import pandas as pd
 import pydantic
 
 from src import core_types
-from repository_postgres import SourceRepo, WireRepo
 from . import entities, schema
 
 
@@ -32,7 +31,6 @@ class Repository(ABC):
 
 
 class SourcePostgres(Repository):
-    source_repo = SourceRepo
 
     async def create(self, data: entities.SourceCreate) -> entities.Entity:
         return await self.source_repo().create(data)
@@ -51,7 +49,6 @@ class SourcePostgres(Repository):
 
 
 class WirePostgres(Repository):
-    wire_repo = WireRepo
 
     async def create(self, data: entities.WireCreate) -> pydantic.BaseModel:
         return await self.wire_repo().create(data)

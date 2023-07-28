@@ -3,9 +3,8 @@ from sqlalchemy import TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 
-from repository_postgres.base import BaseModel
 from src.report import entities
-from .base import BasePostgres
+from .base import BasePostgres, BaseModel
 
 
 class IntervalModel(BaseModel):

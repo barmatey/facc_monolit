@@ -1,13 +1,29 @@
 from enum import Enum
 
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
 import core_types
 from core_types import OrderBy
+from report import enums
 from report.entities import ReportCategory
-from report.repository import Entity
-from repository_postgres.category import Category as CategoryModel
 from src.report.repository import CrudRepo
 
-from .base import BasePostgres
+from .base import BasePostgres, BaseModel
+
+
+class CategoryModel(BaseModel):
+    __tablename__ = "category"
+    value: Mapped[str] = mapped_column(String(30), nullable=False, unique=True)
+
+    def to_category_literal(self) -> enums.CategoryLiteral:
+        return self.value
+
+    def to_entity(self) -> ReportCategory:
+        return ReportCategory(
+            id=self.id,
+            value=self.value,
+        )
 
 
 class CategoryEnum(Enum):

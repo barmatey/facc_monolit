@@ -1,6 +1,7 @@
 import pandas as pd
-from loguru import logger
+from sqlalchemy import String, JSON, Integer, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import mapped_column, Mapped
 
 from core_types import OrderBy
 from report import entities
@@ -9,13 +10,35 @@ from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
 
-from repository_postgres.category import CategoryEnum
-from repository_postgres.group import Group as GroupModel
-
 from src.report.repository import GroupRepo
 
-from .sheet import SheetRepoPostgres
-from .base import BasePostgres
+from .category import CategoryModel, CategoryEnum
+from .sheet import SheetRepoPostgres, SheetModel
+from .base import BasePostgres, BaseModel
+from .source import SourceModel
+
+
+class GroupModel(BaseModel):
+    __tablename__ = "group"
+    title: Mapped[str] = mapped_column(String(30), nullable=False)
+    columns: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    fixed_columns: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey(CategoryModel.id, ondelete='CASCADE'), nullable=False)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey(SourceModel.id, ondelete='CASCADE'), nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='RESTRICT'), nullable=False,
+                                          unique=True)
+
+    def to_entity(self) -> entities_report.Group:
+        converted = entities_report.Group(
+            id=self.id,
+            title=self.title,
+            category=CategoryEnum(self.category_id).name,
+            sheet_id=self.sheet_id,
+            source_id=self.source_id,
+            columns=list(self.columns),
+            fixed_columns=list(self.fixed_columns)
+        )
+        return converted
 
 
 class GroupRepoPostgres(BasePostgres, GroupRepo):

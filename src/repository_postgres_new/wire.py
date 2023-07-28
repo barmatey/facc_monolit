@@ -1,11 +1,45 @@
+from datetime import datetime
+
 import pandas as pd
 import pandera as pa
 import typing
-from repository_postgres.wire import Wire as WireModel
+
+from sqlalchemy import TIMESTAMP, Float, String, Integer, ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
+
 from src import core_types
 from src.report.repository import WireRepo
+from wire.entities import Wire
 
-from .base import BasePostgres
+from .base import BasePostgres, BaseModel
+from .source import SourceModel
+
+
+class WireModel(BaseModel):
+    __tablename__ = "wire"
+    date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
+    sender: Mapped[float] = mapped_column(Float, nullable=False)
+    receiver: Mapped[float] = mapped_column(Float, nullable=False)
+    debit: Mapped[float] = mapped_column(Float, nullable=False)
+    credit: Mapped[float] = mapped_column(Float, nullable=False)
+    subconto_first: Mapped[str] = mapped_column(String(800), nullable=True)
+    subconto_second: Mapped[str] = mapped_column(String(800), nullable=True)
+    comment: Mapped[str] = mapped_column(String(800), nullable=True)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey(SourceModel.id, ondelete='CASCADE'), nullable=False)
+
+    def to_entity(self, **kwargs) -> Wire:
+        return Wire(
+            id=self.id,
+            date=self.date,
+            sender=self.sender,
+            receiver=self.receiver,
+            debit=self.debit,
+            credit=self.credit,
+            subconto_first=self.subconto_first,
+            subconto_second=self.subconto_second,
+            comment=self.comment,
+            source_id=self.source_id,
+        )
 
 
 class WireSchema(pa.DataFrameModel):
@@ -40,4 +74,3 @@ class WireRepoPostgres(BasePostgres, WireRepo):
         wire_df = wire_df[['date', 'sender', 'receiver', 'debit', 'credit',
                            'subconto_first', 'subconto_second', 'comment']]
         return wire_df
-

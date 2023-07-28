@@ -3,9 +3,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-from core_types import OrderBy
-from src import core_types
-from src import repository_postgres as postgres
+from core_types import OrderBy, Id_, DTO
 from . import entities, schema
 
 Entity = typing.TypeVar(
@@ -18,7 +16,7 @@ Entity = typing.TypeVar(
 
 class CrudRepo(ABC):
     @abstractmethod
-    async def create_one(self, data: core_types.DTO) -> Entity:
+    async def create_one(self, data: DTO) -> Entity:
         raise NotImplemented
 
     @abstractmethod
@@ -31,11 +29,11 @@ class CrudRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def update_one(self, data: core_types.DTO, filter_by: dict) -> Entity:
+    async def update_one(self, data: DTO, filter_by: dict) -> Entity:
         raise NotImplemented
 
     @abstractmethod
-    async def delete_one(self, filter_by: dict) -> core_types.Id_:
+    async def delete_one(self, filter_by: dict) -> Id_:
         raise NotImplemented
 
 
@@ -46,13 +44,11 @@ class GroupRepo(CrudRepo, ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def get_linked_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
+    async def get_linked_dataframe(self, group_id: Id_) -> pd.DataFrame:
         raise NotImplemented
 
 
 class ReportRepo(CrudRepo, ABC):
-    repo = postgres.ReportRepo()
-
     @abstractmethod
     async def overwrite_linked_sheet(self, instance: entities.Report, data: entities.SheetCreate) -> None:
         raise NotImplemented
@@ -61,5 +57,5 @@ class ReportRepo(CrudRepo, ABC):
 class WireRepo(CrudRepo, ABC):
 
     @abstractmethod
-    async def get_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
+    async def get_wire_dataframe(self, filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
         raise NotImplemented

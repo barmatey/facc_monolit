@@ -2,7 +2,6 @@ import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
 
 import helpers
-from repository_postgres import WireRepo
 from src import core_types
 from . import schema
 from .service import Service, ServiceSource, ServiceWire
@@ -38,11 +37,10 @@ async def list_source(service: Service = Depends(ServiceSource)):
 
 @router_source.post("/{source_id}")
 @helpers.async_timeit
-async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,
-                                    repo: WireRepo = Depends(WireRepo)) -> int:
+async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,) -> int:
     df = pd.read_csv(file.file, parse_dates=['date'])
     df['date'] = pd.to_datetime(df['date'], utc=True)
-    await repo.bulk_create_wire(source_id, df)
+    # await repo.bulk_create_wire(source_id, df)
     return 1
 
 

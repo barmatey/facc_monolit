@@ -1,19 +1,58 @@
 import numpy as np
 import pandas as pd
-from sqlalchemy import insert, select, func, bindparam, update, delete
+from sqlalchemy import insert, select, func, bindparam, update, delete, Integer, Boolean, ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column
 
 import core_types
-from repository_postgres_new.normalizer import Normalizer, Denormalizer
+from .normalizer import Normalizer, Denormalizer
 from sheet import entities, schema
 from src.sheet.repository import SheetRepo
 
-from .base import BasePostgres, Model
+from .base import BasePostgres, Model, BaseModel
 
-from src.repository_postgres.sheet import Sheet as SheetModel
-from src.repository_postgres.sheet import Row as RowModel
-from src.repository_postgres.sheet import Col as ColModel
-from src.repository_postgres.sheet import Cell as CellModel
+
+class SheetModel(BaseModel):
+    __tablename__ = "sheet"
+
+    def to_entity(self, **kwargs) -> entities.Sheet:
+        raise NotImplemented
+
+
+class RowModel(BaseModel):
+    __tablename__ = "sheet_row"
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_readonly: Mapped[int] = mapped_column(Boolean, nullable=False)
+    is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    index: Mapped[int] = mapped_column(Integer, nullable=False)
+    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False, index=True)
+
+
+class ColModel(BaseModel):
+    __tablename__ = "sheet_col"
+    size: Mapped[int] = mapped_column(Integer, nullable=False)
+    is_readonly: Mapped[int] = mapped_column(Boolean, nullable=False)
+    is_freeze: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    index: Mapped[int] = mapped_column(Integer, nullable=False)
+    scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False, index=True)
+
+
+class CellModel(BaseModel):
+    __tablename__ = "sheet_cell"
+    value: Mapped[str] = mapped_column(String(1000), nullable=True, index=True)
+    dtype: Mapped[str] = mapped_column(String(30), nullable=False)
+    is_readonly: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    is_index: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    color: Mapped[str] = mapped_column(String(16), nullable=True)
+    text_align: Mapped[str] = mapped_column(String(8), default='left')
+    row_id: Mapped[int] = mapped_column(Integer, ForeignKey(RowModel.id, ondelete='CASCADE'), nullable=False, index=True)
+    col_id: Mapped[int] = mapped_column(Integer, ForeignKey(ColModel.id, ondelete='CASCADE'), nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False, index=True)
 
 
 class SheetSindex(BasePostgres):

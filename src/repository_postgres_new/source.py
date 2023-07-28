@@ -3,9 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from sqlalchemy import String, JSON, TIMESTAMP
 
-from src import core_types
 from src.wire import entities
-from .base import BaseRepo, BaseModel
+from .base import BasePostgres, BaseModel
 
 
 def get_wcols():
@@ -22,7 +21,7 @@ def get_wcols():
 
 
 # todo i need to delete all linked sheets when i delete source
-class Source(BaseModel):
+class SourceModel(BaseModel):
     __tablename__ = "source"
     title: Mapped[int] = mapped_column(String(80), nullable=False)
     total_start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.utcnow,
@@ -41,5 +40,5 @@ class Source(BaseModel):
         return result
 
 
-class SourceRepo(BaseRepo):
-    model = Source
+class SourceRepo(BasePostgres):
+    model = SourceModel

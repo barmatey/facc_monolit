@@ -7,7 +7,7 @@ from pydantic import BaseModel as PydanticModel
 from sqlalchemy import insert, Result, delete, update, GenerativeSelect
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core_types import OrderBy, DTO
@@ -21,7 +21,8 @@ Entity = TypeVar(
 )
 
 
-class BaseModel(AsyncAttrs, DeclarativeBase):
+class BaseModel(DeclarativeBase):
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     @classmethod
     def get_columns(cls) -> list[str]:
@@ -31,8 +32,6 @@ class BaseModel(AsyncAttrs, DeclarativeBase):
     def to_entity(self, **kwargs) -> Entity:
         raise NotImplemented
 
-
-ReturningEntity = typing.Literal["MODEL", "ENTITY", "DICT", "FRAME", "FIELD"] | None
 
 Model = TypeVar(
     'Model',

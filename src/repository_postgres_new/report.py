@@ -1,4 +1,6 @@
+from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.core_types import OrderBy, DTO, Id_
 from src.report.entities import Report, Interval
@@ -6,12 +8,35 @@ from src.report.schema import ReportCreateSchema, FullReportCreateSchema
 from src.sheet.schema import SheetCreateSchema
 
 from src.report.repository import ReportRepo, Entity
-from .base import BasePostgres
+from .base import BasePostgres, BaseModel
+from .group import GroupModel
 from .interval import IntervalRepoPostgres, IntervalModel
-from .sheet import SheetRepoPostgres
-from .category import CategoryEnum
+from .sheet import SheetRepoPostgres, SheetModel
+from .category import CategoryEnum, CategoryModel
+from .source import SourceModel
 
-from src.repository_postgres.report import Report as ReportModel
+
+class ReportModel(BaseModel):
+    __tablename__ = 'report'
+    title: Mapped[str] = mapped_column(String(80), nullable=False)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey(CategoryModel.id, ondelete='CASCADE'), nullable=False)
+    group_id: Mapped[int] = mapped_column(Integer, ForeignKey(GroupModel.id, ondelete='CASCADE'), nullable=False)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey(SourceModel.id, ondelete='CASCADE'), nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False,
+                                          unique=True)
+    interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(IntervalModel.id, ondelete='RESTRICT'), nullable=False,
+                                             unique=True)
+
+    def to_entity(self, interval: Interval) -> Report:
+        return Report(
+            id=self.id,
+            category=CategoryEnum(self.category_id).name,
+            title=self.title,
+            group_id=self.group_id,
+            source_id=self.source_id,
+            sheet_id=self.sheet_id,
+            interval=interval.copy()
+        )
 
 
 class ReportRepoPostgres(BasePostgres, ReportRepo):
