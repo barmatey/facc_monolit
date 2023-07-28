@@ -41,7 +41,7 @@ class SheetSindex(BasePostgres):
         _ = await self._session.execute(stmt)
         await self._update_scroll_pos_and_indexes(sheet_id)
 
-    async def update_bulk(self, data: core_types.DTO, filter_by: dict) -> None:
+    async def update_many(self, data: core_types.DTO, filter_by: dict) -> None:
         data: dict = self._parse_dto(data)
         filters = self._parse_filters(filter_by)
         stmt = update(self.model).where(*filters).values(**data)
@@ -304,6 +304,24 @@ class SheetCrud(BasePostgres):
         cells = await self.__sheet_cell.get_many_as_frame(filter_by)
         return self._merge_into_sheet_entity(data.sheet_id, rows, cols, cells)
 
+    async def get_one_as_frame(self, filter_by: dict) -> pd.DataFrame:
+        cells = await self.__sheet_cell.get_many_as_frame(filter_by)
+        rows = await self.__sheet_row.get_many_as_frame(filter_by)
+        cols = await self.__sheet_col.get_many_as_frame(filter_by)
+        denormalizer = self.denormalizer(rows, cols, cells)
+        denormalizer.denormalize()
+        df = denormalizer.get_denormalized()
+        return df
+
+    async def overwrite_one(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
+        # Delete old data
+        filter_by = {"sheet_id": sheet_id}
+        await self.__sheet_row.delete_many(filter_by)
+        await self.__sheet_col.delete_many(filter_by)
+        await self.__sheet_cell.delete_many(filter_by)
+        # Create new data
+        await self._create_rows_cols_and_cells(sheet_id, data)
+
     async def _create_rows_cols_and_cells(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
         # Create row, col and cell data from denormalized dataframe
         normalizer = self.normalizer(**data.dict())
@@ -355,13 +373,26 @@ class SheetRepoPostgres(SheetRepo):
     async def get_one(self, data: schema.SheetRetrieveSchema) -> entities.Sheet:
         return await self.__sheet_crud.get_one(data)
 
+    async def get_one_as_frame(self, sheet_id: core_types.Id_) -> pd.DataFrame:
+        filter_by = {"sheet_id": sheet_id}
+        return await self.__sheet_crud.get_one_as_frame(filter_by)
+
+    async def overwrite_one(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
+        await self.__sheet_crud.overwrite_one(sheet_id, data)
+
+    async def delete_many(self, filter_by: dict) -> None:
+        await self.__sheet_crud.delete_many(filter_by)
+
+    async def delete_one(self, filter_by: dict) -> None:
+        await self.__sheet_crud.delete_one(filter_by)
+
     async def get_scroll_size(self, sheet_id: core_types.Id_) -> entities.ScrollSize:
         raise NotImplemented
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
         filter_by = {'sheet_id': sheet_id, 'id': data.sindex_id}
         data = {"size": data.new_size}
-        await self.__sheet_col.update_bulk(data, filter_by)
+        await self.__sheet_col.update_many(data, filter_by)
 
     async def update_cell_one(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
         await self.__sheet_cell.update_one(sheet_id, data)

@@ -12,7 +12,7 @@ from .category import Category, CategoryEnum
 from .sheet import Sheet
 from .group import Group
 from .source import Source
-from .interval import Interval, IntervalRepo
+from repository_postgres_new.interval import Interval, IntervalRepo
 from .base import BaseRepo, BaseModel
 from .sheet import SheetRepo
 

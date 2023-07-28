@@ -58,7 +58,7 @@ class GroupService(Service):
         return group
 
     async def total_recalculate(self, instance: entities.Group, wire_df: pd.DataFrame) -> entities.ExpandedGroup:
-        old_group_df = await self.group_repo.get_group_dataframe(instance.id)
+        old_group_df = await self.group_repo.get_linked_dataframe(instance.id)
         new_group_df = await get_finrep_service(instance.category).create_group(wire_df, instance.columns)
 
         if len(instance.fixed_columns):

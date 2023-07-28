@@ -40,6 +40,7 @@ GroupSchema = entities.Group
 
 IntervalCreateSchema = entities.IntervalCreate
 
+
 # class IntervalCreateSchema(pydantic.BaseModel):
 #     start_date: pd.Timestamp
 #     end_date: pd.Timestamp
@@ -64,5 +65,7 @@ class ReportCreateSchema(pydantic.BaseModel):
     group_id: core_types.Id_
     source_id: core_types.Id_
 
+
+FullReportCreateSchema = entities.ReportCreate
 
 ReportSchema = entities.Report

@@ -46,7 +46,7 @@ class GroupRepo(CrudRepo, ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def get_group_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
+    async def get_linked_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         raise NotImplemented
 
 

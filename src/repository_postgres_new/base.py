@@ -93,13 +93,11 @@ class BasePostgres:
         await session.flush()
         return model
 
-    async def create_many(self, data: list[DTO]) -> list[Model]:
+    async def create_many(self, data: list[DTO]) -> None:
         session = self._session
         data = self._parse_dto(data)
         stmt = insert(self.model).returning(self.model)
-        result = await session.execute(stmt, data)
-        result = list(result.scalars().fetchall())
-        return result
+        _: Result = await session.execute(stmt, data)
 
     async def get_one(self, filter_by: dict) -> Model:
         session = self._session
@@ -144,13 +142,11 @@ class BasePostgres:
         models: list[Model] = list(result.scalars())
         return models[0]
 
-    async def update_bulk(self, data: DTO, filter_by: dict) -> list[Model]:
+    async def update_many(self, data: DTO, filter_by: dict) -> None:
         data = self._parse_dto(data)
         filters = self._parse_filters(filter_by)
         stmt = update(self.model).where(*filters).values(**data).returning(self.model)
-        result: Result = await self._session.execute(stmt)
-        models: list[Model] = list(result.scalars())
-        return models
+        _: Result = await self._session.execute(stmt)
 
     async def delete_one(self, filter_by: dict) -> Model:
         session = self._session
@@ -160,10 +156,8 @@ class BasePostgres:
         models: list[Model] = list(result.scalars())
         return models[0]
 
-    async def delete_many(self, filter_by: dict) -> list[Model]:
+    async def delete_many(self, filter_by: dict) -> None:
         session = self._session
         filters = self._parse_filters(filter_by)
-        stmt = delete(self.model).where(*filters).returning(self.model)
-        result: Result = await session.execute(stmt)
-        models: list[Model] = list(result.scalars())
-        return models
+        stmt = delete(self.model).where(*filters)
+        _: Result = await session.execute(stmt)

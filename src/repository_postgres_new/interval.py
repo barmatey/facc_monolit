@@ -3,11 +3,12 @@ from sqlalchemy import TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 
+from repository_postgres.base import BaseModel
 from src.report import entities
-from .base import BaseRepo, BaseModel
+from .base import BasePostgres
 
 
-class Interval(BaseModel):
+class IntervalModel(BaseModel):
     __tablename__ = 'interval'
     total_start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
     total_end_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
@@ -30,5 +31,5 @@ class Interval(BaseModel):
         )
 
 
-class IntervalRepo(BaseRepo):
-    model = Interval
+class IntervalRepoPostgres(BasePostgres):
+    model = IntervalModel

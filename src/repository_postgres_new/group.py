@@ -5,18 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core_types import OrderBy
 from report import entities
 from report.entities import Group
-from report.repository import Entity
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
-from src import db
 
 from repository_postgres.category import CategoryEnum
 from repository_postgres.group import Group as GroupModel
 
 from src.report.repository import GroupRepo
 
-from .base import ReturningEntity
 from .sheet import SheetRepoPostgres
 from .base import BasePostgres
 
@@ -57,18 +54,21 @@ class GroupRepoPostgres(BasePostgres, GroupRepo):
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
                        slice_to: int = None) -> list[Group]:
         models = await super().get_many(filter_by, order_by, asc, slice_from, slice_to)
-        groups = [x.to_entity()for x in models]
+        groups = [x.to_entity() for x in models]
         return groups
 
     async def update_one(self, data: core_types.DTO, filter_by: dict) -> Group:
         raise NotImplemented
 
     async def delete_one(self, filter_by: dict) -> core_types.Id_:
-        deleted_model = await super().delete_one(filter_by)
+        deleted_model: GroupModel = await super().delete_one(filter_by)
+        await self.__sheet_repo.delete_one({"id": deleted_model.sheet_id})
         return deleted_model.id
 
     async def overwrite_linked_sheet(self, instance: entities.Group, data: entities.SheetCreate) -> None:
-        raise NotImplemented
+        await self.__sheet_repo.overwrite_one(instance.sheet_id, data)
 
-    async def get_group_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
-        raise NotImplemented
+    async def get_linked_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
+        group: GroupModel = await super().get_one({"id": group_id})
+        df: pd.DataFrame = await self.__sheet_repo.get_one_as_frame(sheet_id=group.sheet_id)
+        return df

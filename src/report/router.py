@@ -3,6 +3,7 @@ import enum
 from fastapi import APIRouter, Depends
 from loguru import logger
 
+from repository_postgres_new.report import ReportRepoPostgres
 from src import helpers, db
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres, CategoryRepoPostgres
 from .. import core_types
@@ -107,6 +108,7 @@ router_report = APIRouter(
     tags=['Report'],
 )
 
+
 #
 # @router_report.post("/")
 # @helpers.async_timeit
@@ -123,14 +125,19 @@ router_report = APIRouter(
 #     return report
 #
 #
-# @router_report.get("/")
-# @helpers.async_timeit
-# async def retrieve_report_list(category: enums.CategoryLiteral = None,
-#                                service: Service = Depends(ReportService)) -> list[schema.ReportSchema]:
-#     reports = await service.retrieve_bulk({"category_id": get_category_id(category)})
-#     return reports
-#
-#
+@router_report.get("/")
+@helpers.async_timeit
+async def retrieve_report_list(category: enums.CategoryLiteral = None) -> list[entities.Report]:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        report_repo = ReportRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        report_service = ReportService(report_repo, wire_repo, group_repo)
+        filter_by = {"category_id": get_category_id(category)}
+        reports: list[entities.Report] = await report_service.get_many(filter_by)
+        return reports
+
+
 # @router_report.delete("/{report_id}")
 # @helpers.async_timeit
 # async def delete_report(report_id: core_types.Id_,
