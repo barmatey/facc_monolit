@@ -28,7 +28,7 @@ class RepositoryCrud(ABC):
         pass
 
     @abstractmethod
-    async def update_one(self, filter_by: dict, data: DTO) -> entities.Entity:
+    async def update_one(self, data: DTO, filter_by: dict, ) -> entities.Entity:
         pass
 
     @abstractmethod

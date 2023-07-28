@@ -61,7 +61,7 @@ class SourceRepoPostgres(BasePostgres, repository.RepositoryCrud):
         sources = [x.to_entity() for x in models]
         return sources
 
-    async def update_one(self, filter_by: dict, data: DTO) -> entities.Source:
+    async def update_one(self, data: DTO, filter_by: dict,) -> entities.Source:
         model: SourceModel = await super().update_one(data, filter_by)
         return model.to_entity()
 

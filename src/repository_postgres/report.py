@@ -26,40 +26,7 @@
 #     sheet_repo = SheetRepo
 #     interval_repo = IntervalRepo
 #
-#     async def create(self, data: e_report.ReportCreate) -> e_report.Report:
-#         async with db.get_async_session() as session:
-#             # Create sheet model
-#             sheet_data = e_sheet.SheetCreate(
-#                 df=data.sheet.dataframe,
-#                 drop_index=data.sheet.drop_index,
-#                 drop_columns=data.sheet.drop_columns,
-#                 readonly_all_cells=data.sheet.readonly_all_cells,
-#             )
-#             sheet_id = await self.sheet_repo().create_with_session(session, sheet_data)
-#
-#             # Create interval model
-#             interval: Interval = await self.interval_repo().create_with_session(session, data.interval)
-#
-#             # Create report model
-#             report_data = dict(
-#                 title=data.title,
-#                 category_id=CategoryEnum[data.category].value,
-#                 source_id=data.source_id,
-#                 group_id=data.group_id,
-#                 interval_id=interval.id,
-#                 sheet_id=sheet_id,
-#             )
-#             report: Report = await self.create_with_session(session, report_data)
-#             session.expunge_all()
-#             await session.commit()
-#             return report.to_entity(interval.to_entity())
-#
-#     async def retrieve(self, filter_by: dict):
-#         async with db.get_async_session() as session:
-#             report: Report = await self.retrieve_with_session(session, filter_by)
-#             interval: Interval = await self.interval_repo().retrieve_with_session(session, {"id": report.interval_id})
-#             return report.to_entity(interval.to_entity())
-#
+
 
 #     async def overwrite_linked_sheet(self, instance: e_report.Report, data: e_report.SheetCreate) -> None:
 #         async with db.get_async_session() as session:
