@@ -11,7 +11,7 @@ async def total_recalculate_entities_linked_with_source(source_id: core_types.Id
 
     wire_df = await w_service.retrieve_bulk_as_dataframe({"source_id": source_id})
 
-    linked_groups: list[Group] = await g_service.retrieve_bulk({"source_id": source_id})
+    linked_groups: list[Group] = await g_service.get_many({"source_id": source_id})
     updated_groups = [await g_service.total_recalculate(group, wire_df) for group in linked_groups]
 
     def get_group_by_id(id_: core_types.Id_) -> ExpandedGroup:
@@ -20,7 +20,7 @@ async def total_recalculate_entities_linked_with_source(source_id: core_types.Id
                 return group
         raise LookupError
 
-    linked_reports: list[Report] = await r_service.retrieve_bulk({"source_id": source_id})
+    linked_reports: list[Report] = await r_service.get_many({"source_id": source_id})
     for report in linked_reports:
         group = get_group_by_id(report.group_id)
         _ = await r_service.total_recalculate(report, wire_df, group.sheet_df)

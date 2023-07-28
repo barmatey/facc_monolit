@@ -11,7 +11,7 @@ from src import core_types
 from src.sheet import entities
 from . import db
 from .base import BaseRepo, BaseModel
-from .normalizer import Normalizer, Denormalizer
+from repository_postgres_new.normalizer import Normalizer, Denormalizer
 
 
 class Sheet(BaseModel):

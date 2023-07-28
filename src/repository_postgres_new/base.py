@@ -144,8 +144,21 @@ class BasePostgres:
         models: list[Model] = list(result.scalars())
         return models[0]
 
+    async def update_bulk(self, data: DTO, filter_by: dict) -> list[Model]:
+        data = self._parse_dto(data)
+        filters = self._parse_filters(filter_by)
+        stmt = update(self.model).where(*filters).values(**data).returning(self.model)
+        result: Result = await self._session.execute(stmt)
+        models: list[Model] = list(result.scalars())
+        return models
+
     async def delete_one(self, filter_by: dict) -> Model:
-        raise NotImplemented
+        session = self._session
+        filters = self._parse_filters(filter_by)
+        stmt = delete(self.model).where(*filters).returning(self.model)
+        result: Result = await session.execute(stmt)
+        models: list[Model] = list(result.scalars())
+        return models[0]
 
     async def delete_many(self, filter_by: dict) -> list[Model]:
         session = self._session

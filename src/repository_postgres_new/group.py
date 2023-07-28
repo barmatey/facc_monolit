@@ -64,7 +64,8 @@ class GroupRepoPostgres(BasePostgres, GroupRepo):
         raise NotImplemented
 
     async def delete_one(self, filter_by: dict) -> core_types.Id_:
-        raise NotImplemented
+        deleted_model = await super().delete_one(filter_by)
+        return deleted_model.id
 
     async def overwrite_linked_sheet(self, instance: entities.Group, data: entities.SheetCreate) -> None:
         raise NotImplemented

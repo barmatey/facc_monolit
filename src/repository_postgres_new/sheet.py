@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
-from loguru import logger
 from sqlalchemy import insert, select, func, bindparam, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import core_types
-from repository_postgres.normalizer import Normalizer, Denormalizer
+from repository_postgres_new.normalizer import Normalizer, Denormalizer
 from sheet import entities, schema
 from src.sheet.repository import SheetRepo
 
@@ -41,6 +40,13 @@ class SheetSindex(BasePostgres):
         )
         _ = await self._session.execute(stmt)
         await self._update_scroll_pos_and_indexes(sheet_id)
+
+    async def update_bulk(self, data: core_types.DTO, filter_by: dict) -> None:
+        data: dict = self._parse_dto(data)
+        filters = self._parse_filters(filter_by)
+        stmt = update(self.model).where(*filters).values(**data)
+        await self._session.execute(stmt)
+        await self._update_scroll_pos_and_indexes(filter_by['sheet_id'])
 
     async def _update_scroll_pos_and_indexes(self, sheet_id: core_types.Id_) -> None:
         # Get data
@@ -353,7 +359,9 @@ class SheetRepoPostgres(SheetRepo):
         raise NotImplemented
 
     async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
-        raise NotImplemented
+        filter_by = {'sheet_id': sheet_id, 'id': data.sindex_id}
+        data = {"size": data.new_size}
+        await self.__sheet_col.update_bulk(data, filter_by)
 
     async def update_cell_one(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
         await self.__sheet_cell.update_one(sheet_id, data)

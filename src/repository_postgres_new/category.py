@@ -36,4 +36,5 @@ class CategoryRepoPostgres(BasePostgres, CrudRepo):
         raise NotImplemented
 
     async def delete_one(self, filter_by: dict) -> core_types.Id_:
-        raise NotImplemented
+        deleted_model = await super().delete_one(filter_by)
+        return deleted_model.id

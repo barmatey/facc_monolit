@@ -94,6 +94,7 @@ async def delete_group(group_id: core_types.Id_) -> core_types.Id_:
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
         deleted_id = await group_service.delete_one({"id": group_id})
+        await session.commit()
         return deleted_id
 
 
