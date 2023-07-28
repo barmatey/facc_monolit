@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from src import core_types
 from src.report.repository import WireRepo
+from src.wire.repository import RepositoryCrud
 from wire.entities import Wire
 
 from .base import BasePostgres, BaseModel
@@ -60,7 +61,7 @@ class WireSchema(pa.DataFrameModel):
         return df
 
 
-class WireRepoPostgres(BasePostgres, WireRepo):
+class WireRepoPostgres(BasePostgres, WireRepo, RepositoryCrud):
     model = WireModel
 
     async def get_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:

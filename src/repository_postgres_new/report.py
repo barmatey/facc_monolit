@@ -1,3 +1,4 @@
+import pandas as pd
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -40,7 +41,7 @@ class ReportModel(BaseModel):
 
 
 class ReportRepoPostgres(BasePostgres, ReportRepo):
-    model = Report
+    model = ReportModel
 
     def __init__(self, session: AsyncSession):
         super().__init__(session)
@@ -73,11 +74,46 @@ class ReportRepoPostgres(BasePostgres, ReportRepo):
         return report_model.to_entity(interval.to_entity())
 
     async def get_one(self, filter_by: dict) -> Report:
-        raise NotImplemented
+        report_model: ReportModel = await super().get_one(filter_by)
+        interval_model: IntervalModel = await self.__interval_repo.get_one({"id": report_model.interval_id})
+        return report_model.to_entity(interval_model.to_entity())
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
                        slice_to: int = None) -> list[Report]:
-        raise NotImplemented
+        report: pd.DataFrame = await self.get_many_as_frame(filter_by, order_by)
+        interval: pd.DataFrame = await self.__interval_repo.get_many_as_frame({})
+
+        report = pd.merge(
+            report,
+            interval.rename({'id': 'interval_id'}, axis=1),
+            on='interval_id',
+        )
+
+        report_entities: list[Report] = []
+
+        for i, row in report.iterrows():
+            report_interval = Interval(
+                id=row['interval_id'],
+                total_start_date=row['total_start_date'],
+                total_end_date=row['total_end_date'],
+                start_date=row['start_date'],
+                end_date=row['end_date'],
+                period_year=row['period_year'],
+                period_month=row['period_month'],
+                period_day=row['period_day'],
+            )
+            report_entity = Report(
+                id=row['id'],
+                title=row['title'],
+                category=CategoryEnum(row['category_id']).name,
+                source_id=row['source_id'],
+                group_id=row['group_id'],
+                interval=report_interval,
+                sheet_id=row['sheet_id'],
+            )
+            report_entities.append(report_entity)
+
+        return report_entities
 
     async def update_one(self, data: DTO, filter_by: dict) -> Report:
         raise NotImplemented

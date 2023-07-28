@@ -1,10 +1,13 @@
 import pandas as pd
-from fastapi import APIRouter, UploadFile, Depends
+from fastapi import APIRouter, UploadFile
+from loguru import logger
 
-import helpers
-from src import core_types
+import db
+from src import core_types, helpers
+from src.repository_postgres_new import SourceRepoPostgres, WireRepoPostgres
 from . import schema
-from .service import Service, ServiceSource, ServiceWire
+from . import entities
+from .service import Service
 
 router_source = APIRouter(
     prefix="/source-db",
@@ -12,36 +15,51 @@ router_source = APIRouter(
 )
 
 
-@router_source.post("/", response_model=schema.SourceSchema)
-async def create_source(data: schema.SourceCreateSchema, service: Service = Depends(ServiceSource)):
-    return await service.create(data)
+@router_source.post("/")
+async def create_source(data: schema.SourceCreateSchema) -> entities.Source:
+    async with db.get_async_session() as session:
+        source_repo = SourceRepoPostgres(session)
+        source_service = Service(source_repo)
+        source: entities.Source = await source_service.create_one(data)
+        return source
 
 
-@router_source.get("/{source_id}", response_model=schema.SourceSchema)
-async def retrieve_source(source_id: core_types.Id_, service: Service = Depends(ServiceSource)):
-    return await service.retrieve(filter_by={"id": source_id})
+@router_source.get("/{source_id}")
+async def retrieve_source(source_id: core_types.Id_) -> entities.Source:
+    async with db.get_async_session() as session:
+        source_repo = SourceRepoPostgres(session)
+        source_service = Service(source_repo)
+        source: entities.Source = await source_service.get_one({"id": source_id})
+        return source
 
 
-@router_source.delete("/{source_id}", response_model=int)
-async def delete_source(source_id: core_types.Id_, service: Service = Depends(ServiceSource)):
-    await service.delete(filter_by={"id": source_id})
-    return 1
+@router_source.delete("/{source_id}")
+async def delete_source(source_id: core_types.Id_) -> core_types.Id_:
+    async with db.get_async_session() as session:
+        source_repo = SourceRepoPostgres(session)
+        source_service = Service(source_repo)
+        deleted_id: core_types.Id_ = await source_service.delete_one({"id": source_id})
+        return deleted_id
 
 
-@router_source.get("/", response_model=list[schema.SourceSchema])
-async def list_source(service: Service = Depends(ServiceSource)):
-    retrieve_params = schema.SourceBulkRetrieveSchema(filter_by={})
-    result = await service.retrieve_list(retrieve_params)
-    return result
+@router_source.get("/")
+async def list_source() -> list[entities.Source]:
+    async with db.get_async_session() as session:
+        source_repo = SourceRepoPostgres(session)
+        source_service = Service(source_repo)
+        sources: list[entities.Source] = await source_service.get_many({})
+        return sources
 
 
 @router_source.post("/{source_id}")
 @helpers.async_timeit
-async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,) -> int:
+async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile, ) -> int:
     df = pd.read_csv(file.file, parse_dates=['date'])
     df['date'] = pd.to_datetime(df['date'], utc=True)
-    # await repo.bulk_create_wire(source_id, df)
-    return 1
+    async with db.get_async_session() as session:
+        wire_repo = WireRepoPostgres(session)
+        _source_service = Service(wire_repo)
+        raise NotImplemented
 
 
 router_wire = APIRouter(
@@ -52,8 +70,12 @@ router_wire = APIRouter(
 
 @router_wire.post("/")
 @helpers.async_timeit
-async def create(data: schema.WireCreateSchema, service: ServiceWire = Depends(ServiceWire)) -> schema.WireSchema:
-    return await service.create(data)
+async def create(data: schema.WireCreateSchema) -> entities.Wire:
+    async with db.get_async_session() as session:
+        wire_repo = SourceRepoPostgres(session)
+        wire_service = Service(wire_repo)
+        created: entities.Wire = await wire_service.create_one(data)
+        return created
 
 
 @router_wire.get("/")
@@ -69,7 +91,7 @@ async def retrieve_list(source_id: core_types.Id_,
                         comment: str = None,
                         paginate_from: int = None,
                         paginate_to: int = None,
-                        service: ServiceWire = Depends(ServiceWire)) -> list[schema.WireSchema]:
+                        ) -> list[entities.Wire]:
     filter_by = {
         "source_id": source_id,
         "date": date,
@@ -81,29 +103,31 @@ async def retrieve_list(source_id: core_types.Id_,
         "subconto_second": subconto_second,
         "comment": comment,
     }
-
-    retrieve_params = schema.WireBulkRetrieveSchema(
-        filter_by=filter_by,
-        order_by=['date', 'sender', 'receiver', ],
-        ascending=True,
-        paginate_from=paginate_from,
-        paginate_to=paginate_to,
-    )
-    return await service.retrieve_list(retrieve_params)
+    async with db.get_async_session() as session:
+        wire_repo = SourceRepoPostgres(session)
+        wire_service = Service(wire_repo)
+        wires: list[entities.Wire] = await wire_service.get_many(filter_by,
+                                                                 slice_from=paginate_from, slice_to=paginate_to)
+        return wires
 
 
 @router_wire.patch("/{wire_id}")
 @helpers.async_timeit
-async def update(wire_id: core_types.Id_, data: schema.WireCreateSchema,
-                 service: ServiceWire = Depends(ServiceWire)) -> schema.WireSchema:
+async def update(wire_id: core_types.Id_, data: schema.WireCreateSchema) -> schema.WireSchema:
     filter_by = {"id": wire_id}
-    updated = await service.update(filter_by, data)
-    return updated
+    async with db.get_async_session() as session:
+        wire_repo = SourceRepoPostgres(session)
+        wire_service = Service(wire_repo)
+        updated = await wire_service.update_one(filter_by, data)
+        return updated
 
 
 @router_wire.delete("/{wire_id}")
 @helpers.async_timeit
-async def delete(wire_id: core_types.Id_, service: ServiceWire = Depends(ServiceWire)) -> int:
+async def delete(wire_id: core_types.Id_) -> int:
     filter_by = {"id": wire_id}
-    await service.delete(filter_by=filter_by)
-    return 1
+    async with db.get_async_session() as session:
+        wire_repo = SourceRepoPostgres(session)
+        wire_service = Service(wire_repo)
+        deleted_id = await wire_service.delete_one(filter_by)
+        return deleted_id

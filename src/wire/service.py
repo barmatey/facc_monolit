@@ -4,35 +4,31 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import pydantic
 
-from src import core_types
+from src.core_types import OrderBy, Id_
 from . import repository, entities
 
 
-class Service(ABC):
-    repo: typing.Type[repository.Repository]
+class Service:
 
-    async def create(self, data: pydantic.BaseModel) -> entities.Entity:
-        return await self.repo().create(data)
+    def __init__(self, crud_repo: repository.RepositoryCrud):
+        self.__crud_repo = crud_repo
 
-    async def retrieve(self, filter_by: dict) -> entities.Entity:
-        return await self.repo().retrieve(filter_by)
+    async def create_one(self, data: pydantic.BaseModel) -> entities.Entity:
+        return await self.__crud_repo.create_one(data)
 
-    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Entity:
-        return await self.repo().update(filter_by, data)
+    async def get_one(self, filter_by: dict) -> entities.Entity:
+        return await self.__crud_repo.get_one(filter_by)
 
-    async def delete(self, filter_by: dict) -> None:
-        await self.repo().delete(filter_by)
+    async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
+                       slice_from: int = None, slice_to: int = None) -> list[entities.Entity]:
+        return await self.__crud_repo.get_many(filter_by, order_by, asc, slice_from, slice_to)
 
-    async def retrieve_list(self, retrieve_params: core_types.DTO) -> list[entities.Entity]:
-        return await self.repo().retrieve_list(retrieve_params)
+    async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy = None, asc=True,
+                                slice_from: int = None, slice_to: int = None) -> pd.DataFrame:
+        return await self.__crud_repo.get_many_as_frame(filter_by, order_by, asc, slice_from, slice_to)
 
+    async def update_one(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Entity:
+        return await self.__crud_repo.update_one(filter_by, data)
 
-class ServiceSource(Service):
-    repo: repository.Repository = repository.SourcePostgres
-
-
-class ServiceWire(Service):
-    repo: repository.Repository = repository.WirePostgres
-
-    async def retrieve_bulk_as_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
-        return await self.repo().retrieve_bulk_as_dataframe(filter_by, order_by)
+    async def delete_one(self, filter_by: dict) -> Id_:
+        return await self.__crud_repo.delete_one(filter_by)

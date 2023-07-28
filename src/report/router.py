@@ -118,13 +118,19 @@ router_report = APIRouter(
 #     return report
 #
 #
-# @router_report.get("/{report_id}")
-# @helpers.async_timeit
-# async def retrieve_report(report_id: core_types.Id_, service: Service = Depends(ReportService)) -> schema.ReportSchema:
-#     report = await service.retrieve({"id": report_id})
-#     return report
-#
-#
+@router_report.get("/{report_id}")
+@helpers.async_timeit
+async def retrieve_report(report_id: core_types.Id_) -> entities.Report:
+    async with db.get_async_session() as session:
+        group_repo = GroupRepoPostgres(session)
+        report_repo = ReportRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        report_service = ReportService(report_repo, wire_repo, group_repo)
+        filter_by = {"id": report_id}
+        report: entities.Report = await report_service.get_one(filter_by)
+        return report
+
+
 @router_report.get("/")
 @helpers.async_timeit
 async def retrieve_report_list(category: enums.CategoryLiteral = None) -> list[entities.Report]:

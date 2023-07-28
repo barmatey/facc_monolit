@@ -1,69 +1,36 @@
 from abc import ABC, abstractmethod
 
 import pandas as pd
-import pydantic
 
-from src import core_types
-from . import entities, schema
+import core_types
+from src.core_types import DTO, OrderBy
+from . import entities
 
 
-class Repository(ABC):
+class RepositoryCrud(ABC):
 
     @abstractmethod
-    async def create(self, data: pydantic.BaseModel) -> entities.Entity:
+    async def create_one(self, data: DTO) -> entities.Entity:
         pass
 
     @abstractmethod
-    async def retrieve(self, filter_by: dict) -> entities.Entity:
+    async def get_one(self, filter_by: dict) -> entities.Entity:
         pass
 
     @abstractmethod
-    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Entity:
+    async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
+                       slice_from: int = None, slice_to: int = None) -> list[entities.Entity]:
         pass
 
     @abstractmethod
-    async def retrieve_list(self, retrieve_params: core_types.DTO) -> list[entities.Entity]:
+    async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy = None, asc=True,
+                                slice_from: int = None, slice_to: int = None) -> pd.DataFrame:
         pass
 
     @abstractmethod
-    async def delete(self, filter_by: dict) -> None:
+    async def update_one(self, filter_by: dict, data: DTO) -> entities.Entity:
         pass
 
-
-class SourcePostgres(Repository):
-
-    async def create(self, data: entities.SourceCreate) -> entities.Entity:
-        return await self.source_repo().create(data)
-
-    async def retrieve(self, filter_by: dict) -> entities.Entity:
-        return await self.source_repo().retrieve(filter_by)
-
-    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Entity:
-        return await self.source_repo().update(data, filter_by)
-
-    async def delete(self, filter_by: dict) -> None:
-        await self.source_repo().delete(filter_by)
-
-    async def retrieve_list(self, retrieve_params: schema.WireBulkRetrieveSchema) -> list[entities.Entity]:
-        return await self.source_repo().retrieve_bulk(**retrieve_params.dict())
-
-
-class WirePostgres(Repository):
-
-    async def create(self, data: entities.WireCreate) -> pydantic.BaseModel:
-        return await self.wire_repo().create(data)
-
-    async def retrieve(self, filter_by: dict) -> pydantic.BaseModel:
-        raise NotImplemented
-
-    async def update(self, filter_by: dict, data: pydantic.BaseModel) -> entities.Wire:
-        return await self.wire_repo().update(data, filter_by)
-
-    async def delete(self, filter_by: dict) -> None:
-        await self.wire_repo().delete(filter_by)
-
-    async def retrieve_list(self, retrieve_params: schema.WireBulkRetrieveSchema) -> list[entities.Wire]:
-        return await self.wire_repo().retrieve_bulk(**retrieve_params.dict())
-
-    async def retrieve_bulk_as_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
-        return await self.wire_repo().retrieve_bulk_as_dataframe(filter_by, order_by)
+    @abstractmethod
+    async def delete_one(self, filter_by: dict) -> core_types.Id_:
+        pass

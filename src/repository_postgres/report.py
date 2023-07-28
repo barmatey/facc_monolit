@@ -60,48 +60,7 @@
 #             interval: Interval = await self.interval_repo().retrieve_with_session(session, {"id": report.interval_id})
 #             return report.to_entity(interval.to_entity())
 #
-#     async def retrieve_bulk(self,
-#                             filter_by: dict,
-#                             order_by: OrderBy = None,
-#                             ascending: bool = True,
-#                             paginate_from: int = None,
-#                             paginate_to: int = None) -> list[e_report.Report]:
-#         async with db.get_async_session() as session:
-#             report: pd.DataFrame = await self.retrieve_bulk_as_dataframe_with_session(session, filter_by, order_by)
-#             interval: pd.DataFrame = await self.interval_repo().retrieve_bulk_as_dataframe_with_session(session, {})
-#
-#             report = pd.merge(
-#                 report,
-#                 interval.rename({'id': 'interval_id'}, axis=1),
-#                 on='interval_id',
-#             )
-#
-#             report_entities: list[e_report.Report] = []
-#
-#             for i, row in report.iterrows():
-#                 report_interval = e_report.Interval(
-#                     id=row['interval_id'],
-#                     total_start_date=row['total_start_date'],
-#                     total_end_date=row['total_end_date'],
-#                     start_date=row['start_date'],
-#                     end_date=row['end_date'],
-#                     period_year=row['period_year'],
-#                     period_month=row['period_month'],
-#                     period_day=row['period_day'],
-#                 )
-#                 report_entity = e_report.Report(
-#                     id=row['id'],
-#                     title=row['title'],
-#                     category=CategoryEnum(row['category_id']).name,
-#                     source_id=row['source_id'],
-#                     group_id=row['group_id'],
-#                     interval=report_interval,
-#                     sheet_id=row['sheet_id'],
-#                 )
-#                 report_entities.append(report_entity)
-#
-#             return report_entities
-#
+
 #     async def overwrite_linked_sheet(self, instance: e_report.Report, data: e_report.SheetCreate) -> None:
 #         async with db.get_async_session() as session:
 #             sheet_data = e_sheet.SheetCreate(
