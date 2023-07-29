@@ -8,7 +8,7 @@ from .conftest import client
 async def test_create_source():
     url = "/source-db"
     data = {
-        "title": "string"
+        "title": "hello"
     }
     response = client.post(url, json=data)
     logger.debug(response.json())
