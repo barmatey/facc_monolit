@@ -7,12 +7,11 @@ import typing
 from sqlalchemy import TIMESTAMP, Float, String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from core_types import OrderBy, Id_, DTO
-from report.repository import Entity
+from src.core_types import OrderBy, Id_, DTO
 from src import core_types
 from src.report.repository import WireRepo
 from src.wire.repository import RepositoryCrud
-from wire.entities import Wire
+from src.wire.entities import Wire
 
 from .base import BasePostgres, BaseModel
 from .source import SourceModel

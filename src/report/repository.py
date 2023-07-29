@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-from core_types import OrderBy, Id_, DTO
+from src.core_types import OrderBy, Id_, DTO
 from . import entities, schema
 
 Entity = typing.TypeVar(

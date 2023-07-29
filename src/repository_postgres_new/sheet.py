@@ -4,11 +4,10 @@ from sqlalchemy import insert, select, func, bindparam, update, delete, Integer,
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
-import core_types
-from .normalizer import Normalizer, Denormalizer
-from sheet import entities, schema
+from src import core_types
+from src.sheet import entities, schema
 from src.sheet.repository import SheetRepo
-
+from .normalizer import Normalizer, Denormalizer
 from .base import BasePostgres, Model, BaseModel
 
 
@@ -27,7 +26,8 @@ class RowModel(BaseModel):
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     index: Mapped[int] = mapped_column(Integer, nullable=False)
     scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
-    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False,
+                                          index=True)
 
 
 class ColModel(BaseModel):
@@ -38,7 +38,8 @@ class ColModel(BaseModel):
     is_filtred: Mapped[bool] = mapped_column(Boolean, nullable=False)
     index: Mapped[int] = mapped_column(Integer, nullable=False)
     scroll_pos: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
-    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False, index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False,
+                                          index=True)
 
 
 class CellModel(BaseModel):
@@ -50,9 +51,12 @@ class CellModel(BaseModel):
     is_index: Mapped[bool] = mapped_column(Boolean, nullable=False)
     color: Mapped[str] = mapped_column(String(16), nullable=True)
     text_align: Mapped[str] = mapped_column(String(8), default='left')
-    row_id: Mapped[int] = mapped_column(Integer, ForeignKey(RowModel.id, ondelete='CASCADE'), nullable=False, index=True)
-    col_id: Mapped[int] = mapped_column(Integer, ForeignKey(ColModel.id, ondelete='CASCADE'), nullable=False, index=True)
-    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False, index=True)
+    row_id: Mapped[int] = mapped_column(Integer, ForeignKey(RowModel.id, ondelete='CASCADE'), nullable=False,
+                                        index=True)
+    col_id: Mapped[int] = mapped_column(Integer, ForeignKey(ColModel.id, ondelete='CASCADE'), nullable=False,
+                                        index=True)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False,
+                                          index=True)
 
 
 class SheetSindex(BasePostgres):

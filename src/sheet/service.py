@@ -1,4 +1,4 @@
-import core_types
+from  src import core_types
 
 from . import schema, entities
 from .repository import SheetRepo

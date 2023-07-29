@@ -2,7 +2,7 @@ import typing
 
 import pydantic
 
-import core_types
+from src import core_types
 from . import entities
 
 SourceSchema = entities.Source

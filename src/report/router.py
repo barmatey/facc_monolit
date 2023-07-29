@@ -3,7 +3,7 @@ import enum
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from repository_postgres_new.report import ReportRepoPostgres
+from src.repository_postgres_new.report import ReportRepoPostgres
 from src import helpers, db
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres, CategoryRepoPostgres
 from .. import core_types
@@ -30,8 +30,8 @@ router_group = APIRouter(
 
 @router_group.post("/")
 @helpers.async_timeit
-async def create_group(data: schema.GroupCreateSchema) -> entities.Group:
-    async with db.get_async_session() as session:
+async def create_group(data: schema.GroupCreateSchema, get_asession=Depends(db.get_async_session)) -> entities.Group:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
@@ -42,8 +42,8 @@ async def create_group(data: schema.GroupCreateSchema) -> entities.Group:
 
 @router_group.get("/{group_id}")
 @helpers.async_timeit
-async def get_group(group_id: core_types.Id_, ) -> entities.Group:
-    async with db.get_async_session() as session:
+async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session) ) -> entities.Group:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
@@ -53,8 +53,8 @@ async def get_group(group_id: core_types.Id_, ) -> entities.Group:
 
 @router_group.get("/")
 @helpers.async_timeit
-async def get_groups(category: enums.CategoryLiteral = None) -> list[entities.Group]:
-    async with db.get_async_session() as session:
+async def get_groups(category: enums.CategoryLiteral = None, get_asession=Depends(db.get_async_session)) -> list[entities.Group]:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
@@ -64,8 +64,8 @@ async def get_groups(category: enums.CategoryLiteral = None) -> list[entities.Gr
 
 @router_group.patch("/{group_id}")
 @helpers.async_timeit
-async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema) -> entities.Group:
-    async with db.get_async_session() as session:
+async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema, get_asession=Depends(db.get_async_session)) -> entities.Group:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
@@ -76,8 +76,8 @@ async def partial_update_group(group_id: core_types.Id_, data: schema.GroupParti
 
 @router_group.patch("/{group_id}/total-recalculate")
 @helpers.async_timeit
-async def total_recalculate(group_id: core_types.Id_) -> entities.Group:
-    async with db.get_async_session() as session:
+async def total_recalculate(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Group:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
@@ -89,8 +89,8 @@ async def total_recalculate(group_id: core_types.Id_) -> entities.Group:
 
 @router_group.delete("/{group_id}")
 @helpers.async_timeit
-async def delete_group(group_id: core_types.Id_) -> core_types.Id_:
-    async with db.get_async_session() as session:
+async def delete_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> core_types.Id_:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
@@ -111,8 +111,8 @@ router_report = APIRouter(
 
 @router_report.post("/")
 @helpers.async_timeit
-async def create_report(data: schema.ReportCreateSchema, ) -> entities.Report:
-    async with db.get_async_session() as session:
+async def create_report(data: schema.ReportCreateSchema, get_asession=Depends(db.get_async_session) ) -> entities.Report:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         report_repo = ReportRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
@@ -124,8 +124,8 @@ async def create_report(data: schema.ReportCreateSchema, ) -> entities.Report:
 
 @router_report.get("/{report_id}")
 @helpers.async_timeit
-async def retrieve_report(report_id: core_types.Id_) -> entities.Report:
-    async with db.get_async_session() as session:
+async def retrieve_report(report_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Report:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         report_repo = ReportRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
@@ -137,8 +137,8 @@ async def retrieve_report(report_id: core_types.Id_) -> entities.Report:
 
 @router_report.get("/")
 @helpers.async_timeit
-async def retrieve_report_list(category: enums.CategoryLiteral = None) -> list[entities.Report]:
-    async with db.get_async_session() as session:
+async def retrieve_report_list(category: enums.CategoryLiteral = None, get_asession=Depends(db.get_async_session)) -> list[entities.Report]:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         report_repo = ReportRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
@@ -150,8 +150,8 @@ async def retrieve_report_list(category: enums.CategoryLiteral = None) -> list[e
 
 @router_report.delete("/{report_id}")
 @helpers.async_timeit
-async def delete_report(report_id: core_types.Id_,) -> core_types.Id_:
-    async with db.get_async_session() as session:
+async def delete_report(report_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> core_types.Id_:
+    async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         report_repo = ReportRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
@@ -189,8 +189,8 @@ router_category = APIRouter(
 #
 
 @router_category.get("/")
-async def retrieve_report_categories() -> list[schema.ReportCategorySchema]:
-    async with db.get_async_session() as session:
+async def retrieve_report_categories(get_asession=Depends(db.get_async_session)) -> list[schema.ReportCategorySchema]:
+    async with get_asession as session:
         category_repo = CategoryRepoPostgres(session)
         category_service = Service(category_repo)
         result: list[entities.ReportCategory] = await category_service.get_many({})

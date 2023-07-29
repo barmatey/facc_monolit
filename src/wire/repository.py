@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-import core_types
+from src import core_types
 from src.core_types import DTO, OrderBy
 from . import entities
 

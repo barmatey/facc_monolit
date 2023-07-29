@@ -3,10 +3,10 @@ from enum import Enum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
-import core_types
-from core_types import OrderBy
-from report import enums
-from report.entities import ReportCategory
+from src import core_types
+from src.core_types import OrderBy
+from src.report import enums
+from src.report.entities import ReportCategory
 from src.report.repository import CrudRepo
 
 from .base import BasePostgres, BaseModel

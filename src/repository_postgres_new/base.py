@@ -1,16 +1,14 @@
 import typing
-from loguru import logger
 from typing import TypeVar
 
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
 from sqlalchemy import insert, Result, delete, update, GenerativeSelect
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core_types import OrderBy, DTO
+from src.core_types import OrderBy, DTO
 from src.report import entities
 from src import core_types
 

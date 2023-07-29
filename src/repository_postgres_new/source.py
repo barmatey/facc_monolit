@@ -5,8 +5,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from sqlalchemy import String, JSON, TIMESTAMP
 
-import core_types
-from core_types import DTO, OrderBy
+from src import core_types
+from src.core_types import DTO, OrderBy
 from src.wire import entities, repository
 from .base import BasePostgres, BaseModel
 
