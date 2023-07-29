@@ -74,7 +74,7 @@ router_wire = APIRouter(
 @helpers.async_timeit
 async def create(data: schema.WireCreateSchema) -> entities.Wire:
     async with db.get_async_session() as session:
-        wire_repo = SourceRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
         wire_service = Service(wire_repo)
         created: entities.Wire = await wire_service.create_one(data)
         await session.commit()

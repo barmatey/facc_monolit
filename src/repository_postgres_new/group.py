@@ -3,9 +3,9 @@ from sqlalchemy import String, JSON, Integer, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import mapped_column, Mapped
 
-from core_types import OrderBy
-from report import entities
-from report.entities import Group
+from src.core_types import OrderBy
+from src.report import entities
+from src.report.entities import Group
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
