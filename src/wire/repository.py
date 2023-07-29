@@ -14,6 +14,10 @@ class RepositoryCrud(ABC):
         pass
 
     @abstractmethod
+    async def create_many(self, data: list[DTO]) -> None:
+        pass
+
+    @abstractmethod
     async def get_one(self, filter_by: dict) -> entities.Entity:
         pass
 
