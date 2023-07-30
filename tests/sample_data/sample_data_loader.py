@@ -19,7 +19,7 @@ def load_source_values() -> list[dict]:
 
 def load_wire_values() -> list[dict]:
     path = Path(f"{BASE_PATH}/wire_table.csv")
-    data = pd.read_csv(path)
+    data = pd.read_csv(path, encoding='utf-8')
     data['date'] = pd.to_datetime(data['date'])
     data = data.to_dict(orient='records')
     return data
