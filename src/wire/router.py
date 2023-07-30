@@ -26,12 +26,21 @@ async def create_source(data: schema.SourceCreateSchema, get_asession=Depends(db
 
 
 @router_source.get("/{source_id}")
-async def retrieve_source(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Source:
+async def get_one_source(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Source:
     async with get_asession as session:
         source_repo = SourceRepoPostgres(session)
         source_service = CrudService(source_repo)
         source: entities.Source = await source_service.get_one({"id": source_id})
         return source
+
+
+@router_source.get("/")
+async def get_many_sources(get_asession=Depends(db.get_async_session)) -> list[entities.Source]:
+    async with get_asession as session:
+        source_repo = SourceRepoPostgres(session)
+        source_service = CrudService(source_repo)
+        sources: list[entities.Source] = await source_service.get_many({})
+        return sources
 
 
 @router_source.delete("/{source_id}")
@@ -42,15 +51,6 @@ async def delete_source(source_id: core_types.Id_, get_asession=Depends(db.get_a
         deleted_id: core_types.Id_ = await source_service.delete_one({"id": source_id})
         await session.commit()
         return deleted_id
-
-
-@router_source.get("/")
-async def list_source(get_asession=Depends(db.get_async_session)) -> list[entities.Source]:
-    async with get_asession as session:
-        source_repo = SourceRepoPostgres(session)
-        source_service = CrudService(source_repo)
-        sources: list[entities.Source] = await source_service.get_many({})
-        return sources
 
 
 @router_source.post("/{source_id}")
@@ -76,7 +76,7 @@ router_wire = APIRouter(
 
 @router_wire.post("/")
 @helpers.async_timeit
-async def create(data: schema.WireCreateSchema, get_asession=Depends(db.get_async_session)) -> entities.Wire:
+async def create_one(data: schema.WireCreateSchema, get_asession=Depends(db.get_async_session)) -> entities.Wire:
     async with get_asession as session:
         wire_repo = WireRepoPostgres(session)
         wire_service = CrudService(wire_repo)
@@ -98,18 +98,18 @@ async def get_one(wire_id: core_types.Id_, get_asession=Depends(db.get_async_ses
 
 @router_wire.get("/")
 @helpers.async_timeit
-async def retrieve_list(source_id: core_types.Id_,
-                        date: pd.Timestamp = None,
-                        sender: float = None,
-                        receiver: float = None,
-                        debit: float = None,
-                        credit: float = None,
-                        subconto_first: str = None,
-                        subconto_second: str = None,
-                        comment: str = None,
-                        paginate_from: int = None,
-                        paginate_to: int = None,
-                        get_asession=Depends(db.get_async_session)) -> list[entities.Wire]:
+async def get_many(source_id: core_types.Id_,
+                   date: pd.Timestamp = None,
+                   sender: float = None,
+                   receiver: float = None,
+                   debit: float = None,
+                   credit: float = None,
+                   subconto_first: str = None,
+                   subconto_second: str = None,
+                   comment: str = None,
+                   paginate_from: int = None,
+                   paginate_to: int = None,
+                   get_asession=Depends(db.get_async_session)) -> list[entities.Wire]:
     filter_by = {
         "source_id": source_id,
         "date": date,
@@ -144,7 +144,7 @@ async def partial_update_one(wire_id: core_types.Id_, data: schema.WirePartialUp
 
 @router_wire.delete("/{wire_id}")
 @helpers.async_timeit
-async def delete(wire_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> int:
+async def delete_one(wire_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> int:
     filter_by = {"id": wire_id}
     async with get_asession as session:
         wire_repo = WireRepoPostgres(session)

@@ -38,6 +38,20 @@ async def test_get_many_sources():
     assert response.json()[0]['title'] == "hello"
 
 
+@pytest.mark.asyncio
+async def test_delete_one_source():
+    # Create
+    url = "/source-db"
+    data = {"title": "Source for delete"}
+    source = client.post(url, json=data).json()
+
+    # Delete
+    url = f"/source-db/{source['id']}"
+    response = client.delete(url)
+    assert response.status_code == 200
+    assert response.json() == source['id']
+
+
 # @pytest.mark.asyncio
 # async def test_append_wires_from_csv():
 #     url = "/source-db/1"
