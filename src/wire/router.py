@@ -85,6 +85,16 @@ async def create_one(data: schema.WireCreateSchema, get_asession=Depends(db.get_
         return created
 
 
+@router_wire.post("/many")
+@helpers.async_timeit
+async def create_many_wires(data: list[schema.WireCreateSchema], get_asession=Depends(db.get_async_session)) -> None:
+    async with get_asession as session:
+        wire_repo = WireRepoPostgres(session)
+        wire_service = CrudService(wire_repo)
+        await wire_service.create_many(data)
+        await session.commit()
+
+
 @router_wire.get("/{wire_id}")
 @helpers.async_timeit
 async def get_one(wire_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Wire:
