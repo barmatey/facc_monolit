@@ -83,11 +83,7 @@ async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSche
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
         await sheet_service.update_col_sorter(data)
-        sheet_retrieve_schema = schema.SheetRetrieveSchema(
-            sheet_id=sheet_id,
-            from_scroll=data.from_scroll,
-            to_scroll=data.to_scroll,
-        )
+        sheet_retrieve_schema = schema.SheetRetrieveSchema(sheet_id=sheet_id)
         sheet_schema = await sheet_service.get_one(sheet_retrieve_schema)
         await session.commit()
         return JSONResponse(content=sheet_schema)
@@ -107,8 +103,8 @@ async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSi
 
 @router.patch("/{sheet_id}/update-cell")
 @helpers.async_timeit
-async def update_cell(sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema,
-                      get_asession=Depends(db.get_async_session)) -> JSONResponse:
+async def partial_update_cell(sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema,
+                              get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         try:
             sheet_repo = SheetRepoPostgres(session)
