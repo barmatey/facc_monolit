@@ -76,6 +76,15 @@ class BasePostgres:
         raise TypeError
 
     @staticmethod
+    def _drop_nans(data: dict | list[dict]) -> dict | list[dict]:
+        if isinstance(data, dict):
+            return {key: value for key, value in data.items() if value is not None}
+        return [
+            {key: value for key, value in x.items() if value is not None}
+            for x in data
+        ]
+
+    @staticmethod
     def _paginate(stmt: GenerativeSelect, paginate_from: int, paginate_to: int):
         if paginate_from is not None and paginate_to is not None:
             stmt = stmt.slice(paginate_from, paginate_to)
@@ -134,6 +143,7 @@ class BasePostgres:
         session = self._session
         filters = self._parse_filters(filter_by)
         data = self._parse_dto(data)
+        data = self._drop_nans(data)
         stmt = update(self.model).where(*filters).values(**data).returning(self.model)
         result: Result = await session.execute(stmt)
         models: list[Model] = list(result.scalars())

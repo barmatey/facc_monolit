@@ -56,7 +56,7 @@ async def list_source(get_asession=Depends(db.get_async_session)) -> list[entiti
 @router_source.post("/{source_id}")
 @helpers.async_timeit
 async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,
-                                    get_asession=Depends(db.get_async_session) ) -> int:
+                                    get_asession=Depends(db.get_async_session)) -> int:
     df = pd.read_csv(file.file, parse_dates=['date'])
     df['date'] = pd.to_datetime(df['date'], utc=True)
     df['source_id'] = source_id
@@ -83,6 +83,17 @@ async def create(data: schema.WireCreateSchema, get_asession=Depends(db.get_asyn
         created: entities.Wire = await wire_service.create_one(data)
         await session.commit()
         return created
+
+
+@router_wire.get("/{wire_id}")
+@helpers.async_timeit
+async def get_one(wire_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Wire:
+    async with get_asession as session:
+        wire_repo = WireRepoPostgres(session)
+        wire_service = CrudService(wire_repo)
+        filter_by = {"id": wire_id}
+        wire: entities.Wire = await wire_service.get_one(filter_by)
+        return wire
 
 
 @router_wire.get("/")
@@ -120,8 +131,8 @@ async def retrieve_list(source_id: core_types.Id_,
 
 @router_wire.patch("/{wire_id}")
 @helpers.async_timeit
-async def update(wire_id: core_types.Id_, data: schema.WireCreateSchema,
-                 get_asession=Depends(db.get_async_session)) -> schema.WireSchema:
+async def partial_update_one(wire_id: core_types.Id_, data: schema.WirePartialUpdateSchema,
+                             get_asession=Depends(db.get_async_session)) -> schema.WireSchema:
     filter_by = {"id": wire_id}
     async with get_asession as session:
         wire_repo = WireRepoPostgres(session)
