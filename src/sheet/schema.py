@@ -1,6 +1,9 @@
 import typing
 
-from . import entities
+from pydantic import BaseModel
+
+import core_types
+from . import entities, enums
 
 SheetRetrieveSchema = entities.SheetRetrieve
 SheetSchema = entities.Sheet
@@ -27,3 +30,15 @@ CopyCellSchema = entities.CopyCell
 
 UpdateSindexSizeSchema = entities.UpdateSindexSize
 UpdateCellSchema = entities.UpdateCell
+
+
+class PartialUpdateCellSchema(BaseModel):
+    id: core_types.Id_
+    sheet_id: core_types.Id_
+    value: typing.Optional[str]
+    dtype: typing.Optional[enums.Dtype]
+    is_readonly: typing.Optional[bool]
+    is_filtred: typing.Optional[bool]
+    is_index: typing.Optional[bool]
+    text_align: typing.Optional[enums.CellTextAlign]
+    color: typing.Optional[str]

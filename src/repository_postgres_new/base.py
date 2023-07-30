@@ -147,6 +147,8 @@ class BasePostgres:
         stmt = update(self.model).where(*filters).values(**data).returning(self.model)
         result: Result = await session.execute(stmt)
         models: list[Model] = list(result.scalars())
+        if len(models) != 1:
+            raise LookupError
         return models[0]
 
     async def update_many(self, data: DTO, filter_by: dict) -> None:

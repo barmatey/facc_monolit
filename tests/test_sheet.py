@@ -6,7 +6,7 @@ from sqlalchemy import insert
 
 from src.repository_postgres_new.normalizer import Normalizer
 from src.repository_postgres_new.sheet import RowModel, ColModel, CellModel, SheetModel
-from .conftest import override_get_async_session
+from .conftest import override_get_async_session, client
 
 
 @pytest_asyncio.fixture(autouse=True, scope='module')
@@ -57,5 +57,28 @@ async def insert_fake_sheet():
 
 
 @pytest.mark.asyncio
-async def test_start():
-    assert 1 == 1
+async def test_update_cell():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/update-cell"
+    data = {
+        "id": 6,
+        "sheet_id": sheet_id,
+        "value": "New value",
+        "dtype": "TEXT",
+    }
+    response = client.patch(url, json=data)
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_update_freeze_cell_return_423():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/update-cell"
+    data = {
+        "id": 0,
+        "sheet_id": sheet_id,
+        "value": "New value",
+        "dtype": "TEXT",
+    }
+    response = client.patch(url, json=data)
+    assert response.status_code == 423

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 
 from src.repository_postgres_new.sheet import SheetRepoPostgres
@@ -14,8 +14,8 @@ router = APIRouter(
 
 @router.get("/{sheet_id}")
 @helpers.async_timeit
-async def retrieve_sheet(sheet_id: core_types.Id_, from_scroll: int = None, to_scroll: int = None,
-                         get_asession=Depends(db.get_async_session)) -> JSONResponse:
+async def get_one_sheet(sheet_id: core_types.Id_, from_scroll: int = None, to_scroll: int = None,
+                        get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
@@ -42,8 +42,8 @@ async def retrieve_scroll_size(sheet_id: core_types.Id_,
 
 @router.get("/{sheet_id}/retrieve-unique-cells")
 @helpers.async_timeit
-async def retrieve_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
-                              get_asession=Depends(db.get_async_session)) -> schema.ColFilterSchema:
+async def get_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
+                         get_asession=Depends(db.get_async_session)) -> schema.ColFilterSchema:
     async with get_asession as session:
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)
@@ -107,14 +107,17 @@ async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSi
 
 @router.patch("/{sheet_id}/update-cell")
 @helpers.async_timeit
-async def update_cell(sheet_id: core_types.Id_, data: schema.UpdateCellSchema,
-                      get_asession=Depends(db.get_async_session)) -> int:
+async def update_cell(sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema,
+                      get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        await sheet_service.update_cell(sheet_id, data)
-        await session.commit()
-        return 1
+        try:
+            sheet_repo = SheetRepoPostgres(session)
+            sheet_service = SheetService(sheet_repo)
+            await sheet_service.update_cell(sheet_id, data)
+            await session.commit()
+            return JSONResponse(content=1)
+        except LookupError:
+            return JSONResponse(status_code=status.HTTP_423_LOCKED, content={})
 
 
 @router.patch("/{sheet_id}/update-cell-bulk")

@@ -40,7 +40,7 @@ class SheetRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def update_cell_one(self, sheet_id: core_types.Id_, data: schema.UpdateCellSchema) -> None:
+    async def update_cell_one(self, sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema) -> None:
         raise NotImplemented
 
     @abstractmethod
