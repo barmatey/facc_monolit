@@ -1,17 +1,13 @@
 import asyncio
-import time
 from typing import AsyncGenerator
 
 import pytest
 from httpx import AsyncClient
-from loguru import logger
-from contextlib import asynccontextmanager
 import pytest_asyncio
-from sqlalchemy import MetaData, NullPool
+from sqlalchemy import NullPool
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker
 from fastapi.testclient import TestClient
 
 from main import app
