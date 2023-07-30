@@ -1,10 +1,13 @@
 import asyncio
+from pathlib import Path
 from typing import AsyncGenerator
 
+import pandas as pd
 import pytest
 from httpx import AsyncClient
 import pytest_asyncio
-from sqlalchemy import NullPool
+from loguru import logger
+from sqlalchemy import NullPool, insert
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -13,6 +16,9 @@ from fastapi.testclient import TestClient
 from main import app
 from src.db import get_async_session
 from src.repository_postgres_new.base import BaseModel
+from src.repository_postgres_new.source import SourceModel
+from src.repository_postgres_new.wire import WireModel
+from tests.sample_data import sample_data_loader
 
 DATABASE_URL_TEST = f"postgresql+asyncpg://postgres:145190hfp@127.0.0.1:5432/test_monolyt_db"
 
@@ -28,11 +34,24 @@ async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
 app.dependency_overrides[get_async_session] = override_get_async_session
 
 
+async def insert_sample_data():
+    mapper = {
+        SourceModel: sample_data_loader.load_source_values(),
+        WireModel: sample_data_loader.load_wire_values(),
+    }
+    async with async_session_maker() as session:
+        for model, data in mapper.items():
+            stmt = insert(model)
+            await session.execute(stmt, data)
+            await session.commit()
+
+
 @pytest_asyncio.fixture(autouse=True, scope='session')
 async def prepare_database():
     async with engine_test.begin() as conn:
         await conn.run_sync(BaseModel.metadata.drop_all)
         await conn.run_sync(BaseModel.metadata.create_all)
+    await insert_sample_data()
     yield
 
 

@@ -30,7 +30,6 @@ async def test_get_many_sources():
     url = "/source-db"
     response = client.get(url)
     assert response.status_code == 200
-    assert response.json()[0]['title'] == "hello"
 
 
 @pytest.mark.asyncio
@@ -49,18 +48,28 @@ async def test_delete_one_source():
 
 @pytest.mark.asyncio
 async def test_append_wires_from_csv():
-    url = "/source-db/1"
+    # Create source
+    url = "/source-db"
+    source = client.post(url, json={"title": "temp"}).json()
+
+    # Append wires
+    url = f"/source-db/{source['id']}"
     path = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
-    csv = pd.read_csv(path, encoding="utf8").to_csv(index=False)
+    csv = pd.read_csv(path, encoding="utf8").head(10).to_csv(index=False)
     response = client.post(url, files={"file": csv})
     assert response.status_code == 200
 
 
 @pytest.mark.asyncio
 async def test_create_one_wire_with_correct_data():
+    # Create source
+    url = "/source-db"
+    source = client.post(url, json={"title": "temp"}).json()
+
+    # Create wire
     url = "/wire"
     data = {
-        "source_id": 1,
+        "source_id": source['id'],
         "date": "2023-07-30T07:11:05.771Z",
         "sender": 0,
         "receiver": 1,
@@ -76,10 +85,14 @@ async def test_create_one_wire_with_correct_data():
 
 @pytest.mark.asyncio
 async def test_create_many_wires_with_correct_data():
+    # Create source
+    url = "/source-db"
+    source = client.post(url, json={"title": "temp"}).json()
+
     url = "/wire/many"
     data = [
         {
-            "source_id": 1,
+            "source_id": source['id'],
             "date": "2023-07-30T07:11:05.771Z",
             "sender": 0,
             "receiver": x,

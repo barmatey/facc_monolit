@@ -31,7 +31,7 @@ class SourceModel(BaseModel):
     total_start_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.utcnow,
                                                        nullable=False)
     total_end_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.utcnow, nullable=False)
-    wcols: Mapped[list[str]] = mapped_column(JSON, default=get_wcols, nullable=False)
+    wcols: Mapped[list[dict]] = mapped_column(JSON, default=get_wcols, nullable=False)
 
     def to_entity(self) -> entities.Source:
         result = entities.Source(
@@ -39,7 +39,7 @@ class SourceModel(BaseModel):
             title=self.title,
             total_start_date=self.total_start_date,
             total_end_date=self.total_end_date,
-            wcols=self.wcols,
+            wcols=list(self.wcols),
         )
         return result
 

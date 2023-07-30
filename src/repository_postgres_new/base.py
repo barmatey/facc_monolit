@@ -102,7 +102,7 @@ class BasePostgres:
     async def create_many(self, data: list[DTO]) -> None:
         session = self._session
         data = self._parse_dto(data)
-        stmt = insert(self.model).returning(self.model)
+        stmt = insert(self.model)
         _: Result = await session.execute(stmt, data)
 
     async def get_one(self, filter_by: dict) -> Model:

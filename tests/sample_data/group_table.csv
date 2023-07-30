@@ -1,0 +1,4 @@
+"title","columns","category_id","source_id","sheet_id","id","fixed_columns"
+"balance","[""sender"", ""subconto_first""]",1,38,200,85,"[""sender"", ""subconto_first""]"
+"profit","[""sender""]",2,38,201,86,"[""sender""]"
+"cashflow","[""sender"", ""subconto_first"", ""subconto_second""]",3,38,202,87,"[""sender"", ""subconto_first"", ""subconto_second""]"
