@@ -2,7 +2,7 @@ import typing
 
 from pydantic import BaseModel
 
-import core_types
+from src import core_types
 from . import entities, enums
 
 SheetRetrieveSchema = entities.SheetRetrieve

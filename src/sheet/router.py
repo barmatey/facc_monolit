@@ -29,17 +29,6 @@ async def get_one_sheet(sheet_id: core_types.Id_, from_scroll: int = None, to_sc
         return JSONResponse(content=sheet)
 
 
-@router.get("/{sheet_id}/retrieve-scroll-size")
-@helpers.async_timeit
-async def retrieve_scroll_size(sheet_id: core_types.Id_,
-                               get_asession=Depends(db.get_async_session)) -> schema.ScrollSizeSchema:
-    async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        scroll_size = await sheet_service.get_scroll_size(sheet_id)
-        return scroll_size
-
-
 @router.get("/{sheet_id}/retrieve-unique-cells")
 @helpers.async_timeit
 async def get_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
@@ -118,8 +107,8 @@ async def partial_update_cell(sheet_id: core_types.Id_, data: schema.PartialUpda
 
 @router.patch("/{sheet_id}/update-cell-bulk")
 @helpers.async_timeit
-async def update_cell_many(sheet_id: core_types.Id_, data: list[entities.Cell],
-                           get_asession=Depends(db.get_async_session)) -> int:
+async def partial_update_many_cells(sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema],
+                                    get_asession=Depends(db.get_async_session)) -> int:
     async with get_asession as session:
         sheet_repo = SheetRepoPostgres(session)
         sheet_service = SheetService(sheet_repo)

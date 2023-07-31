@@ -142,13 +142,15 @@ class SheetCell(BasePostgres):
         filter_by = {'id': data.pop('id')} | {'sheet_id': sheet_id, 'is_readonly': False}
         _ = await super().update_one(data, filter_by)
 
-    async def update_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+    async def update_many(self, sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema]) -> None:
         values = []
         for cell in data:
-            c = cell.copy()
+            c = cell.dict()
             c['cell_id'] = c.pop('id')
-            c['cell_value'] = c.pop('value')
-            c['cell_dtype'] = c.pop('dtype')
+            if 'value' in c.keys():
+                c['cell_value'] = c.pop('value')
+                c['cell_dtype'] = c.pop('dtype')
+            c = {key: value for key, value in c.items() if value is not None}
             values.append(c)
 
         # Update
@@ -440,7 +442,7 @@ class SheetRepoPostgres(SheetRepo):
     async def update_cell_one(self, sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema) -> None:
         await self.__sheet_cell.update_one(sheet_id, data)
 
-    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema]) -> None:
         await self.__sheet_cell.update_many(sheet_id, data)
 
     async def delete_row_many(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:

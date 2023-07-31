@@ -44,7 +44,7 @@ class SheetRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema]) -> None:
         raise NotImplemented
 
     @abstractmethod

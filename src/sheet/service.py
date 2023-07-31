@@ -37,7 +37,7 @@ class SheetService:
     async def update_cell(self, sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema) -> None:
         await self.sheet_repo.update_cell_one(sheet_id, data)
 
-    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[entities.Cell]) -> None:
+    async def update_cell_many(self, sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema]) -> None:
         await self.sheet_repo.update_cell_many(sheet_id, data)
 
     async def delete_row_many(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
