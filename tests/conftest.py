@@ -27,7 +27,6 @@ DATABASE_URL_TEST = {
     'query': {},
 }
 DATABASE_URL_TEST = URL(**DATABASE_URL_TEST)
-# DATABASE_URL_TEST = "postgresql+asyncpg://postgres:145190hfp@'127.0.0.1':5432/dbname?client_encoding=utf8"
 
 engine_test = create_async_engine(DATABASE_URL_TEST, poolclass=NullPool)
 async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
@@ -42,7 +41,7 @@ async def override_get_async_session() -> AsyncSession:
 app.dependency_overrides[get_async_session] = override_get_async_session
 
 
-@pytest_asyncio.fixture(autouse=True, scope='session')
+@pytest_asyncio.fixture(autouse=True, scope='module')
 async def prepare_database():
     async with engine_test.begin() as conn:
         await conn.run_sync(BaseModel.metadata.drop_all)

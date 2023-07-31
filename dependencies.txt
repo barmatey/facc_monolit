@@ -1,11 +1,11 @@
-sqlalchemy==2.0.16
+sqlalchemy==2.0.19
 pandas==2.0.2
 numpy==1.24.3
 alembic==1.11.1
 loguru==0.7.0
 pandera==0.15.1
 psycopg2==2.9.6
-asyncpg==0.27.0
+asyncpg==0.28.0
 python-multipart==0.0.6
 pytest==7.4.0
 pytest-asyncio==0.21.1

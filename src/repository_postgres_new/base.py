@@ -110,7 +110,10 @@ class BasePostgres:
         filters = self._parse_filters(filter_by)
         stmt = select(self.model).where(*filters)
         result = await session.execute(stmt)
-        result = result.scalars().fetchall()[0]
+        result = result.scalars().fetchall()
+        if len(result) != 1:
+            raise LookupError
+        result = result[0]
         return result
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,

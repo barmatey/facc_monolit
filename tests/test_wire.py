@@ -19,10 +19,16 @@ async def test_create_source():
 
 @pytest.mark.asyncio
 async def test_get_one_source():
-    url = "/source-db/1"
+    # Create source
+    url = "/source-db"
+    data = {"title": "BigBen"}
+    created_id = client.post(url, json=data).json()['id']
+
+    # Test endpoint
+    url = f"/source-db/{created_id}"
     response = client.get(url)
     assert response.status_code == 200
-    assert response.json()['title'] == "hello"
+    assert response.json()['title'] == "BigBen"
 
 
 @pytest.mark.asyncio

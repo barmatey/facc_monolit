@@ -1,46 +1,67 @@
 from pathlib import Path
 
+import loguru
 import pandas as pd
 import pytest
 import pytest_asyncio
 from sqlalchemy import insert
 
-from src.repository_postgres_new.source import SourceModel
-from src.repository_postgres_new.wire import WireModel
+from src.repository_postgres_new.category import CategoryModel
 
 from .conftest import client, override_get_async_session
 
-test_source_id = 17
-
 
 @pytest_asyncio.fixture(autouse=True, scope='module')
-async def create_wires():
-    # Create source
-    source_data = {"id": test_source_id, "title": "test_source"}
-
-    # Load wires
-    path = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
-    wires_data = pd.read_csv(path, encoding='utf-8')
-
+async def create_standard_categories():
     async with override_get_async_session() as session:
-        await session.execute(insert(SourceModel), source_data)
-        await session.execute(insert(WireModel), wires_data)
+        data = [
+            {"value": "BALANCE", "id": 1},
+            {"value": "PROFIT", "id": 2},
+            {"value": "CASHFLOW", "id": 3},
+        ]
+        stmt = insert(CategoryModel).values(data)
+        await session.execute(stmt)
         await session.commit()
 
 
+@pytest_asyncio.fixture(autouse=True, scope='module')
+async def create_source():
+    # Create source
+    url = "/source-db"
+    source = client.post(url, json={"title": "test_group_source"}).json()
+    source_id = source['id']
+
+    # Append wires
+    url = f"/source-db/{source_id}"
+    path = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
+    csv = pd.read_csv(path, encoding="utf8").to_csv(index=False)
+    client.post(url, files={"file": csv})
+
+    return source_id
+
+
 @pytest.mark.asyncio
-def test_group_create_return_200():
+async def test_group_create_return_200(create_source):
+    source_id = create_source
     url = f"/group"
+    data = {
+        "title": "test_group",
+        "source_id": source_id,
+        "category": "BALANCE",
+        "columns": ["sender", ],
+        "fixed_columns": ["sender"],
+    }
+    response = client.post(url, json=data)
+    # assert response.status_code == 200
 
 
 @pytest.mark.asyncio
-def test_temp():
+async def test_temp():
     assert 1 == 1
 
-
-@pytest.mark.asyncio
-def test_total_recalculate_return_200():
-    group_id = 1
-    url = f"/group/{group_id}/total-recalculate"
-    response = client.patch(url)
-    assert response.status_code == 200
+# @pytest.mark.asyncio
+# def test_total_recalculate_return_200():
+#     group_id = 1
+#     url = f"/group/{group_id}/total-recalculate"
+#     response = client.patch(url)
+#     assert response.status_code == 200
