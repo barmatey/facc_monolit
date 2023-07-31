@@ -57,6 +57,14 @@ async def insert_fake_sheet():
 
 
 @pytest.mark.asyncio
+async def test_get_one_sheet_return_200():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}"
+    response = client.get(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
 async def test_get_col_filter_return_properly_data():
     sheet_id = 13
     url = f"/sheet/{sheet_id}/retrieve-unique-cells"
