@@ -180,3 +180,12 @@ async def test_partial_update_col_sorter_return_200():
     }
     response = client.patch(url, json=data)
     assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_delete_rows_return_200():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/delete-rows"
+    row_ids = [2, 3, 4]
+    response = client.patch(url, json=row_ids)
+    assert response.status_code == 200

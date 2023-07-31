@@ -117,7 +117,7 @@ async def partial_update_many_cells(sheet_id: core_types.Id_, data: list[schema.
         return 1
 
 
-@router.delete("/{sheet_id}/delete-rows")
+@router.patch("/{sheet_id}/delete-rows")
 @helpers.async_timeit
 async def delete_rows(sheet_id: core_types.Id_, row_ids: list[core_types.Id_],
                       get_asession=Depends(db.get_async_session)) -> int:
