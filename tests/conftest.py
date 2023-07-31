@@ -3,26 +3,38 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 import pytest
-from httpx import AsyncClient
 import pytest_asyncio
-from sqlalchemy import NullPool
+from httpx import AsyncClient
 
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine.url import URL
+
 from fastapi.testclient import TestClient
 
 from main import app
 from src.db import get_async_session
 from src.repository_postgres_new.base import BaseModel
 
-DATABASE_URL_TEST = f"postgresql+asyncpg://postgres:145190hfp@127.0.0.1:5432/test_monolyt_db"
+DATABASE_URL_TEST = {
+    'database': "test_monolyt_db",
+    'drivername': 'postgresql+asyncpg',
+    'username': 'postgres',
+    'password': '145190hfp',
+    'host': '127.0.0.1',
+    'port': 5432,
+    'query': {},
+}
+DATABASE_URL_TEST = URL(**DATABASE_URL_TEST)
+# DATABASE_URL_TEST = "postgresql+asyncpg://postgres:145190hfp@'127.0.0.1':5432/dbname?client_encoding=utf8"
 
 engine_test = create_async_engine(DATABASE_URL_TEST, poolclass=NullPool)
 async_session_maker = sessionmaker(engine_test, class_=AsyncSession, expire_on_commit=False)
 
 
 @asynccontextmanager
-async def override_get_async_session() -> AsyncGenerator[AsyncSession, None]:
+async def override_get_async_session() -> AsyncSession:
     async with async_session_maker() as session:
         yield session
 

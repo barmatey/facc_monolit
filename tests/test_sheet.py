@@ -145,7 +145,7 @@ async def test_partial_update_many_cells_return_200():
         {
             "id": 0,
             "sheet_id": sheet_id,
-            "value": "zero",
+            "value": "this value will not update because the cell has freeze flag",
             "dtype": "TEXT",
         },
         {

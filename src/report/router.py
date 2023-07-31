@@ -42,7 +42,7 @@ async def create_group(data: schema.GroupCreateSchema, get_asession=Depends(db.g
 
 @router_group.get("/{group_id}")
 @helpers.async_timeit
-async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session) ) -> entities.Group:
+async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Group:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
@@ -53,7 +53,8 @@ async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_
 
 @router_group.get("/")
 @helpers.async_timeit
-async def get_groups(category: enums.CategoryLiteral = None, get_asession=Depends(db.get_async_session)) -> list[entities.Group]:
+async def get_groups(category: enums.CategoryLiteral = None, get_asession=Depends(db.get_async_session)) -> list[
+    entities.Group]:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
@@ -64,7 +65,8 @@ async def get_groups(category: enums.CategoryLiteral = None, get_asession=Depend
 
 @router_group.patch("/{group_id}")
 @helpers.async_timeit
-async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema, get_asession=Depends(db.get_async_session)) -> entities.Group:
+async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema,
+                               get_asession=Depends(db.get_async_session)) -> entities.Group:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
@@ -81,7 +83,7 @@ async def total_recalculate(group_id: core_types.Id_, get_asession=Depends(db.ge
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
         group_service = GroupService(group_repo, wire_repo)
-        instance = group_service.get_one({"id": group_id})
+        instance = await group_service.get_one({"id": group_id})
         updated: entities.Group = await group_service.total_recalculate(instance)
         await session.commit()
         return updated
@@ -111,7 +113,7 @@ router_report = APIRouter(
 
 @router_report.post("/")
 @helpers.async_timeit
-async def create_report(data: schema.ReportCreateSchema, get_asession=Depends(db.get_async_session) ) -> entities.Report:
+async def create_report(data: schema.ReportCreateSchema, get_asession=Depends(db.get_async_session)) -> entities.Report:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         report_repo = ReportRepoPostgres(session)
@@ -137,7 +139,8 @@ async def retrieve_report(report_id: core_types.Id_, get_asession=Depends(db.get
 
 @router_report.get("/")
 @helpers.async_timeit
-async def retrieve_report_list(category: enums.CategoryLiteral = None, get_asession=Depends(db.get_async_session)) -> list[entities.Report]:
+async def retrieve_report_list(category: enums.CategoryLiteral = None,
+                               get_asession=Depends(db.get_async_session)) -> list[entities.Report]:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         report_repo = ReportRepoPostgres(session)
@@ -160,7 +163,7 @@ async def delete_report(report_id: core_types.Id_, get_asession=Depends(db.get_a
         await session.commit()
         return deleted_id
 
-#
+
 # @router_report.patch("/{report_id}")
 # @helpers.async_timeit
 # async def total_recalculate(report_id: core_types.Id_,
@@ -168,8 +171,7 @@ async def delete_report(report_id: core_types.Id_, get_asession=Depends(db.get_a
 #     report = await service.retrieve({"id": report_id})
 #     updated = await service.total_recalculate(report)
 #     return updated
-#
-#
+
 
 """
 CATEGORY
