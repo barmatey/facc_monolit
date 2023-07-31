@@ -57,6 +57,51 @@ async def insert_fake_sheet():
 
 
 @pytest.mark.asyncio
+async def test_get_col_filter_return_properly_data():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/retrieve-unique-cells"
+    data = {"col_id": 2, }
+    response = client.get(url, params=data)
+    assert response.status_code == 200
+
+    expected = [
+        {"value": "Bobby", "dtype": "TEXT", "is_filtred": True, },
+        {"value": "Hello", "dtype": "TEXT", "is_filtred": True, },
+        {"value": "Jane", "dtype": "TEXT", "is_filtred": True, },
+        {"value": "Jimmy", "dtype": "TEXT", "is_filtred": True, },
+        {"value": "Kelly", "dtype": "TEXT", "is_filtred": True, },
+        {"value": "Romeo", "dtype": "TEXT", "is_filtred": True, },
+        {"value": "World", "dtype": "TEXT", "is_filtred": True, },
+    ]
+    real = list(response.json()['items'])
+    assert expected == real
+
+
+@pytest.mark.asyncio
+async def test_update_col_filter_return_200():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/update-col-filter"
+    data = {
+        "sheet_id": sheet_id,
+        "col_id": 2,
+        "items": [
+            {"value": "Bobby", "dtype": "TEXT", "is_filtred": False, },
+            {"value": "Hello", "dtype": "TEXT", "is_filtred": False, },
+        ]
+    }
+    response = client.patch(url, json=data)
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_partial_clear_all_filters_return_200():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/clear-all-filters"
+    response = client.delete(url)
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
 async def test_update_cell_return_200():
     sheet_id = 13
     url = f"/sheet/{sheet_id}/update-cell"
@@ -108,5 +153,30 @@ async def test_partial_update_many_cells_return_200():
             "dtype": "TEXT",
         },
     ]
+    response = client.patch(url, json=data)
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_partial_update_col_width_return_200():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/update-col-width"
+    data = {
+        "sindex_id": 1,
+        "new_size": 444,
+    }
+    response = client.patch(url, json=data)
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_partial_update_col_sorter_return_200():
+    sheet_id = 13
+    url = f"/sheet/{sheet_id}/update-col-sorter"
+    data = {
+        "sheet_id": sheet_id,
+        "col_id": 1,
+        "ascending": False,
+    }
     response = client.patch(url, json=data)
     assert response.status_code == 200
