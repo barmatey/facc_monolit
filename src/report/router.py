@@ -53,8 +53,8 @@ async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_
 
 @router_group.get("/")
 @helpers.async_timeit
-async def get_groups(category: enums.CategoryLiteral = None, get_asession=Depends(db.get_async_session)) -> list[
-    entities.Group]:
+async def get_groups(category: enums.CategoryLiteral = None,
+                     get_asession=Depends(db.get_async_session)) -> list[entities.Group]:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)

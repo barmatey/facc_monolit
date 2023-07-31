@@ -25,24 +25,23 @@ async def create_standard_categories():
 
 
 @pytest_asyncio.fixture(autouse=True, scope='module')
-async def create_source():
+async def source_id():
     # Create source
     url = "/source-db"
     source = client.post(url, json={"title": "test_group_source"}).json()
-    source_id = source['id']
+    id_ = source['id']
 
     # Append wires
-    url = f"/source-db/{source_id}"
+    url = f"/source-db/{id_}"
     path = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
     csv = pd.read_csv(path, encoding="utf8").to_csv(index=False)
     client.post(url, files={"file": csv})
 
-    return source_id
+    return id_
 
 
 @pytest.mark.asyncio
-async def test_group_create_return_200(create_source):
-    source_id = create_source
+async def test_group_create_return_200(source_id):
     url = f"/group"
     data = {
         "title": "test_group",
@@ -52,16 +51,24 @@ async def test_group_create_return_200(create_source):
         "fixed_columns": ["sender"],
     }
     response = client.post(url, json=data)
-    # assert response.status_code == 200
+    assert response.status_code == 200
 
 
 @pytest.mark.asyncio
-async def test_temp():
-    assert 1 == 1
+async def test_total_recalculate_return_200(source_id):
+    # Create group
+    url = f"/group"
+    data = {
+        "title": "test_group",
+        "source_id": source_id,
+        "category": "BALANCE",
+        "columns": ["sender", ],
+        "fixed_columns": ["sender"],
+    }
+    response = client.post(url, json=data)
+    group_id = response.json().pop("id")
 
-# @pytest.mark.asyncio
-# def test_total_recalculate_return_200():
-#     group_id = 1
-#     url = f"/group/{group_id}/total-recalculate"
-#     response = client.patch(url)
-#     assert response.status_code == 200
+    # Recalculate group
+    url = f"/group/{group_id}/total-recalculate"
+    response = client.patch(url)
+    assert response.status_code == 200

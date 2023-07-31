@@ -70,9 +70,7 @@ class SheetSindex(BasePostgres):
         ids = list(result.scalars())
         return ids
 
-    async def delete_many(self, filter_by: dict) -> None:
-        sheet_id: core_types.Id_ = filter_by['sheet_id']
-        sindex_ids: list[core_types.Id_] = filter_by['row_ids']
+    async def delete_many_by_ids(self, sheet_id: core_types.Id_, sindex_ids: list[core_types.Id_]) -> None:
         stmt = (
             delete(self.model)
             .where(self.model.sheet_id == sheet_id,
@@ -446,8 +444,7 @@ class SheetRepoPostgres(SheetRepo):
         await self.__sheet_cell.update_many(sheet_id, data)
 
     async def delete_row_many(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
-        filter_by = {"sheet_id": sheet_id, "row_ids": row_ids, }
-        await self.__sheet_row.delete_many(filter_by)
+        await self.__sheet_row.delete_many_by_ids(sheet_id, row_ids)
 
     async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> entities.ColFilter:
         return await self.__sheet_filter.get_col_filter(data)

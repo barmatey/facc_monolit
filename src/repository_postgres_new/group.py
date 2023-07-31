@@ -4,7 +4,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import mapped_column, Mapped
 
 from src.core_types import OrderBy
-from src.report import entities
 from src.report.entities import Group
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
@@ -88,8 +87,13 @@ class GroupRepoPostgres(BasePostgres, GroupRepo):
         await self.__sheet_repo.delete_one({"id": deleted_model.sheet_id})
         return deleted_model.id
 
-    async def overwrite_linked_sheet(self, instance: entities.Group, data: entities.SheetCreate) -> None:
-        await self.__sheet_repo.overwrite_one(instance.sheet_id, data)
+    async def overwrite_linked_sheet(self, instance: entities_report.Group, data: entities_report.SheetCreate) -> None:
+        sheet_create_data = entities_sheet.SheetCreate(
+            df=data.dataframe,
+            drop_index=data.drop_index,
+            drop_columns=data.drop_columns,
+        )
+        await self.__sheet_repo.overwrite_one(instance.sheet_id, sheet_create_data)
 
     async def get_linked_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         group: GroupModel = await super().get_one({"id": group_id})
