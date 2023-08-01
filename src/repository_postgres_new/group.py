@@ -1,10 +1,11 @@
+import loguru
 import pandas as pd
-from sqlalchemy import String, JSON, Integer, ForeignKey
+from sqlalchemy import String, JSON, Integer, ForeignKey, select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import mapped_column, Mapped
+from sqlalchemy.orm import mapped_column, Mapped, Bundle, query
 
 from src.core_types import OrderBy
-from src.report.entities import Group
+from src.group.entities import Group, ExpandedGroup, InnerSource
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
@@ -74,6 +75,38 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         model = await super().get_one(filter_by)
         group = model.to_entity()
         return group
+
+    async def get_expanded_one(self, filter_by: dict) -> ExpandedGroup:
+        session = self._session
+        filters = self._parse_filters(filter_by)
+        stmt = (
+            select(GroupModel, SourceModel.title)
+            .join(SourceModel, GroupModel.source_id == SourceModel.id)
+            .where(*filters)
+        )
+
+        result = await session.execute(stmt)
+        result = result.fetchall()
+        if len(result) != 1:
+            raise LookupError
+        result = result[0]
+
+        group: Group = result[0].to_entity()
+        inner_source = InnerSource(
+            id=group.source_id,
+            title=result[1]
+        )
+        expanded_group = ExpandedGroup(
+            id=group.id,
+            title=group.title,
+            category=group.category,
+            columns=group.columns,
+            fixed_columns=group.fixed_columns,
+            sheet_id=group.sheet_id,
+            source_id=group.source_id,
+            source=inner_source,
+        )
+        return expanded_group
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
                        slice_to: int = None) -> list[Group]:

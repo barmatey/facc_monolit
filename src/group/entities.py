@@ -7,7 +7,8 @@ from . import enums
 
 
 class InnerSource(BaseModel):
-    pass
+    id: core_types.Id_
+    title: str
 
 
 class Group(BaseModel):

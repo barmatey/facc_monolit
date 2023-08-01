@@ -1,4 +1,3 @@
-import loguru
 from pydantic import BaseModel
 import pandas as pd
 
@@ -43,8 +42,6 @@ class ServiceGroup(ServiceCrud):
         wire_df = await self.wire_repo.get_wire_dataframe(filter_by={"source_id": data.source_id})
         group_df: pd.DataFrame = self.finrep.create_group(wire_df, data.columns)
 
-        loguru.logger.warning(f"\n\n\n{type(group_df)}\n\n\n")
-
         group_create = CreateGroup(
             title=data.title,
             source_id=data.source_id,
@@ -56,6 +53,10 @@ class ServiceGroup(ServiceCrud):
             category=data.category,
         )
         group: Group = await self.group_repo.create_one(group_create)
+        return group
+
+    async def get_one(self, filter_by: dict) -> Group:
+        group = await self.group_repo.get_expanded_one(filter_by)
         return group
 
     async def total_recalculate(self, instance: Group) -> ExpandedGroup:

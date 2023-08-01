@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from src import helpers, db
+from src import helpers, db,  core_types
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres
 from src.service_finrep import Finrep, BalanceFinrep, ProfitFinrep
 
@@ -37,16 +37,16 @@ async def create_group(data: CreateGroupRequest, get_asession=Depends(db.get_asy
         await session.commit()
         return group
 
-#
-# @router_group.get("/{group_id}")
-# @helpers.async_timeit
-# async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Group:
-#     async with get_asession as session:
-#         group_repo = GroupRepoPostgres(session)
-#         wire_repo = WireRepoPostgres(session)
-#         group_service = GroupService(group_repo, wire_repo)
-#         group: entities.Group = await group_service.get_one({"id": group_id})
-#         return group
+
+@router_group.get("/{group_id}")
+@helpers.async_timeit
+async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> Group:
+    async with get_asession as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = ServiceGroup(group_repo, wire_repo, get_finrep("BALANCE"))
+        group: Group = await group_service.get_one({"id": group_id})
+        return group
 #
 #
 # @router_group.get("/")

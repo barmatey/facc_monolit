@@ -28,7 +28,7 @@ async def create_standard_categories():
 async def source_id():
     # Create source
     url = "/source-db"
-    source = client.post(url, json={"title": "test_group_source"}).json()
+    source = client.post(url, json={"title": "test_source"}).json()
     id_ = source['id']
 
     # Append wires
