@@ -80,7 +80,8 @@ class GroupRepoPostgres(BasePostgres, GroupRepo):
         return groups
 
     async def update_one(self, data: core_types.DTO, filter_by: dict) -> Group:
-        raise NotImplemented
+        model = await super().update_one(data, filter_by)
+        return model.to_entity()
 
     async def delete_one(self, filter_by: dict) -> core_types.Id_:
         deleted_model: GroupModel = await super().delete_one(filter_by)
