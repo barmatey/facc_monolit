@@ -1,3 +1,4 @@
+import loguru
 from pydantic import BaseModel
 import pandas as pd
 
@@ -5,7 +6,7 @@ from src.core_types import Id_, OrderBy
 
 from src.service_finrep import Finrep
 from .entities import Entity, Group, ExpandedGroup
-from .events import CreateGroupRequest, CreateGroup, InnerCreateSheet
+from .dto import CreateGroupRequest, CreateGroup, InnerCreateSheet
 from .repository import CrudRepository, GroupRepository, WireRepository
 
 
@@ -55,8 +56,10 @@ class ServiceGroup(ServiceCrud):
         group: Group = await self.group_repo.create_one(group_create)
         return group
 
-    async def get_one(self, filter_by: dict) -> Group:
-        group = await self.group_repo.get_expanded_one(filter_by)
+    async def get_one(self, filter_by: dict) -> ExpandedGroup:
+        group: ExpandedGroup = await self.group_repo.get_expanded_one(filter_by)
+        if group.updated_at <= group.source.updated_ad:
+            raise TabError
         return group
 
     async def total_recalculate(self, instance: Group) -> ExpandedGroup:

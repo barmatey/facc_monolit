@@ -3,7 +3,7 @@ from typing import TypeVar
 
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
-from sqlalchemy import insert, Result, delete, update, GenerativeSelect
+from sqlalchemy import insert, Result, delete, update, GenerativeSelect, TIMESTAMP, func
 from sqlalchemy import select
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 from sqlalchemy.ext.asyncio import AsyncSession

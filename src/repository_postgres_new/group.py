@@ -1,8 +1,10 @@
+import datetime
+
 import loguru
 import pandas as pd
-from sqlalchemy import String, JSON, Integer, ForeignKey, select, Result
+from sqlalchemy import String, JSON, Integer, ForeignKey, select, TIMESTAMP, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import mapped_column, Mapped, Bundle, query
+from sqlalchemy.orm import mapped_column, Mapped
 
 from src.core_types import OrderBy
 from src.group.entities import Group, ExpandedGroup, InnerSource
@@ -29,16 +31,19 @@ class GroupModel(BaseModel):
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey(SourceModel.id, ondelete='CASCADE'), nullable=False)
     sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='RESTRICT'), nullable=False,
                                           unique=True)
+    updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
-    def to_entity(self) -> entities_report.Group:
-        converted = entities_report.Group(
+
+    def to_entity(self) -> Group:
+        converted = Group(
             id=self.id,
             title=self.title,
             category=CategoryEnum(self.category_id).name,
             sheet_id=self.sheet_id,
             source_id=self.source_id,
             columns=list(self.columns),
-            fixed_columns=list(self.fixed_columns)
+            fixed_columns=list(self.fixed_columns),
+            updated_at=self.updated_at,
         )
         return converted
 
@@ -80,7 +85,7 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         session = self._session
         filters = self._parse_filters(filter_by)
         stmt = (
-            select(GroupModel, SourceModel.title)
+            select(GroupModel, SourceModel.title, SourceModel.updated_at)
             .join(SourceModel, GroupModel.source_id == SourceModel.id)
             .where(*filters)
         )
@@ -94,7 +99,8 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         group: Group = result[0].to_entity()
         inner_source = InnerSource(
             id=group.source_id,
-            title=result[1]
+            title=result[1],
+            updated_ad=result[2],
         )
         expanded_group = ExpandedGroup(
             id=group.id,
@@ -104,6 +110,7 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
             fixed_columns=group.fixed_columns,
             sheet_id=group.sheet_id,
             source_id=group.source_id,
+            updated_at=group.updated_at,
             source=inner_source,
         )
         return expanded_group

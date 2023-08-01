@@ -183,12 +183,16 @@ router_category = APIRouter(
 )
 
 
-# @router_category.post("/")
-# async def create(data: schema.ReportCategoryCreateSchema,
-#                  service: Service = Depends(CategoryService)) -> entities.ReportCategory:
-#     category: entities.ReportCategory = await service.create(data)
-#     return category
-#
+@router_category.post("/")
+async def create(data: schema.ReportCategoryCreateSchema,
+                 get_asession=Depends(db.get_async_session)) -> entities.ReportCategory:
+    async with get_asession as session:
+        category_repo = CategoryRepoPostgres(session)
+        category_service = Service(category_repo)
+        category: entities.ReportCategory = await category_service.create_one(data)
+        await session.commit()
+        return category
+
 
 @router_category.get("/")
 async def retrieve_report_categories(get_asession=Depends(db.get_async_session)) -> list[schema.ReportCategorySchema]:

@@ -1,4 +1,3 @@
-from typing import TypeVar
 from pydantic import BaseModel
 import pandas as pd
 
@@ -40,9 +39,3 @@ class CreateGroup(BaseModel):
 
 class GetGroup(BaseModel):
     group_id: core_types.Id_
-
-
-Entity = TypeVar(
-    'Entity',
-    bound=BaseModel,
-)

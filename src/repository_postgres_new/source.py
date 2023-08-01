@@ -3,7 +3,7 @@ from datetime import datetime
 import pandas as pd
 from sqlalchemy.orm import Mapped, mapped_column
 
-from sqlalchemy import String, JSON, TIMESTAMP
+from sqlalchemy import String, JSON, TIMESTAMP, func
 
 from src import core_types
 from src.core_types import DTO, OrderBy
@@ -32,6 +32,8 @@ class SourceModel(BaseModel):
                                                        nullable=False)
     total_end_date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=datetime.utcnow, nullable=False)
     wcols: Mapped[list[dict]] = mapped_column(JSON, default=get_wcols, nullable=False)
+    updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
+
 
     def to_entity(self) -> entities.Source:
         result = entities.Source(

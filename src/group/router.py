@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
+from loguru import logger
 
 from src import helpers, db,  core_types
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres
@@ -6,7 +8,7 @@ from src.service_finrep import Finrep, BalanceFinrep, ProfitFinrep
 
 from .entities import Group
 from .enums import GroupCategory
-from .events import CreateGroupRequest
+from .dto import CreateGroupRequest
 from .service import ServiceGroup
 
 FINREP = {
@@ -16,7 +18,9 @@ FINREP = {
 }
 
 
-def get_finrep(category: GroupCategory) -> Finrep:
+def get_finrep(category: GroupCategory | None = None) -> Finrep:
+    if category is None:
+        category = "BALANCE"
     return FINREP[category]()
 
 
@@ -40,27 +44,28 @@ async def create_group(data: CreateGroupRequest, get_asession=Depends(db.get_asy
 
 @router_group.get("/{group_id}")
 @helpers.async_timeit
-async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> Group:
+async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
-        group_service = ServiceGroup(group_repo, wire_repo, get_finrep("BALANCE"))
-        group: Group = await group_service.get_one({"id": group_id})
-        return group
-#
-#
-# @router_group.get("/")
-# @helpers.async_timeit
-# async def get_groups(category: enums.CategoryLiteral = None,
-#                      get_asession=Depends(db.get_async_session)) -> list[entities.Group]:
-#     async with get_asession as session:
-#         group_repo = GroupRepoPostgres(session)
-#         wire_repo = WireRepoPostgres(session)
-#         group_service = GroupService(group_repo, wire_repo)
-#         groups: list[entities.Group] = await group_service.get_many({})
-#         return groups
-#
-#
+        group_service = ServiceGroup(group_repo, wire_repo, get_finrep())
+        group = await group_service.get_one({"id": group_id})
+        group = group.to_json()
+        return JSONResponse(content=group)
+
+
+@router_group.get("/")
+@helpers.async_timeit
+async def get_groups(category: GroupCategory = None,
+                     get_asession=Depends(db.get_async_session)) -> list[Group]:
+    async with get_asession as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = ServiceGroup(group_repo, wire_repo, get_finrep(category))
+        groups: list[Group] = await group_service.get_many({})
+        return groups
+
+
 # @router_group.patch("/{group_id}")
 # @helpers.async_timeit
 # async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema,

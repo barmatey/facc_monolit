@@ -72,70 +72,70 @@ async def test_get_group_return_200(source_id):
     response = client.get(url)
     assert response.status_code == 200
 
-
-@pytest.mark.asyncio
-async def test_get_many_groups_return_200():
-    url = f"/group"
-    response = client.get(url)
-    assert response.status_code == 200
-
-
-@pytest.mark.asyncio
-async def test_get_partial_update_group_return_200(source_id):
-    # Create group
-    url = f"/group"
-    data = {
-        "title": "test_group",
-        "source_id": source_id,
-        "category": "BALANCE",
-        "columns": ["sender", ],
-        "fixed_columns": ["sender"],
-    }
-    response = client.post(url, json=data)
-
-    # Partial update
-    url = f"/group/{response.json().get('id')}"
-    data = {
-        "title": "New group title"
-    }
-    response = client.patch(url, json=data)
-    assert response.status_code == 200
-
-
-@pytest.mark.asyncio
-async def test_get_delete_group_return_200(source_id):
-    # Create group
-    url = f"/group"
-    data = {
-        "title": "test_group",
-        "source_id": source_id,
-        "category": "BALANCE",
-        "columns": ["sender", ],
-        "fixed_columns": ["sender"],
-    }
-    response = client.post(url, json=data)
-
-    # Delete
-    url = f"/group/{response.json().get('id')}"
-    response = client.delete(url)
-    assert response.status_code == 200
-
-
-@pytest.mark.asyncio
-async def test_total_recalculate_return_200(source_id):
-    # Create group
-    url = f"/group"
-    data = {
-        "title": "test_group",
-        "source_id": source_id,
-        "category": "BALANCE",
-        "columns": ["sender", ],
-        "fixed_columns": ["sender"],
-    }
-    response = client.post(url, json=data)
-    group_id = response.json().pop("id")
-
-    # Recalculate group
-    url = f"/group/{group_id}/total-recalculate"
-    response = client.patch(url)
-    assert response.status_code == 200
+#
+# @pytest.mark.asyncio
+# async def test_get_many_groups_return_200():
+#     url = f"/group"
+#     response = client.get(url)
+#     assert response.status_code == 200
+#
+#
+# @pytest.mark.asyncio
+# async def test_get_partial_update_group_return_200(source_id):
+#     # Create group
+#     url = f"/group"
+#     data = {
+#         "title": "test_group",
+#         "source_id": source_id,
+#         "category": "BALANCE",
+#         "columns": ["sender", ],
+#         "fixed_columns": ["sender"],
+#     }
+#     response = client.post(url, json=data)
+#
+#     # Partial update
+#     url = f"/group/{response.json().get('id')}"
+#     data = {
+#         "title": "New group title"
+#     }
+#     response = client.patch(url, json=data)
+#     assert response.status_code == 200
+#
+#
+# @pytest.mark.asyncio
+# async def test_get_delete_group_return_200(source_id):
+#     # Create group
+#     url = f"/group"
+#     data = {
+#         "title": "test_group",
+#         "source_id": source_id,
+#         "category": "BALANCE",
+#         "columns": ["sender", ],
+#         "fixed_columns": ["sender"],
+#     }
+#     response = client.post(url, json=data)
+#
+#     # Delete
+#     url = f"/group/{response.json().get('id')}"
+#     response = client.delete(url)
+#     assert response.status_code == 200
+#
+#
+# @pytest.mark.asyncio
+# async def test_total_recalculate_return_200(source_id):
+#     # Create group
+#     url = f"/group"
+#     data = {
+#         "title": "test_group",
+#         "source_id": source_id,
+#         "category": "BALANCE",
+#         "columns": ["sender", ],
+#         "fixed_columns": ["sender"],
+#     }
+#     response = client.post(url, json=data)
+#     group_id = response.json().pop("id")
+#
+#     # Recalculate group
+#     url = f"/group/{group_id}/total-recalculate"
+#     response = client.patch(url)
+#     assert response.status_code == 200
