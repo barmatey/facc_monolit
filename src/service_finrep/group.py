@@ -8,7 +8,7 @@ class Group:
     def __init__(self, df: pd.DataFrame = None):
         self.group = df.copy() if df is not None else None
 
-    async def create_group(self, wire: Wire, ccols: list[str]) -> None:
+    def create_group(self, wire: Wire, ccols: list[str]) -> None:
         raise NotImplemented
 
     def get_group_df(self) -> pd.DataFrame:
@@ -29,7 +29,7 @@ class ProfitGroup(Group):
             ProfitGroupSchema.validate(df)
         super().__init__(df)
 
-    async def create_group(self, wire: Wire, ccols: list[str]) -> None:
+    def create_group(self, wire: Wire, ccols: list[str]) -> None:
         df = wire.get_wire_df().copy()
         df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
 
@@ -47,7 +47,7 @@ class BalanceGroup(Group):
     assets_key = 'assets'
     liabs_key = 'liabs'
 
-    async def create_group(self, wire: Wire, ccols: list[str]) -> None:
+    def create_group(self, wire: Wire, ccols: list[str]) -> None:
         df = wire.get_wire_df()
         df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
 

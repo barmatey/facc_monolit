@@ -34,7 +34,7 @@ async def source_id():
     # Append wires
     url = f"/source-db/{id_}"
     path = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
-    csv = pd.read_csv(path, encoding="utf8").to_csv(index=False)
+    csv = pd.read_csv(path, encoding="utf8").head(1000).to_csv(index=False)
     client.post(url, files={"file": csv})
 
     return id_

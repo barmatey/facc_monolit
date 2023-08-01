@@ -11,7 +11,7 @@ class Report:
     def __init__(self, df: pd.DataFrame = None):
         self.report = df.copy() if df is not None else None
 
-    async def create_report(self, wire: Wire, group: Group, interval: Interval) -> None:
+    def create_report(self, wire: Wire, group: Group, interval: Interval) -> None:
         raise NotImplemented
 
     def get_report(self) -> pd.DataFrame:
@@ -35,7 +35,7 @@ class Report:
         return gcols
 
     @staticmethod
-    async def _split_df_by_intervals(df: pd.DataFrame) -> pd.DataFrame:
+    def _split_df_by_intervals(df: pd.DataFrame) -> pd.DataFrame:
         if 'interval' not in df.columns:
             raise ValueError('"interval" not in df.columns')
         if len(df.columns) > 2:
@@ -54,7 +54,7 @@ class Report:
         return splited
 
     @staticmethod
-    async def _merge_wire_df_with_group_df(wire: pd.DataFrame, group: pd.DataFrame, ccols: list[str]):
+    def _merge_wire_df_with_group_df(wire: pd.DataFrame, group: pd.DataFrame, ccols: list[str]):
         wire = wire.copy()
         group = group.copy()
 
@@ -65,21 +65,21 @@ class Report:
         return merged
 
     @staticmethod
-    async def _group_wires_by_gcols_and_intervals(df: pd.DataFrame, interval: Interval,
+    def _group_wires_by_gcols_and_intervals(df: pd.DataFrame, interval: Interval,
                                                   gcols: list[str]) -> DataFrameGroupBy:
         df["interval"] = pd.cut(df['date'], interval.get_intervals(), right=True)
         grouped_wires = df.groupby(gcols + ['interval'], as_index=False)
         return grouped_wires
 
     @staticmethod
-    async def _calculate_saldo_from_grouped_wires(grouped_wires: DataFrameGroupBy, gcols: list[str]) -> pd.DataFrame:
+    def _calculate_saldo_from_grouped_wires(grouped_wires: DataFrameGroupBy, gcols: list[str]) -> pd.DataFrame:
         result: pd.DataFrame = grouped_wires[gcols + ['debit', 'credit']].sum(numeric_only=True)
         result['saldo'] = result['debit'] - result['credit']
         result = result.drop(['debit', 'credit'], axis=1).set_index(gcols)
         return result
 
     @staticmethod
-    async def _drop_zero_rows(df: pd.DataFrame) -> pd.DataFrame:
+    def _drop_zero_rows(df: pd.DataFrame) -> pd.DataFrame:
         df = df.replace(0, np.nan)
         df = df.dropna(axis=0, how='all')
         df = df.replace(np.nan, 0)
@@ -87,7 +87,7 @@ class Report:
 
 
 class ProfitReport(Report):
-    async def create_report(self, wire: Wire, group: ProfitGroup, interval: Interval) -> None:
+    def create_report(self, wire: Wire, group: ProfitGroup, interval: Interval) -> None:
         wire_df = wire.get_wire_df()
         group_df = group.get_group_df()
 
@@ -95,38 +95,38 @@ class ProfitReport(Report):
         gcols = super()._find_gcols(wire_df.columns, group_df.columns)
         gcols.pop(gcols.index('reverse'))
 
-        merged_wires = await super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
+        merged_wires = super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
         merged_wires.loc[merged_wires['reverse'], 'debit'] = -1 * merged_wires.loc[merged_wires['reverse'], 'debit']
         merged_wires.loc[merged_wires['reverse'], 'credit'] = -1 * merged_wires.loc[merged_wires['reverse'], 'credit']
         merged_wires = merged_wires.drop('reverse', axis=1)
 
-        grouped_wires = await super()._group_wires_by_gcols_and_intervals(merged_wires, interval, gcols)
+        grouped_wires = super()._group_wires_by_gcols_and_intervals(merged_wires, interval, gcols)
 
-        report = await super()._calculate_saldo_from_grouped_wires(grouped_wires, gcols)
-        report = await super()._split_df_by_intervals(report)
-        report = await super()._drop_zero_rows(report)
+        report = super()._calculate_saldo_from_grouped_wires(grouped_wires, gcols)
+        report = super()._split_df_by_intervals(report)
+        report = super()._drop_zero_rows(report)
 
         report = report.round(2)
         self.report = report
 
 
 class BalanceReport(Report):
-    async def create_report(self, wire: Wire, group: BalanceGroup, interval: Interval) -> None:
+    def create_report(self, wire: Wire, group: BalanceGroup, interval: Interval) -> None:
         wire_df = wire.get_wire_df()
         group_df = group.get_group_df()
 
         ccols = super()._find_ccols(wire_df.columns, group_df.columns)
         gcols = super()._find_gcols(wire_df.columns, group_df.columns)
 
-        merged_wires = await super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
+        merged_wires = super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
         merged_wires["interval"] = pd.cut(merged_wires['date'], interval.get_intervals(), right=True)
 
-        assets = await self._create_balance_side(merged_wires, gcols=group.get_gcols_assets(gcols))
-        liabs = -1 * await self._create_balance_side(merged_wires, gcols=group.get_gcols_liabs(gcols))
+        assets = self._create_balance_side(merged_wires, gcols=group.get_gcols_assets(gcols))
+        liabs = -1 * self._create_balance_side(merged_wires, gcols=group.get_gcols_liabs(gcols))
 
         report = pd.concat([assets, liabs], keys=['assets', 'liabs'])
         report[report < 0] = 0
-        report = await super()._drop_zero_rows(report)
+        report = super()._drop_zero_rows(report)
 
         saldo = assets.sum() + liabs.sum()
         report.loc[('saldo',) * len(report.index.levels), :] = saldo
@@ -134,11 +134,11 @@ class BalanceReport(Report):
         report = report.round(2)
         self.report = report
 
-    async def _create_balance_side(self, df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
+    def _create_balance_side(self, df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
         group = df.groupby(gcols + ['interval'], as_index=False)
         side: pd.DataFrame = group[gcols + ['debit', 'credit']].sum(numeric_only=True)
         side['saldo'] = side['debit'] - side['credit']
         side = side.drop(['debit', 'credit'], axis=1).set_index(gcols)
-        side = await super()._split_df_by_intervals(side)
+        side = super()._split_df_by_intervals(side)
         side = side.cumsum(axis=1)
         return side

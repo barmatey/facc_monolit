@@ -16,6 +16,8 @@ from .sheet import SheetRepoPostgres, SheetModel
 from .base import BasePostgres, BaseModel
 from .source import SourceModel
 
+from src.group.repository import GroupRepository
+
 
 class GroupModel(BaseModel):
     __tablename__ = "group"
@@ -40,7 +42,7 @@ class GroupModel(BaseModel):
         return converted
 
 
-class GroupRepoPostgres(BasePostgres, GroupRepo):
+class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
     model = GroupModel
 
     def __init__(self, session: AsyncSession):

@@ -16,6 +16,8 @@ from src.wire.entities import Wire
 from .base import BasePostgres, BaseModel
 from .source import SourceModel
 
+from src.group.repository import WireRepository
+
 
 class WireModel(BaseModel):
     __tablename__ = "wire"
@@ -62,7 +64,7 @@ class WireSchema(pa.DataFrameModel):
         return df
 
 
-class WireRepoPostgres(BasePostgres, WireRepo, RepositoryCrud):
+class WireRepoPostgres(BasePostgres, WireRepo, RepositoryCrud, WireRepository):
     model = WireModel
 
     async def create_one(self, data: DTO) -> Wire:
