@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 
 from src.core_types import DTO, OrderBy, Id_
 from .entities import Entity, Group, ExpandedGroup
-from .dto import InnerCreateSheet
+from .events import InnerCreateSheet
 
 
 class CrudRepository(ABC):

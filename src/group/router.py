@@ -6,10 +6,12 @@ from src import helpers, db,  core_types
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres
 from src.service_finrep import Finrep, BalanceFinrep, ProfitFinrep
 
-from .entities import Group
+from .entities import Group, ExpandedGroup
 from .enums import GroupCategory
-from .dto import CreateGroupRequest
-from .service import ServiceGroup
+from .events import CreateGroupRequest
+from . import events
+from . import messagebus
+from .service import GroupService
 
 FINREP = {
     "BALANCE": BalanceFinrep,
@@ -36,7 +38,7 @@ async def create_group(data: CreateGroupRequest, get_asession=Depends(db.get_asy
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
-        group_service = ServiceGroup(group_repo, wire_repo, get_finrep(data.category))
+        group_service = GroupService(group_repo, wire_repo, get_finrep(data.category))
         group = await group_service.create_one(data)
         await session.commit()
         return group
@@ -46,12 +48,10 @@ async def create_group(data: CreateGroupRequest, get_asession=Depends(db.get_asy
 @helpers.async_timeit
 async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
-        group_repo = GroupRepoPostgres(session)
-        wire_repo = WireRepoPostgres(session)
-        group_service = ServiceGroup(group_repo, wire_repo, get_finrep())
-        group = await group_service.get_one({"id": group_id})
-        group = group.to_json()
-        return JSONResponse(content=group)
+        event = events.GroupGotten(group_id=group_id)
+        results = await messagebus.handle(event, session)
+        group: ExpandedGroup = results.pop()
+        return JSONResponse(content=group.to_json())
 
 
 @router_group.get("/")
@@ -61,7 +61,7 @@ async def get_groups(category: GroupCategory = None,
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
         wire_repo = WireRepoPostgres(session)
-        group_service = ServiceGroup(group_repo, wire_repo, get_finrep(category))
+        group_service = GroupService(group_repo, wire_repo, get_finrep(category))
         groups: list[Group] = await group_service.get_many({})
         return groups
 

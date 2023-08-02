@@ -3,9 +3,10 @@ import pandas as pd
 
 from src import core_types
 from . import enums
+from .entities import Group
 
 
-class InnerCreateSheet(BaseModel):
+class InnerCreateSheet(core_types.Event):
     df: pd.DataFrame
     drop_index: bool
     drop_columns: bool
@@ -37,5 +38,9 @@ class CreateGroup(BaseModel):
         arbitrary_types_allowed = True
 
 
-class GetGroup(BaseModel):
+class GroupGotten(core_types.Event):
     group_id: core_types.Id_
+
+
+class SourceUpdated(core_types.Event):
+    group_instance: Group
