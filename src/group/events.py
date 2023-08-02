@@ -61,6 +61,10 @@ class SourceUpdated(core_types.Event):
     group_instance: Group
 
 
+class GroupSheetUpdated(core_types.Event):
+    group_id: core_types.Id_
+
+
 class GroupPartialUpdated(core_types.Event):
     title: typing.Optional[str]
     category: typing.Optional[enums.GroupCategory]

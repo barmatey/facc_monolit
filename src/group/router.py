@@ -47,7 +47,8 @@ async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_
     async with get_asession as session:
         event = events.GroupGotten(group_id=group_id)
         results = await messagebus.handle(event, session)
-        group: ExpandedGroup = results.pop()
+        group: ExpandedGroup = results[0]
+        await session.commit()
         return JSONResponse(content=group.to_json())
 
 
@@ -57,8 +58,7 @@ async def get_groups(category: GroupCategory = None,
                      get_asession=Depends(db.get_async_session)) -> list[Group]:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
-        wire_repo = WireRepoPostgres(session)
-        group_service = GroupService(group_repo, wire_repo, get_finrep(category))
+        group_service = GroupService(group_repo)
         groups: list[Group] = await group_service.get_many({})
         return groups
 
@@ -69,8 +69,7 @@ async def partial_update_group(group_id: core_types.Id_, data: events.GroupParti
                                get_asession=Depends(db.get_async_session)) -> Group:
     async with get_asession as session:
         group_repo = GroupRepoPostgres(session)
-        wire_repo = WireRepoPostgres(session)
-        group_service = GroupService(group_repo, wire_repo, get_finrep())
+        group_service = GroupService(group_repo)
         updated: Group = await group_service.update_one(data, filter_by={"id": group_id})
         await session.commit()
         return updated

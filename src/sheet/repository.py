@@ -20,7 +20,7 @@ class SheetRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def overwrite_one(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
+    async def overwrite_one(self, sheet_id: core_types.Id_, data: events.SheetCreated) -> None:
         raise NotImplemented
 
     @abstractmethod

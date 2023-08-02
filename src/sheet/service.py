@@ -1,3 +1,5 @@
+import pandas as pd
+
 from  src import core_types
 
 from . import schema, entities, events
@@ -13,9 +15,16 @@ class SheetService:
         sheet_id = await self.sheet_repo.create_one(data)
         return sheet_id
 
+    async def overwrite_one(self, sheet_id: core_types.Id_, data: events.SheetCreated) -> None:
+        await self.sheet_repo.overwrite_one(sheet_id, data)
+
     async def get_one(self, data: schema.SheetRetrieveSchema) -> schema.SheetSchema:
         sheet_schema = await self.sheet_repo.get_one(data=data)
         return sheet_schema
+
+    async def get_one_as_frame(self, data: events.SheetGotten) -> pd.DataFrame:
+        sheet_df = await self.sheet_repo.get_one_as_frame(sheet_id=data.sheet_id)
+        return sheet_df
 
     async def get_scroll_size(self, sheet_id: core_types.Id_) -> entities.ScrollSize:
         scroll_size = await self.sheet_repo.get_scroll_size(sheet_id=sheet_id)

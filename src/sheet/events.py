@@ -1,5 +1,8 @@
+import typing
+
 import pandas as pd
 
+import core_types
 from src.core_types import Event
 
 
@@ -11,3 +14,9 @@ class SheetCreated(Event):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class SheetGotten(Event):
+    sheet_id: core_types.Id_
+    from_scroll: typing.Optional[int]
+    to_scroll: typing.Optional[int]
