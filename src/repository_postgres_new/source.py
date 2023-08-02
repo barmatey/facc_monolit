@@ -67,6 +67,6 @@ class SourceRepoPostgres(BasePostgres, repository.RepositoryCrud):
         model: SourceModel = await super().update_one(data, filter_by)
         return model.to_entity()
 
-    async def delete_one(self, filter_by: dict) -> core_types.Id_:
+    async def delete_one(self, filter_by: dict) -> entities.Entity:
         model: SourceModel = await super().delete_one(filter_by)
-        return model.id
+        return model.to_entity()

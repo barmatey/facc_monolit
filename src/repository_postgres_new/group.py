@@ -8,6 +8,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 
 from src.core_types import OrderBy
 from src.group.entities import Group, ExpandedGroup, InnerSource
+from src.group import events
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
 from src import core_types
@@ -33,7 +34,6 @@ class GroupModel(BaseModel):
                                           unique=True)
     updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
-
     def to_entity(self) -> Group:
         converted = Group(
             id=self.id,
@@ -55,25 +55,10 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         super().__init__(session)
         self.__sheet_repo = SheetRepoPostgres(session)
 
-    async def create_one(self, data: entities_report.GroupCreate) -> Group:
-        # Create sheet model
-        sheet_data = entities_sheet.SheetCreate(
-            df=data.dataframe,
-            drop_index=data.drop_index,
-            drop_columns=data.drop_columns,
-        )
-        sheet_id = await self.__sheet_repo.create_one(sheet_data)
-
-        # Create group model
-        group_data = dict(
-            title=data.title,
-            category_id=CategoryEnum[data.category].value,
-            columns=data.columns,
-            fixed_columns=data.fixed_columns,
-            source_id=data.source_id,
-            sheet_id=sheet_id,
-        )
-        group_model = await super().create_one(group_data)
+    async def create_one(self, data: events.GroupCreated) -> Group:
+        data = data.dict()
+        data['category_id'] = CategoryEnum[data.pop('category')].value
+        group_model = await super().create_one(data)
         return group_model.to_entity()
 
     async def get_one(self, filter_by: dict) -> Group:

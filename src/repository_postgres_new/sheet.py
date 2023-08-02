@@ -4,6 +4,7 @@ from sqlalchemy import insert, select, func, bindparam, update, delete, Integer,
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
+from src.sheet import events
 from src import core_types
 from src.sheet import entities, schema
 from src.sheet.repository import SheetRepo
@@ -334,7 +335,7 @@ class SheetCrud(BasePostgres):
         self.normalizer = Normalizer
         self.denormalizer = Denormalizer
 
-    async def create_one(self, data: schema.SheetCreateSchema) -> core_types.Id_:
+    async def create_one(self, data: events.SheetCreated) -> core_types.Id_:
         sheet: SheetModel = await super().create_one({})
         await self._create_rows_cols_and_cells(sheet.id, data)
         return sheet.id
@@ -356,7 +357,7 @@ class SheetCrud(BasePostgres):
         df = denormalizer.get_denormalized()
         return df
 
-    async def overwrite_one(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
+    async def overwrite_one(self, sheet_id: core_types.Id_, data: events.SheetCreated) -> None:
         # Delete old data
         filter_by = {"sheet_id": sheet_id}
         await self.__sheet_row.delete_many(filter_by)
@@ -365,7 +366,7 @@ class SheetCrud(BasePostgres):
         # Create new data
         await self._create_rows_cols_and_cells(sheet_id, data)
 
-    async def _create_rows_cols_and_cells(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
+    async def _create_rows_cols_and_cells(self, sheet_id: core_types.Id_, data: events.SheetCreated) -> None:
         # Create row, col and cell data from denormalized dataframe
         normalizer = self.normalizer(**data.dict())
         normalizer.normalize()
@@ -410,7 +411,7 @@ class SheetRepoPostgres(SheetRepo):
         self.__sheet_filter = SheetFilter(session)
         self.__sheet_sorter = SheetSorter(session)
 
-    async def create_one(self, data: schema.SheetCreateSchema) -> core_types.Id_:
+    async def create_one(self, data: events.SheetCreated) -> core_types.Id_:
         return await self.__sheet_crud.create_one(data)
 
     async def get_one(self, data: schema.SheetRetrieveSchema) -> entities.Sheet:

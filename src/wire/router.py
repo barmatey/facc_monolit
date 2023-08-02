@@ -5,8 +5,8 @@ from loguru import logger
 from src import db
 from src import core_types, helpers
 from src.repository_postgres_new import SourceRepoPostgres, WireRepoPostgres
-from . import schema
-from . import entities
+
+from . import entities, schema, messagebus, events
 from .service import CrudService
 
 router_source = APIRouter(
@@ -76,11 +76,10 @@ router_wire = APIRouter(
 
 @router_wire.post("/")
 @helpers.async_timeit
-async def create_one(data: schema.WireCreateSchema, get_asession=Depends(db.get_async_session)) -> entities.Wire:
+async def create_one(data: events.WireCreated, get_asession=Depends(db.get_async_session)) -> entities.Wire:
     async with get_asession as session:
-        wire_repo = WireRepoPostgres(session)
-        wire_service = CrudService(wire_repo)
-        created: entities.Wire = await wire_service.create_one(data)
+        results = await messagebus.handle(data, session)
+        created: entities.Wire = results[0]
         await session.commit()
         return created
 
@@ -155,10 +154,9 @@ async def partial_update_one(wire_id: core_types.Id_, data: schema.WirePartialUp
 @router_wire.delete("/{wire_id}")
 @helpers.async_timeit
 async def delete_one(wire_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> int:
-    filter_by = {"id": wire_id}
     async with get_asession as session:
-        wire_repo = WireRepoPostgres(session)
-        wire_service = CrudService(wire_repo)
-        deleted_id = await wire_service.delete_one(filter_by)
+        event = events.WireDeleted(wire_id=wire_id)
+        results = await messagebus.handle(event, session)
+        deleted_id = results[0]
         await session.commit()
         return deleted_id

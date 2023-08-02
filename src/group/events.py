@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 import pandas as pd
+from websockets import typing
 
 from src import core_types
 from . import enums
@@ -38,9 +39,30 @@ class CreateGroup(BaseModel):
         arbitrary_types_allowed = True
 
 
+"""
+ACTUAL
+"""
+
+
+class GroupCreated(core_types.Event):
+    title: str
+    category: enums.GroupCategory
+    source_id: core_types.Id_
+    columns: list[str]
+    fixed_columns: list[str]
+    sheet_id: core_types.Id_ = None
+
+
 class GroupGotten(core_types.Event):
     group_id: core_types.Id_
 
 
 class SourceUpdated(core_types.Event):
     group_instance: Group
+
+
+class GroupPartialUpdated(core_types.Event):
+    title: typing.Optional[str]
+    category: typing.Optional[enums.GroupCategory]
+    columns: typing.Optional[list[str]]
+    fixed_columns: typing.Optional[list[str]]

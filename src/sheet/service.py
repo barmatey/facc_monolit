@@ -1,6 +1,6 @@
 from  src import core_types
 
-from . import schema, entities
+from . import schema, entities, events
 from .repository import SheetRepo
 
 
@@ -8,6 +8,10 @@ class SheetService:
 
     def __init__(self, sheet_repo: SheetRepo):
         self.sheet_repo = sheet_repo
+
+    async def create_one(self, data: events.SheetCreated) -> core_types.Id_:
+        sheet_id = await self.sheet_repo.create_one(data)
+        return sheet_id
 
     async def get_one(self, data: schema.SheetRetrieveSchema) -> schema.SheetSchema:
         sheet_schema = await self.sheet_repo.get_one(data=data)

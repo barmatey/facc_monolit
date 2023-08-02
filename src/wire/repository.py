@@ -36,5 +36,5 @@ class RepositoryCrud(ABC):
         pass
 
     @abstractmethod
-    async def delete_one(self, filter_by: dict) -> core_types.Id_:
+    async def delete_one(self, filter_by: dict) -> entities.Entity:
         pass

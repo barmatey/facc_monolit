@@ -8,7 +8,6 @@ from src.service_finrep import Finrep, BalanceFinrep, ProfitFinrep
 
 from .entities import Group, ExpandedGroup
 from .enums import GroupCategory
-from .events import CreateGroupRequest
 from . import events
 from . import messagebus
 from .service import GroupService
@@ -34,12 +33,10 @@ router_group = APIRouter(
 
 @router_group.post("/")
 @helpers.async_timeit
-async def create_group(data: CreateGroupRequest, get_asession=Depends(db.get_async_session)) -> Group:
+async def create_group(data: events.GroupCreated, get_asession=Depends(db.get_async_session)) -> Group:
     async with get_asession as session:
-        group_repo = GroupRepoPostgres(session)
-        wire_repo = WireRepoPostgres(session)
-        group_service = GroupService(group_repo, wire_repo, get_finrep(data.category))
-        group = await group_service.create_one(data)
+        results = await messagebus.handle(data, session)
+        group: Group = results.pop()
         await session.commit()
         return group
 
@@ -66,18 +63,18 @@ async def get_groups(category: GroupCategory = None,
         return groups
 
 
-# @router_group.patch("/{group_id}")
-# @helpers.async_timeit
-# async def partial_update_group(group_id: core_types.Id_, data: schema.GroupPartialUpdateSchema,
-#                                get_asession=Depends(db.get_async_session)) -> entities.Group:
-#     async with get_asession as session:
-#         group_repo = GroupRepoPostgres(session)
-#         wire_repo = WireRepoPostgres(session)
-#         group_service = GroupService(group_repo, wire_repo)
-#         updated: entities.Group = await group_service.update_one(data, filter_by={"id": group_id})
-#         await session.commit()
-#         return updated
-#
+@router_group.patch("/{group_id}")
+@helpers.async_timeit
+async def partial_update_group(group_id: core_types.Id_, data: events.GroupPartialUpdated,
+                               get_asession=Depends(db.get_async_session)) -> Group:
+    async with get_asession as session:
+        group_repo = GroupRepoPostgres(session)
+        wire_repo = WireRepoPostgres(session)
+        group_service = GroupService(group_repo, wire_repo, get_finrep())
+        updated: Group = await group_service.update_one(data, filter_by={"id": group_id})
+        await session.commit()
+        return updated
+
 #
 # @router_group.patch("/{group_id}/total-recalculate")
 # @helpers.async_timeit

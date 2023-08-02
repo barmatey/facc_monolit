@@ -3,12 +3,12 @@ from abc import ABC, abstractmethod
 import pandas as pd
 
 from src import core_types
-from . import entities, schema
+from . import entities, schema, events
 
 
 class SheetRepo(ABC):
     @abstractmethod
-    async def create_one(self, data: schema.SheetCreateSchema) -> core_types.Id_:
+    async def create_one(self, data: events.SheetCreated) -> core_types.Id_:
         raise NotImplemented
 
     @abstractmethod

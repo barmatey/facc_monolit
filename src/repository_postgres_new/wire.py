@@ -85,9 +85,9 @@ class WireRepoPostgres(BasePostgres, WireRepo, RepositoryCrud, WireRepository):
         updated: WireModel = await super().update_one(data, filter_by)
         return updated.to_entity()
 
-    async def delete_one(self, filter_by: dict) -> Id_:
+    async def delete_one(self, filter_by: dict) -> Wire:
         model: WireModel = await super().delete_one(filter_by)
-        return model.id
+        return model.to_entity()
 
     async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
                                 slice_to: int = None) -> pd.DataFrame:

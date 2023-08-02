@@ -38,34 +38,15 @@ class GroupService(ServiceCrud):
         self.wire_repo = wire_repo
         self.finrep = finrep
 
-    async def create_one(self, data: CreateGroupRequest) -> Group:
-        wire_df = await self.wire_repo.get_wire_dataframe(filter_by={"source_id": data.source_id})
-        group_df: pd.DataFrame = self.finrep.create_group(wire_df, data.columns)
-
-        group_create = CreateGroup(
-            title=data.title,
-            source_id=data.source_id,
-            columns=data.columns,
-            fixed_columns=data.fixed_columns,
-            dataframe=group_df,
-            drop_index=True,
-            drop_columns=False,
-            category=data.category,
-        )
-        group: Group = await self.group_repo.create_one(group_create)
-        return group
-
     async def get_one(self, filter_by: dict) -> ExpandedGroup:
         group: ExpandedGroup = await self.group_repo.get_expanded_one(filter_by)
-        if group.updated_at < group.source.updated_ad:
-            raise Exception
         return group
 
     async def total_recalculate(self, instance: Group) -> ExpandedGroup:
         wire_df = await self.wire_repo.get_wire_dataframe({"source_id": instance.source_id})
 
         old_group_df = await self.group_repo.get_linked_dataframe(instance.id)
-        new_group_df = await self.finrep.create_group(wire_df, instance.columns)
+        new_group_df = self.finrep.create_group(wire_df, instance.columns)
 
         if len(instance.fixed_columns):
             new_group_df = pd.merge(
