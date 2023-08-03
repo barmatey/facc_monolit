@@ -1,3 +1,4 @@
+import loguru
 import numpy as np
 import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy

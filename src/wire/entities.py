@@ -23,6 +23,7 @@ class Source(BaseModel):
     total_start_date: pd.Timestamp
     total_end_date: pd.Timestamp
     wcols: list[Wcol]
+    updated_at: pd.Timestamp
 
 
 class WireCreate(BaseModel):

@@ -34,7 +34,6 @@ class SourceModel(BaseModel):
     wcols: Mapped[list[dict]] = mapped_column(JSON, default=get_wcols, nullable=False)
     updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
-
     def to_entity(self) -> entities.Source:
         result = entities.Source(
             id=self.id,
@@ -42,6 +41,7 @@ class SourceModel(BaseModel):
             total_start_date=self.total_start_date,
             total_end_date=self.total_end_date,
             wcols=list(self.wcols),
+            updated_at=self.updated_at,
         )
         return result
 

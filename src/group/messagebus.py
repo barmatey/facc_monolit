@@ -38,14 +38,14 @@ class MessageBus:
 
     async def handle_group_created(self, event: group_events.GroupCreated) -> Group:
         event = event.copy()
-        # Load wires
+
+        # Create sheet
         wire_df = await self.wire_service.get_many_as_frame({"sheet_id": event.sheet_id})
-        # Create group_df
         finrep = get_finrep(event.category)
         group_df = finrep.create_group(wire_df, target_columns=event.columns)
-        # Create sheet from group_df
         event.sheet_id = await self.sheet_service.create_one(
             sheet_events.SheetCreated(df=group_df, drop_index=True, drop_columns=False))
+
         # Create group from sheet_id and other group data
         group = await self.group_service.create_one(event)
         return group

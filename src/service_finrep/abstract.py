@@ -12,11 +12,22 @@ class Finrep(ABC):
 
     @abstractmethod
     def create_group(self, wire_df: pd.DataFrame, target_columns: list[str]) -> pd.DataFrame:
-        pass
+        raise NotImplemented
+
+    @abstractmethod
+    def create_interval(self,
+                        period_year: int,
+                        period_month: int,
+                        period_day: int,
+                        start_date: pd.Timestamp,
+                        end_date: pd.Timestamp,
+                        total_start_date=None,
+                        total_end_date=None):
+        raise NotImplemented
 
     @abstractmethod
     def create_report(self, wire_df: pd.DataFrame, group_df: pd.DataFrame, interval: Interval) -> pd.DataFrame:
-        pass
+        raise NotImplemented
 
 
 class BaseFinrep(Finrep, ABC):
@@ -31,6 +42,17 @@ class BaseFinrep(Finrep, ABC):
         group.create_group(wire, ccols=target_columns)
         group_df = group.get_group_df()
         return group_df
+
+    def create_interval(self,
+                        period_year: int,
+                        period_month: int,
+                        period_day: int,
+                        start_date: pd.Timestamp,
+                        end_date: pd.Timestamp,
+                        total_start_date=None,
+                        total_end_date=None):
+        return self.interval(period_year, period_month, period_day, start_date, end_date, total_start_date,
+                             total_end_date)
 
     def create_report(self, wire_df: pd.DataFrame, group_df: pd.DataFrame, interval: Interval) -> pd.DataFrame:
         wire = self.wire(wire_df)
