@@ -1,7 +1,4 @@
-import typing
-
 import pandas as pd
-from pydantic import BaseModel
 from abc import ABC, abstractmethod
 
 from src.core_types import DTO, OrderBy, Id_
@@ -44,11 +41,4 @@ class GroupRepository(CrudRepository, ABC):
 
     @abstractmethod
     async def get_linked_dataframe(self, group_id: Id_) -> pd.DataFrame:
-        raise NotImplemented
-
-
-class WireRepository(ABC):
-
-    @abstractmethod
-    async def get_wire_dataframe(self, filter_by: dict, order_by: OrderBy = None) -> pd.DataFrame:
         raise NotImplemented
