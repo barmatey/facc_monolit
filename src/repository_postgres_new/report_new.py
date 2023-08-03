@@ -69,19 +69,29 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
             .join(CategoryModel, ReportModel.category_id == CategoryModel.id)
             .join(SourceModel, ReportModel.source_id == SourceModel.id)
             .join(GroupModel, ReportModel.group_id == GroupModel.id)
-            .join(SheetModel, ReportModel.sheet_id == SourceModel.id)
+            .join(SheetModel, ReportModel.sheet_id == SheetModel.id)
             .join(IntervalModel, ReportModel.interval_id == IntervalModel.id)
             .where(*filters)
         )
 
         result = await session.execute(stmt)
         result = result.fetchall()
-        # if len(result) == 0:
-        #     raise LookupError(f"filter_by: {filter_by}")
-        # result = result[0]
-        # loguru.logger.debug(result)
 
-        return []
+        if len(result) == 0:
+            raise LookupError(f"filter_by: {filter_by}")
+
+        result = [
+            x[0].to_entity(
+                category=x[1].to_entity(),
+                source=entities.InnerSource(id=x[2].id, title=x[2].title, updated_at=x[2].updated_at),
+                group=entities.InnerGroup(id=x[3].id, title=x[3].title, updated_at=x[3].updated_at,
+                                          sheet_id=x[3].sheet_id),
+                sheet=entities.InnerSheet(id=x[4].id),
+                interval=x[5].to_entity(),
+            )
+            for x in result
+        ]
+        return result
 
     async def update_one(self, data: DTO, filter_by: dict) -> entities.Report:
         raise NotImplemented

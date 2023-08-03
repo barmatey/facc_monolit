@@ -1,4 +1,6 @@
 from collections import deque
+
+import loguru
 import pandas as pd
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -44,6 +46,7 @@ class MessageBus:
 
         # Create report
         report: report_entities.Report = await self.report_service.create_one(event)
+        loguru.logger.debug(report)
         return report
 
     async def handle_report_list_gotten(self, event: report_events.ReportListGotten) -> list[report_entities.Report]:
