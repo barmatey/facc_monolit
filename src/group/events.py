@@ -57,7 +57,11 @@ class GroupGotten(core_types.Event):
     group_id: core_types.Id_
 
 
-class SourceUpdated(core_types.Event):
+class GroupListGotten(core_types.Event):
+    pass
+
+
+class ParentSourceUpdated(core_types.Event):
     group_instance: Group
 
 
@@ -70,3 +74,8 @@ class GroupPartialUpdated(core_types.Event):
     category: typing.Optional[enums.GroupCategory]
     columns: typing.Optional[list[str]]
     fixed_columns: typing.Optional[list[str]]
+    id: typing.Optional[core_types.Id_]
+
+
+class GroupDeleted(core_types.Event):
+    group_id: core_types.Id_

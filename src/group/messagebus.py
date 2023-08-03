@@ -1,20 +1,17 @@
 from collections import deque
-
-import loguru
 import pandas as pd
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.service_finrep import get_finrep
+import core_types
 from src.core_types import Event
+from src.service_finrep import get_finrep
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres, SheetRepoPostgres
 from src.sheet.service import SheetService
 from src.wire.service import CrudService
+from src.sheet import events as sheet_events
 
 from .entities import Group, ExpandedGroup
 from .service import GroupService
-
-from src.sheet import events as sheet_events
-from src.sheet import handlers as sheet_handlers
 from . import events as group_events
 
 
@@ -48,11 +45,29 @@ async def handle_group_gotten(event: group_events.GroupGotten, session: AsyncSes
     group_service = GroupService(group_repo)
     group = await group_service.get_one({"id": event.group_id})
     if group.updated_at < group.source.updated_ad:
-        queue.append(group_events.SourceUpdated(group_instance=group))
+        queue.append(group_events.ParentSourceUpdated(group_instance=group))
     return group
 
 
-async def handle_source_updated(event: group_events.SourceUpdated, session: AsyncSession,
+async def handle_group_list_gotten(_event: group_events.GroupListGotten, session: AsyncSession,
+                                   _queue: deque) -> list[Group]:
+    group_repo = GroupRepoPostgres(session)
+    group_service = GroupService(group_repo)
+    groups = await group_service.get_many(filter_by={})
+    return groups
+
+
+async def handle_group_partial_updated(event: group_events.GroupPartialUpdated, session: AsyncSession,
+                                       _queue: deque) -> Group:
+    group_repo = GroupRepoPostgres(session)
+    group_service = GroupService(group_repo)
+    data = event.dict()
+    filter_by = {"id": data.pop('id')}
+    updated = await group_service.update_one(data, filter_by)
+    return updated
+
+
+async def handle_source_updated(event: group_events.ParentSourceUpdated, session: AsyncSession,
                                 queue: deque) -> ExpandedGroup:
     # Load wires
     wire_repo = WireRepoPostgres(session)
@@ -90,17 +105,28 @@ async def handle_source_updated(event: group_events.SourceUpdated, session: Asyn
     return result
 
 
-async def handle_group_sheet_updated(event: group_events.GroupSheetUpdated, session: AsyncSession, queue: deque):
+async def handle_group_sheet_updated(event: group_events.GroupSheetUpdated, session: AsyncSession, _queue: deque):
     group_repo = GroupRepoPostgres(session)
     group_service = GroupService(group_repo)
     _ = await group_service.update_one({}, filter_by={"id": event.group_id})
 
 
+async def handle_group_deleted(event: group_events.GroupDeleted, session: AsyncSession,
+                               _queue: deque) -> core_types.Id_:
+    group_repo = GroupRepoPostgres(session)
+    group_service = GroupService(group_repo)
+    deleted_id = await group_service.delete_one(filter_by={"id": event.group_id})
+    return deleted_id
+
+
 HANDLERS = {
     group_events.GroupCreated: [handle_group_created],
     group_events.GroupGotten: [handle_group_gotten],
-    group_events.SourceUpdated: [handle_source_updated],
+    group_events.GroupListGotten: [handle_group_list_gotten],
+    group_events.GroupPartialUpdated: [handle_group_partial_updated],
+    group_events.ParentSourceUpdated: [handle_source_updated],
     group_events.GroupSheetUpdated: [handle_group_sheet_updated],
+    group_events.GroupDeleted: [handle_group_deleted],
 }
 
 

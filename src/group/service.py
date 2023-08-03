@@ -1,12 +1,8 @@
 from pydantic import BaseModel
-import pandas as pd
-
 from src.core_types import Id_, OrderBy, DTO
 
-from src.service_finrep import Finrep
-from .entities import Entity, Group, ExpandedGroup
-from .events import CreateGroupRequest, CreateGroup, InnerCreateSheet
-from .repository import CrudRepository, GroupRepository, WireRepository
+from .entities import Entity, ExpandedGroup
+from .repository import CrudRepository, GroupRepository
 
 
 class ServiceCrud:

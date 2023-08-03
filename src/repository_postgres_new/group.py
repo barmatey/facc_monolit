@@ -78,7 +78,7 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         result = await session.execute(stmt)
         result = result.fetchall()
         if len(result) != 1:
-            raise LookupError
+            raise LookupError(f"filter_by: {filter_by}")
         result = result[0]
 
         group: Group = result[0].to_entity()

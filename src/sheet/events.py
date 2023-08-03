@@ -2,7 +2,7 @@ import typing
 
 import pandas as pd
 
-import core_types
+from src import core_types
 from src.core_types import Event
 
 
