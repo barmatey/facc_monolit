@@ -2,7 +2,7 @@ from collections import deque
 import pandas as pd
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import core_types
+from src import core_types
 from src.core_types import Event
 from src.service_finrep import get_finrep
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres, SheetRepoPostgres
@@ -31,7 +31,7 @@ class MessageBus:
             group_events.GroupGotten: [self.handle_group_gotten],
             group_events.GroupListGotten: [self.handle_group_list_gotten],
             group_events.GroupPartialUpdated: [self.handle_group_partial_updated],
-            group_events.ParentSourceUpdated: [self.handle_source_updated],
+            group_events.GroupParentUpdated: [self.handle_source_updated],
             group_events.GroupSheetUpdated: [self.handle_group_sheet_updated],
             group_events.GroupDeleted: [self.handle_group_deleted],
         }
@@ -53,7 +53,7 @@ class MessageBus:
     async def handle_group_gotten(self, event: group_events.GroupGotten) -> Group:
         group = await self.group_service.get_one({"id": event.group_id})
         if group.updated_at < group.source.updated_ad:
-            self.queue.append(group_events.ParentSourceUpdated(group_instance=group))
+            self.queue.append(group_events.GroupParentUpdated(group_instance=group))
         return group
 
     async def handle_group_list_gotten(self, _event: group_events.GroupListGotten) -> list[Group]:
@@ -66,7 +66,7 @@ class MessageBus:
         updated = await self.group_service.update_one(data, filter_by)
         return updated
 
-    async def handle_source_updated(self, event: group_events.ParentSourceUpdated) -> ExpandedGroup:
+    async def handle_source_updated(self, event: group_events.GroupParentUpdated) -> ExpandedGroup:
         old_group_df = await self.sheet_service.get_one_as_frame(
             sheet_events.SheetGotten(sheet_id=event.group_instance.sheet_id))
 

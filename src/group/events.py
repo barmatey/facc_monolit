@@ -61,7 +61,7 @@ class GroupListGotten(core_types.Event):
     pass
 
 
-class ParentSourceUpdated(core_types.Event):
+class GroupParentUpdated(core_types.Event):
     group_instance: Group
 
 

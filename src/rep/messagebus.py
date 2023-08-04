@@ -41,12 +41,20 @@ class MessageBus:
 
         # Create sheet
         sheet_id = await self.sheet_service.create_one(
-            sheet_events.SheetCreated(df=report_df, drop_index=True, drop_columns=False))
+            sheet_events.SheetCreated(df=report_df, drop_index=False, drop_columns=False))
         event.sheet = report_entities.InnerSheet(id=sheet_id)
 
         # Create report
         report: report_entities.Report = await self.report_service.create_one(event)
-        loguru.logger.debug(report)
+        return report
+
+    async def handle_report_gotten(self, event: report_events.ReportGotten) -> report_entities.Report:
+        filter_by = {"id": event.report_id}
+        report: report_entities.Report = await self.report_service.get_one(filter_by)
+        if report.group.updated_at < report.source.updated_at:
+            self.queue.append(group_events.GroupParentUpdated)
+        if report.updated_at < report.group.updated_at or report.updated_at < report.source.updated_at:
+            self.queue.append(report_events.ReportParentUpdated)
         return report
 
     async def handle_report_list_gotten(self, event: report_events.ReportListGotten) -> list[report_entities.Report]:
@@ -57,7 +65,10 @@ class MessageBus:
     def _register_handlers(self):
         return {
             report_events.ReportCreated: [self.handle_report_created],
-            report_events.ReportListGotten: [self.handle_report_list_gotten]
+            report_events.ReportGotten: [self.handle_report_gotten],
+            report_events.ReportListGotten: [self.handle_report_list_gotten],
+            report_events.ReportParentUpdated: NotImplemented,
+            group_events.GroupParentUpdated: NotImplemented,
         }
 
     async def handle(self, event: Event) -> list:

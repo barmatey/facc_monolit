@@ -29,7 +29,7 @@ async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_
     async with get_asession as session:
         event = events.GroupGotten(group_id=group_id)
         results = await MessageBus(session).handle(event)
-        group: ExpandedGroup = results[0]
+        group: ExpandedGroup = results.pop()
         await session.commit()
         return JSONResponse(content=group.to_json())
 

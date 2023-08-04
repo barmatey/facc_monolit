@@ -1,7 +1,7 @@
 import typing
 import pandas as pd
 
-from core_types import Event, Id_
+from src.core_types import Event, Id_
 from . import entities
 
 
@@ -27,5 +27,13 @@ class ReportCreated(Event):
     sheet: typing.Optional[entities.InnerSheet]
 
 
+class ReportGotten(Event):
+    report_id: Id_
+
+
 class ReportListGotten(Event):
     category: entities.InnerCategory
+
+
+class ReportParentUpdated(Event):
+    pass

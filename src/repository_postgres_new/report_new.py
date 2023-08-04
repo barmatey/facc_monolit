@@ -58,7 +58,9 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
                                       source=event.source, sheet=event.sheet)
 
     async def get_one(self, filter_by: dict) -> entities.Report:
-        raise NotImplemented
+        # todo i think this method needs refactoring =)
+        reports = await self.get_many(filter_by)
+        return reports[0]
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
                        slice_to: int = None) -> list[entities.Report]:
