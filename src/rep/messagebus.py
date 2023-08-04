@@ -79,3 +79,4 @@ class MessageBus:
             for handler in self._HANDLERS[type(event)]:
                 results.append(await handler(event))
         return results
+

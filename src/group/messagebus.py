@@ -31,7 +31,7 @@ class MessageBus:
             group_events.GroupGotten: [self.handle_group_gotten],
             group_events.GroupListGotten: [self.handle_group_list_gotten],
             group_events.GroupPartialUpdated: [self.handle_group_partial_updated],
-            group_events.GroupParentUpdated: [self.handle_source_updated],
+            group_events.GroupParentUpdated: [self.handle_parent_updated],
             group_events.GroupSheetUpdated: [self.handle_group_sheet_updated],
             group_events.GroupDeleted: [self.handle_group_deleted],
         }
@@ -66,7 +66,7 @@ class MessageBus:
         updated = await self.group_service.update_one(data, filter_by)
         return updated
 
-    async def handle_source_updated(self, event: group_events.GroupParentUpdated) -> ExpandedGroup:
+    async def handle_parent_updated(self, event: group_events.GroupParentUpdated) -> ExpandedGroup:
         old_group_df = await self.sheet_service.get_one_as_frame(
             sheet_events.SheetGotten(sheet_id=event.group_instance.sheet_id))
 
