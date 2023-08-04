@@ -35,5 +35,9 @@ class ReportListGotten(Event):
     category: entities.InnerCategory
 
 
-class ReportParentUpdated(Event):
-    pass
+class ParentUpdated(Event):
+    report_instance: entities.Report
+
+
+class ReportSheetUpdated(Event):
+    report_instance: entities.Report

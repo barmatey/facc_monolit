@@ -8,13 +8,13 @@ from .handlers_group import HANDLERS_GROUP
 HANDLERS = HANDLERS_GROUP | HANDLERS_REPORT
 
 
-async def handle(event: Event, session: AsyncSession) -> list:
+async def handle(event: Event, session: AsyncSession):
     hs = HandlerService(session)
     hs.queue.append(event)
-    results = []
+    results = {}
     while hs.queue:
         event = hs.queue.popleft()
         for handler in HANDLERS[type(event)]:
             # Important! handler function changes HandlerService queue state
-            results.append(await handler(hs, event))
-    return results
+            results = results | await handler(hs, event)
+    return results["core"]
