@@ -11,7 +11,7 @@ from src.group import events as group_events
 from .handler_service import HandlerService as HS
 
 
-async def handle_group_created(hs: HS, event: group_events.GroupCreated) -> dict[str, group_entities.Group]:
+async def handle_group_created(hs: HS, event: group_events.GroupCreated):
     event = event.copy()
 
     # Create sheet
@@ -23,29 +23,30 @@ async def handle_group_created(hs: HS, event: group_events.GroupCreated) -> dict
 
     # Create group from sheet_id and other group data
     group = await hs.group_service.create_one(event)
-    return {"core": group}
+    hs.results[group_events.GroupCreated] = group
 
 
-async def handle_group_gotten(hs: HS, event: group_events.GroupGotten) -> dict[str, group_entities.Group]:
+async def handle_group_gotten(hs: HS, event: group_events.GroupGotten):
     group = await hs.group_service.get_one({"id": event.group_id})
+    hs.results[group_events.GroupGotten] = group
+
     if group.updated_at < group.source.updated_ad:
         hs.queue.append(group_events.ParentUpdated(group_instance=group))
-    return {"core": group}
 
 
-async def handle_group_list_gotten(hs: HS, _event: group_events.GroupListGotten) -> dict[str, group_entities.Group]:
+async def handle_group_list_gotten(hs: HS, _event: group_events.GroupListGotten):
     groups = await hs.group_service.get_many(filter_by={})
-    return {"core": groups}
+    hs.results[group_events.GroupListGotten] = groups
 
 
-async def handle_group_partial_updated(hs: HS, event: group_events.GroupListGotten) -> dict[str, group_entities.Group]:
+async def handle_group_partial_updated(hs: HS, event: group_events.GroupListGotten):
     data = event.dict()
     filter_by = {"id": data.pop('id')}
     updated = await hs.group_service.update_one(data, filter_by)
-    return {"core": updated}
+    hs.results[group_events.GroupListGotten] = updated
 
 
-async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated) -> dict[str, group_entities.ExpandedGroup]:
+async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     old_group_df = await hs.sheet_service.get_one_as_frame(
         sheet_events.SheetGotten(sheet_id=event.group_instance.sheet_id))
 
@@ -66,21 +67,22 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated) -> di
         data=sheet_events.SheetCreated(df=new_group_df, drop_index=True, drop_columns=False)
     )
 
-    hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"id": event.group_instance.id}))
+    group = group_entities.ExpandedGroup(**event.group_instance.dict())
+    group.sheet_df = new_group_df
+    hs.results[group_events.ParentUpdated] = group
 
-    result = group_entities.ExpandedGroup(**event.group_instance.dict())
-    result.sheet_df = new_group_df
-    return {"core": result}
+    # Append next events
+    hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"id": event.group_instance.id}))
 
 
 async def handle_group_sheet_updated(hs: HS, event: group_events.GroupSheetUpdated):
     _ = await hs.group_service.update_one({}, event.group_filter_by)
-    return {"no_matter": None}
+    hs.results[group_events.GroupSheetUpdated] = None
 
 
-async def handle_group_deleted(hs: HS, event: group_events.GroupDeleted) -> dict[str, core_types.Id_]:
+async def handle_group_deleted(hs: HS, event: group_events.GroupDeleted):
     deleted_id = await hs.group_service.delete_one(filter_by={"id": event.group_id})
-    return {"core": deleted_id}
+    hs.results[group_events.GroupDeleted] = deleted_id
 
 
 HANDLERS_GROUP = {

@@ -7,7 +7,6 @@ from .entities import Group, ExpandedGroup
 from .enums import GroupCategory
 from . import events
 
-
 router_group = APIRouter(
     prefix="/group",
     tags=['Group']
@@ -18,7 +17,8 @@ router_group = APIRouter(
 @helpers.async_timeit
 async def create_group(data: events.GroupCreated, get_asession=Depends(db.get_async_session)) -> Group:
     async with get_asession as session:
-        group: Group = await messagebus.handle(data, session)
+        result = await messagebus.handle(data, session)
+        group: Group = result[events.GroupCreated]
         await session.commit()
         return group
 
@@ -28,7 +28,8 @@ async def create_group(data: events.GroupCreated, get_asession=Depends(db.get_as
 async def get_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         event = events.GroupGotten(group_id=group_id)
-        group: ExpandedGroup = await messagebus.handle(event, session)
+        result = await messagebus.handle(event, session)
+        group: ExpandedGroup = result[events.GroupGotten]
         await session.commit()
         return JSONResponse(content=group.to_json())
 
@@ -39,7 +40,8 @@ async def get_groups(category: GroupCategory = None,
                      get_asession=Depends(db.get_async_session)) -> list[Group]:
     async with get_asession as session:
         event = events.GroupListGotten()
-        groups: list[Group] = await messagebus.handle(event, session)
+        result = await messagebus.handle(event, session)
+        groups: list[Group] = result[events.GroupListGotten]
         await session.commit()
         return groups
 
@@ -51,7 +53,8 @@ async def partial_update_group(group_id: core_types.Id_, data: events.GroupParti
     async with get_asession as session:
         event = data.copy()
         event.id = group_id
-        updated: Group = await messagebus.handle(data, session)
+        result = await messagebus.handle(data, session)
+        updated: Group = result[events.GroupPartialUpdated]
         await session.commit()
         return updated
 
@@ -61,6 +64,7 @@ async def partial_update_group(group_id: core_types.Id_, data: events.GroupParti
 async def delete_group(group_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> core_types.Id_:
     async with get_asession as session:
         event = events.GroupDeleted(group_id=group_id)
-        deleted_id: core_types.Id_ = await messagebus.handle(event, session)
+        result = await messagebus.handle(event, session)
+        deleted_id: core_types.Id_ = result[events.GroupDeleted]
         await session.commit()
         return deleted_id

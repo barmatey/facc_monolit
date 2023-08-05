@@ -12,6 +12,7 @@ from src.repository_postgres_new import (GroupRepoPostgres, WireRepoPostgres, Sh
 class HandlerService:
     def __init__(self, session: AsyncSession):
         self.queue = deque()
+        self.results = {}
         self.wire_service = CrudService(WireRepoPostgres(session))
         self.sheet_service = SheetService(SheetRepoPostgres(session))
         self.group_service = GroupService(GroupRepoPostgres(session))

@@ -12,53 +12,53 @@ from src.sheet import entities as sheet_entities
 from .handler_service import HandlerService as HS
 
 
-async def handle_sheet_created(hs: HS, event: sheet_events.SheetCreated) -> dict[str, core_types.Id_]:
+async def handle_sheet_created(hs: HS, event: sheet_events.SheetCreated):
     sheet_id: core_types.Id_ = await hs.sheet_service.create_one(event)
-    return {"core": sheet_id}
+    hs.results[type(event)] = sheet_id
 
 
-async def handle_sheet_gotten(hs: HS, event: sheet_events.SheetGotten) -> dict[str, sheet_entities.Sheet]:
+async def handle_sheet_gotten(hs: HS, event: sheet_events.SheetGotten):
     sheet: sheet_entities.Sheet = await hs.sheet_service.get_one(event)
-    return {"core": sheet}
+    hs.results[type(event)] = sheet
 
 
-async def handle_col_filter_gotten(hs: HS, event: sheet_events.ColFilterGotten) -> dict[str, sheet_entities.ColFilter]:
+async def handle_col_filter_gotten(hs: HS, event: sheet_events.ColFilterGotten):
     col_filter: sheet_entities.ColFilter = await hs.sheet_service.get_col_filter(event)
-    return {"core": col_filter}
+    hs.results[type(event)] = col_filter
 
 
-async def handle_col_filter_updated(hs: HS, event: sheet_events.ColFilterUpdated) -> dict[str, None]:
+async def handle_col_filter_updated(hs: HS, event: sheet_events.ColFilterUpdated):
     await hs.sheet_service.update_col_filter(event)
-    return {"core": None}
+    hs.results[type(event)] = None
 
 
-async def handle_clear_all_filters(hs: HS, event: sheet_events.ColFiltersDropped) -> dict[str, None]:
+async def handle_clear_all_filters(hs: HS, event: sheet_events.ColFiltersDropped):
     await hs.sheet_service.clear_all_filters(sheet_id=event.sheet_id)
-    return {"core": None}
+    hs.results[type(event)] = None
 
 
-async def handle_col_sorter_updated(hs: HS, event: sheet_events.ColFilterUpdated) -> dict[str, None]:
+async def handle_col_sorter_updated(hs: HS, event: sheet_events.ColFilterUpdated):
     await hs.sheet_service.update_col_sorter(event)
     event = sheet_events.SheetGotten(sheet_id=event.sheet_id)
     hs.queue.append(event)
-    return {"no_matter": None}
+    hs.results[type(event)] = None
 
 
-async def handle_col_width_updated(hs: HS, event: sheet_events.ColWidthUpdated) -> dict[str, None]:
+async def handle_col_width_updated(hs: HS, event: sheet_events.ColWidthUpdated):
     await hs.sheet_service.update_col_size(event)
-    return {"core": None}
+    hs.results[type(event)] = None
 
 
-async def handle_cells_partial_updated(hs: HS, event: sheet_events.CellsPartialUpdated) -> dict[str, None]:
+async def handle_cells_partial_updated(hs: HS, event: sheet_events.CellsPartialUpdated):
     await hs.sheet_service.update_cell_many(sheet_id=event.sheet_id, data=event.cells)
     hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"sheet_id": event.sheet_id}))
-    return {"core": None}
+    hs.results[type(event)] = None
 
 
-async def handle_rows_deleted(hs: HS, event: sheet_events.RowsDeleted) -> dict[str, None]:
+async def handle_rows_deleted(hs: HS, event: sheet_events.RowsDeleted):
     await hs.sheet_service.delete_row_many(sheet_id=event.sheet_id, row_ids=event.row_ids)
     hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"sheet_id": event.sheet_id}))
-    return {"core": None}
+    hs.results[type(event)] = None
 
 
 HANDLERS_SHEET = {

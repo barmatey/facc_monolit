@@ -19,7 +19,8 @@ async def get_one_sheet(sheet_id: core_types.Id_, from_scroll: int = None, to_sc
                         get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         event = events.SheetGotten(sheet_id=sheet_id, from_scroll=from_scroll, to_scroll=to_scroll)
-        sheet: entities.Sheet = await messagebus.handle(event, session)
+        results = await messagebus.handle(event, session)
+        sheet: entities.Sheet = results[events.SheetGotten]
         await session.commit()
         return JSONResponse(content=sheet)
 
@@ -30,7 +31,8 @@ async def get_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
                          get_asession=Depends(db.get_async_session)) -> entities.ColFilter:
     async with get_asession as session:
         event = events.ColFilterGotten(sheet_id=sheet_id, col_id=col_id)
-        col_filter: entities.ColFilter = await messagebus.handle(event, session)
+        results = await messagebus.handle(event, session)
+        col_filter: entities.ColFilter = results[events.ColFilterGotten]
         await session.commit()
         return col_filter
 
@@ -62,7 +64,8 @@ async def update_col_sorter(sheet_id: core_types.Id_, data: entities.ColSorter,
                             get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         event = events.ColSortedUpdated(sheet_id=sheet_id, col_sorter=data)
-        sheet = await messagebus.handle(event, session)
+        results = await messagebus.handle(event, session)
+        sheet: entities.Sheet = results[events.SheetGotten]
         await session.commit()
         return JSONResponse(content=sheet)
 

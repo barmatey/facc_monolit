@@ -24,7 +24,7 @@ def get_inner_category(value: enums.ReportCategory) -> entities.InnerCategory:
 async def create_report(event: events.ReportCreated, get_asession=Depends(db.get_async_session)) -> entities.Report:
     async with get_asession as session:
         result = await messagebus.handle(event, session)
-        report: entities.Report = result
+        report: entities.Report = result[events.ReportGotten]
         await session.commit()
         return report
 
@@ -35,8 +35,9 @@ async def get_report(report_id: core_types.Id_, get_asession=Depends(db.get_asyn
     async with get_asession as session:
         event = events.ReportGotten(report_id=report_id)
         result = await messagebus.handle(event, session)
+        report = result[events.ReportGotten]
         await session.commit()
-        return result
+        return report
 
 
 @router_report.get("/")
@@ -46,7 +47,7 @@ async def get_reports(category: enums.ReportCategory = None,
     async with get_asession as session:
         event = events.ReportListGotten(category=get_inner_category(category))
         result = await messagebus.handle(event, session)
-        groups: list[entities.Report] = result
+        groups: list[entities.Report] = result[events.ReportListGotten]
         await session.commit()
         return groups
 
@@ -56,6 +57,7 @@ async def get_reports(category: enums.ReportCategory = None,
 async def delete_report(report_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> core_types.Id_:
     async with get_asession as session:
         event = events.ReportDeleted(report_id=report_id)
-        deleted_id: core_types.Id_ = await messagebus.handle(event, session)
+        result = await messagebus.handle(event, session)
+        deleted_id = result[events.ReportDeleted]
         await session.commit()
         return deleted_id
