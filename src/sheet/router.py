@@ -27,7 +27,7 @@ async def get_one_sheet(sheet_id: core_types.Id_, from_scroll: int = None, to_sc
 @router.get("/{sheet_id}/retrieve-unique-cells")
 @helpers.async_timeit
 async def get_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
-                         get_asession=Depends(db.get_async_session)) -> schema.ColFilterSchema:
+                         get_asession=Depends(db.get_async_session)) -> entities.ColFilter:
     async with get_asession as session:
         event = events.ColFilterGotten(sheet_id=sheet_id, col_id=col_id)
         col_filter: entities.ColFilter = await messagebus.handle(event, session)
@@ -37,7 +37,7 @@ async def get_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
 
 @router.patch("/{sheet_id}/update-col-filter")
 @helpers.async_timeit
-async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSchema,
+async def update_col_filter(sheet_id: core_types.Id_, data: entities.ColFilter,
                             get_asession=Depends(db.get_async_session)) -> int:
     async with get_asession as session:
         event = events.ColFilterUpdated(sheet_id=sheet_id, col_filter=data)

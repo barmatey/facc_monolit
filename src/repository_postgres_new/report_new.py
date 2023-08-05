@@ -1,21 +1,32 @@
 import loguru
-from sqlalchemy import select
+from sqlalchemy import select, String, Integer, ForeignKey, TIMESTAMP, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.core_types import Id_, OrderBy, DTO
 from src.rep.repository import ReportRepository
 from src.rep import events, entities
 
-from .base import BasePostgres
+from .base import BasePostgres, BaseModel
 from .category import CategoryModel
 from .group import GroupModel
-from .report import ReportModel as ReportModelOld
 from .source import SourceModel
 from .sheet import SheetModel
 from .interval import IntervalModel, IntervalRepoPostgres
 
 
-class ReportModel(ReportModelOld):
+class ReportModel(BaseModel):
+    __tablename__ = 'report'
+    title: Mapped[str] = mapped_column(String(80), nullable=False)
+    category_id: Mapped[int] = mapped_column(Integer, ForeignKey(CategoryModel.id, ondelete='CASCADE'), nullable=False)
+    group_id: Mapped[int] = mapped_column(Integer, ForeignKey(GroupModel.id, ondelete='CASCADE'), nullable=False)
+    source_id: Mapped[int] = mapped_column(Integer, ForeignKey(SourceModel.id, ondelete='CASCADE'), nullable=False)
+    sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False,
+                                          unique=True)
+    interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(IntervalModel.id, ondelete='RESTRICT'), nullable=False,
+                                             unique=True)
+    updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
+
     def to_entity(self,
                   interval: entities.Interval,
                   category: entities.InnerCategory,

@@ -3,7 +3,6 @@ import enum
 from fastapi import APIRouter, Depends
 from loguru import logger
 
-from src.repository_postgres_new.report import ReportRepoPostgres
 from src import helpers, db
 from src.repository_postgres_new import GroupRepoPostgres, WireRepoPostgres, CategoryRepoPostgres
 from .. import core_types
