@@ -51,11 +51,13 @@ async def handle_col_width_updated(hs: HS, event: sheet_events.ColWidthUpdated) 
 
 async def handle_cells_partial_updated(hs: HS, event: sheet_events.CellsPartialUpdated) -> dict[str, None]:
     await hs.sheet_service.update_cell_many(sheet_id=event.sheet_id, data=event.cells)
+    hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"sheet_id": event.sheet_id}))
     return {"core": None}
 
 
 async def handle_rows_deleted(hs: HS, event: sheet_events.RowsDeleted) -> dict[str, None]:
     await hs.sheet_service.delete_row_many(sheet_id=event.sheet_id, row_ids=event.row_ids)
+    hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"sheet_id": event.sheet_id}))
     return {"core": None}
 
 

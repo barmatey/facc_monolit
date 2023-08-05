@@ -66,7 +66,7 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated) -> di
         data=sheet_events.SheetCreated(df=new_group_df, drop_index=True, drop_columns=False)
     )
 
-    hs.queue.append(group_events.GroupSheetUpdated(group_id=event.group_instance.id))
+    hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"id": event.group_instance.id}))
 
     result = group_entities.ExpandedGroup(**event.group_instance.dict())
     result.sheet_df = new_group_df
@@ -74,7 +74,7 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated) -> di
 
 
 async def handle_group_sheet_updated(hs: HS, event: group_events.GroupSheetUpdated):
-    _ = await hs.group_service.update_one({}, filter_by={"id": event.group_id})
+    _ = await hs.group_service.update_one({}, event.group_filter_by)
     return {"no_matter": None}
 
 

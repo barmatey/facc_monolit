@@ -66,7 +66,7 @@ class ParentUpdated(core_types.Event):
 
 
 class GroupSheetUpdated(core_types.Event):
-    group_id: core_types.Id_
+    group_filter_by: dict
 
 
 class GroupPartialUpdated(core_types.Event):
