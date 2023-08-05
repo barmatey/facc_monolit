@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from loguru import logger
 from sqlalchemy import insert, select, func, bindparam, update, delete, Integer, Boolean, ForeignKey, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -155,9 +156,9 @@ class SheetCell(BasePostgres):
         # Update
         stmt = (
             self.model.__table__.update()
-            .where(self.model.sheet_id == sheet_id,
-                   ~self.model.is_readonly,
+            .where(~self.model.is_readonly,
                    self.model.id == bindparam('cell_id'),
+                   self.model.sheet_id == sheet_id,
                    )
             .values({
                 "value": bindparam("cell_value"),
@@ -174,7 +175,7 @@ class SheetFilter:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> entities.ColFilter:
+    async def get_col_filter(self, data: events.ColFilterGotten) -> entities.ColFilter:
         stmt = (
             select(self.__cell_model.value, self.__cell_model.dtype, self.__cell_model.is_filtred)
             .distinct()
@@ -188,9 +189,9 @@ class SheetFilter:
                                         items=[entities.FilterItem(**x) for x in items])
         return col_filter
 
-    async def update_col_filter(self, data: entities.ColFilter) -> None:
-        await self._update_filtred_flag_in_cells(data)
-        await self._update_filtred_flag_and_scroll_pos_in_rows(sheet_id=data.sheet_id)
+    async def update_col_filter(self, data: events.ColFilterUpdated) -> None:
+        await self._update_filtred_flag_in_cells(data.col_filter)
+        await self._update_filtred_flag_and_scroll_pos_in_rows(sheet_id=data.col_filter.sheet_id)
 
     async def clear_all_filters(self, sheet_id: core_types.Id_) -> None:
         stmt = update(self.__cell_model).where(self.__cell_model.sheet_id == sheet_id)
@@ -340,7 +341,7 @@ class SheetCrud(BasePostgres):
         await self._create_rows_cols_and_cells(sheet.id, data)
         return sheet.id
 
-    async def get_one(self, data: schema.SheetRetrieveSchema) -> entities.Sheet:
+    async def get_one(self, data: events.SheetGotten) -> entities.Sheet:
         filter_by = {"sheet_id": data.sheet_id, "is_filtred": True, }
         order_by = 'index'
         rows = await self.__sheet_row.get_many_as_frame(filter_by, order_by)
@@ -414,14 +415,14 @@ class SheetRepoPostgres(SheetRepo):
     async def create_one(self, data: events.SheetCreated) -> core_types.Id_:
         return await self.__sheet_crud.create_one(data)
 
-    async def get_one(self, data: schema.SheetRetrieveSchema) -> entities.Sheet:
+    async def get_one(self, data: events.SheetGotten) -> entities.Sheet:
         return await self.__sheet_crud.get_one(data)
 
     async def get_one_as_frame(self, sheet_id: core_types.Id_) -> pd.DataFrame:
         filter_by = {"sheet_id": sheet_id}
         return await self.__sheet_crud.get_one_as_frame(filter_by)
 
-    async def overwrite_one(self, sheet_id: core_types.Id_, data: entities.SheetCreate) -> None:
+    async def overwrite_one(self, sheet_id: core_types.Id_, data: events.SheetCreated) -> None:
         await self.__sheet_crud.overwrite_one(sheet_id, data)
 
     async def delete_many(self, filter_by: dict) -> None:
@@ -433,8 +434,8 @@ class SheetRepoPostgres(SheetRepo):
     async def get_scroll_size(self, sheet_id: core_types.Id_) -> entities.ScrollSize:
         raise NotImplemented
 
-    async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
-        filter_by = {'sheet_id': sheet_id, 'id': data.sindex_id}
+    async def update_col_size(self, data: events.ColWidthUpdated) -> None:
+        filter_by = {'sheet_id': data.sheet_id, 'id': data.sindex_id}
         data = {"size": data.new_size}
         await self.__sheet_col.update_many(data, filter_by)
 
@@ -447,10 +448,10 @@ class SheetRepoPostgres(SheetRepo):
     async def delete_row_many(self, sheet_id: core_types.Id_, row_ids: list[core_types.Id_]) -> None:
         await self.__sheet_row.delete_many_by_ids(sheet_id, row_ids)
 
-    async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> entities.ColFilter:
+    async def get_col_filter(self, data: events.ColFilterGotten) -> entities.ColFilter:
         return await self.__sheet_filter.get_col_filter(data)
 
-    async def update_col_filter(self, data: entities.ColFilter) -> None:
+    async def update_col_filter(self, data: events.ColFilterUpdated) -> None:
         await self.__sheet_filter.update_col_filter(data)
 
     async def update_col_sorter(self, data: entities.ColSorter) -> None:

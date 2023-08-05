@@ -3,7 +3,8 @@ from fastapi.responses import JSONResponse
 
 from src.repository_postgres_new.sheet import SheetRepoPostgres
 from src import db, core_types, helpers
-from . import schema, entities
+from src.messagebus import messagebus
+from . import schema, entities, events
 from .service import SheetService
 
 router = APIRouter(
@@ -17,15 +18,9 @@ router = APIRouter(
 async def get_one_sheet(sheet_id: core_types.Id_, from_scroll: int = None, to_scroll: int = None,
                         get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-
-        sheet_retrieve_schema = schema.SheetRetrieveSchema(
-            sheet_id=sheet_id,
-            from_scroll=from_scroll,
-            to_scroll=to_scroll
-        )
-        sheet = await sheet_service.get_one(sheet_retrieve_schema)
+        event = events.SheetGotten(sheet_id=sheet_id, from_scroll=from_scroll, to_scroll=to_scroll)
+        sheet: entities.Sheet = await messagebus.handle(event, session)
+        await session.commit()
         return JSONResponse(content=sheet)
 
 
@@ -34,10 +29,9 @@ async def get_one_sheet(sheet_id: core_types.Id_, from_scroll: int = None, to_sc
 async def get_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
                          get_asession=Depends(db.get_async_session)) -> schema.ColFilterSchema:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        retrieve_schema = schema.ColFilterRetrieveSchema(sheet_id=sheet_id, col_id=col_id, )
-        col_filter = await sheet_service.get_col_filter(retrieve_schema)
+        event = events.ColFilterGotten(sheet_id=sheet_id, col_id=col_id)
+        col_filter: entities.ColFilter = await messagebus.handle(event, session)
+        await session.commit()
         return col_filter
 
 
@@ -46,9 +40,8 @@ async def get_col_filter(sheet_id: core_types.Id_, col_id: core_types.Id_,
 async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSchema,
                             get_asession=Depends(db.get_async_session)) -> int:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        await sheet_service.update_col_filter(data)
+        event = events.ColFilterUpdated(sheet_id=sheet_id, col_filter=data)
+        await messagebus.handle(event, session)
         await session.commit()
         return 1
 
@@ -57,25 +50,21 @@ async def update_col_filter(sheet_id: core_types.Id_, data: schema.ColFilterSche
 @helpers.async_timeit
 async def clear_all_filters(sheet_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> int:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        await sheet_service.clear_all_filters(sheet_id)
+        event = events.ColFiltersDropped(sheet_id=sheet_id)
+        await messagebus.handle(event, session)
         await session.commit()
         return 1
 
 
 @router.patch("/{sheet_id}/update-col-sorter")
 @helpers.async_timeit
-async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSchema,
+async def update_col_sorter(sheet_id: core_types.Id_, data: entities.ColSorter,
                             get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        await sheet_service.update_col_sorter(data)
-        sheet_retrieve_schema = schema.SheetRetrieveSchema(sheet_id=sheet_id)
-        sheet_schema = await sheet_service.get_one(sheet_retrieve_schema)
+        event = events.ColSortedUpdated(sheet_id=sheet_id, col_sorter=data)
+        sheet = await messagebus.handle(event, session)
         await session.commit()
-        return JSONResponse(content=sheet_schema)
+        return JSONResponse(content=sheet)
 
 
 @router.patch("/{sheet_id}/update-col-width")
@@ -83,9 +72,8 @@ async def update_col_sorter(sheet_id: core_types.Id_, data: schema.ColSorterSche
 async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema,
                            get_asession=Depends(db.get_async_session)) -> int:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        await sheet_service.update_col_size(sheet_id, data)
+        event = events.ColWidthUpdated(sheet_id=sheet_id, new_size=data.new_size, sindex_id=data.sindex_id)
+        await messagebus.handle(event, session)
         await session.commit()
         return 1
 
@@ -96,9 +84,8 @@ async def partial_update_cell(sheet_id: core_types.Id_, data: schema.PartialUpda
                               get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         try:
-            sheet_repo = SheetRepoPostgres(session)
-            sheet_service = SheetService(sheet_repo)
-            await sheet_service.update_cell(sheet_id, data)
+            event = events.CellsPartialUpdated(sheet_id=sheet_id, cells=[data])
+            await messagebus.handle(event, session)
             await session.commit()
             return JSONResponse(content=1)
         except LookupError:
@@ -110,9 +97,8 @@ async def partial_update_cell(sheet_id: core_types.Id_, data: schema.PartialUpda
 async def partial_update_many_cells(sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema],
                                     get_asession=Depends(db.get_async_session)) -> int:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        await sheet_service.update_cell_many(sheet_id, data)
+        event = events.CellsPartialUpdated(sheet_id=sheet_id, cells=data)
+        await messagebus.handle(event, session)
         await session.commit()
         return 1
 
@@ -122,8 +108,7 @@ async def partial_update_many_cells(sheet_id: core_types.Id_, data: list[schema.
 async def delete_rows(sheet_id: core_types.Id_, row_ids: list[core_types.Id_],
                       get_asession=Depends(db.get_async_session)) -> int:
     async with get_asession as session:
-        sheet_repo = SheetRepoPostgres(session)
-        sheet_service = SheetService(sheet_repo)
-        await sheet_service.delete_row_many(sheet_id, row_ids)
+        event = events.RowsDeleted(sheet_id=sheet_id, row_ids=row_ids)
+        await messagebus.handle(event, session)
         await session.commit()
         return 1

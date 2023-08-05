@@ -48,9 +48,9 @@ async def delete_source(source_id: core_types.Id_, get_asession=Depends(db.get_a
     async with get_asession as session:
         source_repo = SourceRepoPostgres(session)
         source_service = CrudService(source_repo)
-        deleted_id: core_types.Id_ = await source_service.delete_one({"id": source_id})
+        deleted: entities.Source = await source_service.delete_one({"id": source_id})
         await session.commit()
-        return deleted_id
+        return deleted.id
 
 
 @router_source.post("/{source_id}")

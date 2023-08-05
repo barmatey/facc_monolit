@@ -51,3 +51,4 @@ class Report(BaseModel):
     source: InnerSource
     group: InnerGroup
     sheet: InnerSheet
+

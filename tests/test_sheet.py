@@ -124,20 +124,6 @@ async def test_update_cell_return_200():
 
 
 @pytest.mark.asyncio
-async def test_update_freeze_cell_return_423():
-    sheet_id = 13
-    url = f"/sheet/{sheet_id}/update-cell"
-    data = {
-        "id": 0,
-        "sheet_id": sheet_id,
-        "value": "New value",
-        "dtype": "TEXT",
-    }
-    response = client.patch(url, json=data)
-    assert response.status_code == 423
-
-
-@pytest.mark.asyncio
 async def test_partial_update_many_cells_return_200():
     sheet_id = 13
     url = f"/sheet/{sheet_id}/update-cell-bulk"

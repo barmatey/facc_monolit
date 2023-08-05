@@ -1,6 +1,7 @@
 import typing
 import pandas as pd
 
+from src import core_types
 from src.core_types import Event, Id_
 from . import entities
 
@@ -33,6 +34,10 @@ class ReportGotten(Event):
 
 class ReportListGotten(Event):
     category: entities.InnerCategory
+
+
+class ReportDeleted(Event):
+    report_id: core_types.Id_
 
 
 class ParentUpdated(Event):

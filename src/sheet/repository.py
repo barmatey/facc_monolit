@@ -12,7 +12,7 @@ class SheetRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def get_one(self, data: schema.SheetRetrieveSchema) -> entities.Sheet:
+    async def get_one(self, data: events.SheetGotten) -> entities.Sheet:
         raise NotImplemented
 
     @abstractmethod
@@ -36,7 +36,7 @@ class SheetRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def update_col_size(self, sheet_id: core_types.Id_, data: schema.UpdateSindexSizeSchema) -> None:
+    async def update_col_size(self, data: events.ColWidthUpdated) -> None:
         raise NotImplemented
 
     @abstractmethod
@@ -52,11 +52,11 @@ class SheetRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def get_col_filter(self, data: schema.ColFilterRetrieveSchema) -> entities.ColFilter:
+    async def get_col_filter(self, data: events.ColFilterGotten) -> entities.ColFilter:
         raise NotImplemented
 
     @abstractmethod
-    async def update_col_filter(self, data: entities.ColFilter) -> None:
+    async def update_col_filter(self, data: events.ColFilterUpdated) -> None:
         raise NotImplemented
 
     @abstractmethod

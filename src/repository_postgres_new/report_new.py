@@ -96,7 +96,9 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
         return result
 
     async def update_one(self, data: DTO, filter_by: dict) -> entities.Report:
-        raise NotImplemented
+        _ = await super().update_one(data, filter_by)
+        return await self.get_one(filter_by)
 
     async def delete_one(self, filter_by: dict) -> Id_:
-        raise NotImplemented
+        deleted_model = await super().delete_one(filter_by)
+        return deleted_model.id

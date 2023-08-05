@@ -49,3 +49,13 @@ async def get_reports(category: enums.ReportCategory = None,
         groups: list[entities.Report] = result
         await session.commit()
         return groups
+
+
+@router_report.delete("/{report_id}")
+@helpers.async_timeit
+async def delete_report(report_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> core_types.Id_:
+    async with get_asession as session:
+        event = events.ReportDeleted(report_id=report_id)
+        deleted_id: core_types.Id_ = await messagebus.handle(event, session)
+        await session.commit()
+        return deleted_id
