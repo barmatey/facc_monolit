@@ -27,10 +27,10 @@ async def handle_group_created(hs: HS, event: group_events.GroupCreated):
 
 
 async def handle_group_gotten(hs: HS, event: group_events.GroupGotten):
-    group = await hs.group_service.get_one({"id": event.group_id})
+    group: group_entities.ExpandedGroup = await hs.group_service.get_one({"id": event.group_id})
     hs.results[group_events.GroupGotten] = group
 
-    if group.updated_at < group.source.updated_ad:
+    if group.updated_at < group.source.updated_at:
         hs.queue.append(group_events.ParentUpdated(group_instance=group))
 
 
@@ -76,8 +76,8 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
 
 
 async def handle_group_sheet_updated(hs: HS, event: group_events.GroupSheetUpdated):
-    _ = await hs.group_service.update_one({}, event.group_filter_by)
-    hs.results[group_events.GroupSheetUpdated] = None
+    updated = await hs.group_service.update_one({}, event.group_filter_by)
+    hs.results[group_events.GroupSheetUpdated] = updated
 
 
 async def handle_group_deleted(hs: HS, event: group_events.GroupDeleted):

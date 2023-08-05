@@ -1,4 +1,5 @@
-from src import core_types
+import loguru
+
 from src.service_finrep import get_finrep
 
 from src.sheet import events as sheet_events
@@ -11,7 +12,7 @@ from src.group import entities as group_entities
 from .handler_service import HandlerService as HS
 
 
-async def handle_report_created(hs: HS, event: report_events.ReportCreated) -> dict[str, report_entities.Report]:
+async def handle_report_created(hs: HS, event: report_events.ReportCreated):
     event = event.copy()
     finrep = get_finrep(event.category.value)
 
@@ -27,12 +28,13 @@ async def handle_report_created(hs: HS, event: report_events.ReportCreated) -> d
 
     # Create report
     report: report_entities.Report = await hs.report_service.create_one(event)
-    return {"core": report}
+    hs.results[report_events.ReportCreated] = report
 
 
-async def handle_report_gotten(hs: HS, event: report_events.ReportGotten) -> dict[str, report_entities.Report]:
+async def handle_report_gotten(hs: HS, event: report_events.ReportGotten):
     filter_by = {"id": event.report_id}
     report: report_entities.Report = await hs.report_service.get_one(filter_by)
+    hs.results[report_events.ReportGotten] = report
 
     if report.group.updated_at < report.source.updated_at:
         group: group_entities.Group = await hs.group_service.get_one(filter_by={"id": report.group.id})
@@ -41,10 +43,8 @@ async def handle_report_gotten(hs: HS, event: report_events.ReportGotten) -> dic
     if report.updated_at < report.group.updated_at or report.updated_at < report.source.updated_at:
         hs.queue.append(report_events.ParentUpdated(report_instance=report))
 
-    return {"core": report}
 
-
-async def handle_parent_updated(hs: HS, event: report_events.ParentUpdated) -> dict[str, report_entities.Report]:
+async def handle_parent_updated(hs: HS, event: report_events.ParentUpdated):
     # Create new report df
     group_df = await hs.sheet_service.get_one_as_frame(
         sheet_events.SheetGotten(sheet_id=event.report_instance.group.sheet_id))
@@ -60,28 +60,26 @@ async def handle_parent_updated(hs: HS, event: report_events.ParentUpdated) -> d
         sheet_id=event.report_instance.sheet.id,
         data=sheet_events.SheetCreated(df=new_report_df, drop_index=False, drop_columns=False, readonly_all_cells=True)
     )
+    hs.results[report_events.ParentUpdated] = report_entities.Report(**event.report_instance.dict())
 
     # Change report updated_at field
     hs.queue.append(report_events.ReportSheetUpdated(report_instance=event.report_instance))
 
-    result = report_entities.Report(**event.report_instance.dict())
-    return {"core": result}
 
-
-async def handle_report_list_gotten(hs, event: report_events.ReportListGotten) -> dict[str, list]:
+async def handle_report_list_gotten(hs: HS, event: report_events.ReportListGotten):
     filter_by = {"category_id": event.category.id}
     reports: list[report_entities.Report] = await hs.report_service.get_many(filter_by)
-    return {"core": reports}
+    hs.results[report_events.ReportListGotten] = reports
 
 
 async def handle_report_sheet_updated(hs: HS, event: report_events.ReportSheetUpdated):
-    _ = await hs.report_service.update_one({}, filter_by={"id": event.report_instance.id})
-    return {"no_matter": None}
+    report = await hs.report_service.update_one({}, filter_by={"id": event.report_instance.id})
+    hs.results[report_events.ReportSheetUpdated] = report
 
 
-async def handle_report_deleted(hs: HS, event: report_events.ReportDeleted) -> dict[str, core_types.Id_]:
+async def handle_report_deleted(hs: HS, event: report_events.ReportDeleted):
     deleted_id = await hs.report_service.delete_one(filter_by={"id": event.report_id})
-    return {"core": deleted_id}
+    hs.results[report_events.ReportDeleted] = deleted_id
 
 
 HANDLERS_REPORT = {

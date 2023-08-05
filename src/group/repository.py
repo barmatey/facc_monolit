@@ -2,7 +2,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 
 from src.core_types import DTO, OrderBy, Id_
-from .entities import Entity, Group, ExpandedGroup
+from .entities import Entity, Group
 from .events import InnerCreateSheet
 
 
@@ -30,10 +30,6 @@ class CrudRepository(ABC):
 
 
 class GroupRepository(CrudRepository, ABC):
-
-    @abstractmethod
-    async def get_expanded_one(self, filter_by: dict) -> ExpandedGroup:
-        raise NotImplemented
 
     @abstractmethod
     async def overwrite_linked_sheet(self, instance: Group, data: InnerCreateSheet) -> None:

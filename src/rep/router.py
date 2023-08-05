@@ -24,7 +24,7 @@ def get_inner_category(value: enums.ReportCategory) -> entities.InnerCategory:
 async def create_report(event: events.ReportCreated, get_asession=Depends(db.get_async_session)) -> entities.Report:
     async with get_asession as session:
         result = await messagebus.handle(event, session)
-        report: entities.Report = result[events.ReportGotten]
+        report: entities.Report = result[events.ReportCreated]
         await session.commit()
         return report
 

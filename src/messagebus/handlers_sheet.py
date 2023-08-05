@@ -51,6 +51,7 @@ async def handle_col_width_updated(hs: HS, event: sheet_events.ColWidthUpdated):
 
 async def handle_cells_partial_updated(hs: HS, event: sheet_events.CellsPartialUpdated):
     await hs.sheet_service.update_cell_many(sheet_id=event.sheet_id, data=event.cells)
+    # todo this is no only group sheet!
     hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"sheet_id": event.sheet_id}))
     hs.results[type(event)] = None
 

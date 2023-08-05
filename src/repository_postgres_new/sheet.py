@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sqlalchemy import insert, select, func, bindparam, update, delete, Integer, Boolean, ForeignKey, String
+from sqlalchemy import insert, select, func, bindparam, update, delete, Integer, Boolean, ForeignKey, String, TIMESTAMP
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -15,6 +15,7 @@ from .base import BasePostgres, Model, BaseModel
 
 class SheetModel(BaseModel):
     __tablename__ = "sheet"
+    updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
     def to_entity(self, **kwargs) -> entities.Sheet:
         raise NotImplemented

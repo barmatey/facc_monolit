@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import mapped_column, Mapped
 
 from src.core_types import OrderBy
-from src.group.entities import Group, ExpandedGroup, InnerSource
+from src.group.entities import Group, InnerSource, InnerSheet, InnerCategory
 from src.group import events
 from src.report import entities as entities_report
 from src.sheet import entities as entities_sheet
@@ -34,13 +34,13 @@ class GroupModel(BaseModel):
                                           unique=True)
     updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
-    def to_entity(self) -> Group:
+    def to_entity(self, category: InnerCategory, sheet: InnerSheet, source: InnerSource) -> Group:
         converted = Group(
             id=self.id,
             title=self.title,
-            category=CategoryEnum(self.category_id).name,
-            sheet_id=self.sheet_id,
-            source_id=self.source_id,
+            category=category,
+            sheet=sheet,
+            source=source,
             columns=list(self.columns),
             fixed_columns=list(self.fixed_columns),
             updated_at=self.updated_at,
@@ -58,53 +58,36 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
     async def create_one(self, data: events.GroupCreated) -> Group:
         data = data.dict()
         data['category_id'] = CategoryEnum[data.pop('category')].value
-        group_model = await super().create_one(data)
-        return group_model.to_entity()
+        group_model: GroupModel = await super().create_one(data)
+        return await self.get_one({"id":  group_model.id})
 
     async def get_one(self, filter_by: dict) -> Group:
-        model = await super().get_one(filter_by)
-        group = model.to_entity()
-        return group
-
-    async def get_expanded_one(self, filter_by: dict) -> ExpandedGroup:
-        session = self._session
-        filters = self._parse_filters(filter_by)
-        stmt = (
-            select(GroupModel, SourceModel.title, SourceModel.updated_at)
-            .join(SourceModel, GroupModel.source_id == SourceModel.id)
-            .where(*filters)
-        )
-
-        result = await session.execute(stmt)
-        result = result.fetchall()
-        if len(result) != 1:
-            raise LookupError(f"filter_by: {filter_by}")
-        result = result[0]
-
-        group: Group = result[0].to_entity()
-        inner_source = InnerSource(
-            id=group.source_id,
-            title=result[1],
-            updated_ad=result[2],
-        )
-        expanded_group = ExpandedGroup(
-            id=group.id,
-            title=group.title,
-            category=group.category,
-            columns=group.columns,
-            fixed_columns=group.fixed_columns,
-            sheet_id=group.sheet_id,
-            source_id=group.source_id,
-            updated_at=group.updated_at,
-            source=inner_source,
-        )
-        return expanded_group
+        # todo I think this method needs refactoring =)
+        reports = await self.get_many(filter_by)
+        return reports[0]
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
                        slice_to: int = None) -> list[Group]:
-        models = await super().get_many(filter_by, order_by, asc, slice_from, slice_to)
-        groups = [x.to_entity() for x in models]
-        return groups
+        session = self._session
+        filters = self._parse_filters(filter_by)
+        stmt = (
+            select(GroupModel, CategoryModel, SourceModel, SheetModel)
+            .join(CategoryModel, GroupModel.category_id == CategoryModel.id)
+            .join(SourceModel, GroupModel.source_id == SourceModel.id)
+            .join(SheetModel, GroupModel.sheet_id == SheetModel.id)
+            .where(*filters)
+        )
+        result = await session.execute(stmt)
+        result = result.fetchall()
+        result = [
+            x[0].to_entity(
+                category=x[1].to_entity(),
+                source=InnerSource(id=x[2].id, title=x[2].title, updated_at=x[2].updated_at),
+                sheet=InnerSheet(id=x[3].id, updated_at=x[3].updated_at),
+            )
+            for x in result
+        ]
+        return result
 
     async def update_one(self, data: core_types.DTO, filter_by: dict) -> Group:
         model = await super().update_one(data, filter_by)
