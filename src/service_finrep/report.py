@@ -1,4 +1,4 @@
-import loguru
+from loguru import logger
 import numpy as np
 import pandas as pd
 from pandas.core.groupby import DataFrameGroupBy
@@ -55,12 +55,12 @@ class Report:
         return splited
 
     @staticmethod
-    def _merge_wire_df_with_group_df(wire: pd.DataFrame, group: pd.DataFrame, ccols: list[str]):
+    def _merge_wire_df_with_group_df(wire: pd.DataFrame, group: pd.DataFrame, ccols: list[str], gcols: list[str]):
         wire = wire.copy()
         group = group.copy()
 
         wire.loc[:, ccols] = wire.loc[:, ccols].astype(str)
-        group.loc[:, ccols] = group.loc[:, ccols].astype(str)
+        group.loc[:, ccols + gcols] = group.loc[:, ccols + gcols].astype(str)
 
         merged = pd.merge(wire, group, on=ccols, how='inner')
         return merged
@@ -95,7 +95,7 @@ class ProfitReport(Report):
         gcols = super()._find_gcols(wire_df.columns, group_df.columns)
         gcols.pop(gcols.index('reverse'))
 
-        merged_wires = super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
+        merged_wires = super()._merge_wire_df_with_group_df(wire_df, group_df, ccols, gcols)
         merged_wires.loc[merged_wires['reverse'], 'debit'] = -1 * merged_wires.loc[merged_wires['reverse'], 'debit']
         merged_wires.loc[merged_wires['reverse'], 'credit'] = -1 * merged_wires.loc[merged_wires['reverse'], 'credit']
         merged_wires = merged_wires.drop('reverse', axis=1)
@@ -118,7 +118,7 @@ class BalanceReport(Report):
         ccols = super()._find_ccols(wire_df.columns, group_df.columns)
         gcols = super()._find_gcols(wire_df.columns, group_df.columns)
 
-        merged_wires = super()._merge_wire_df_with_group_df(wire_df, group_df, ccols)
+        merged_wires = super()._merge_wire_df_with_group_df(wire_df, group_df, ccols, gcols)
         merged_wires["interval"] = pd.cut(merged_wires['date'], interval.get_intervals(), right=True)
 
         assets = self._create_balance_side(merged_wires, gcols=group.get_gcols_assets(gcols))
