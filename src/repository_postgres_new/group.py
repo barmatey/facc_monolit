@@ -58,6 +58,8 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
 
     async def get_one(self, filter_by: dict) -> Group:
         reports = await self.get_many(filter_by)
+        if len(reports) != 1:
+            raise LookupError
         return reports[0]
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,

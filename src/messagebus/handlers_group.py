@@ -1,3 +1,4 @@
+import loguru
 import pandas as pd
 
 from src.service_finrep import get_finrep
@@ -53,12 +54,15 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})
     finrep = get_finrep(event.group_instance.category.value)
     new_group_df = finrep.create_group(wire_df, target_columns=event.group_instance.columns)
+
     if len(event.group_instance.fixed_columns):
         new_group_df = pd.merge(
             old_group_df[event.group_instance.fixed_columns],
             new_group_df,
             on=event.group_instance.fixed_columns, how='left'
         )
+    new_group_df = pd.concat([old_group_df, new_group_df], axis=0, ignore_index=True)
+    new_group_df = new_group_df.drop_duplicates(event.group_instance.columns)
 
     # Update sheet with new group df
     await hs.sheet_service.overwrite_one(

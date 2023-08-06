@@ -66,8 +66,7 @@ class Report:
         return merged
 
     @staticmethod
-    def _group_wires_by_gcols_and_intervals(df: pd.DataFrame, interval: Interval,
-                                                  gcols: list[str]) -> DataFrameGroupBy:
+    def _group_wires_by_gcols_and_intervals(df: pd.DataFrame, interval: Interval, gcols: list[str]) -> DataFrameGroupBy:
         df["interval"] = pd.cut(df['date'], interval.get_intervals(), right=True)
         grouped_wires = df.groupby(gcols + ['interval'], as_index=False)
         return grouped_wires
