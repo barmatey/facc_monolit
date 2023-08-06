@@ -37,7 +37,7 @@ async def handle_report_gotten(hs: HS, event: report_events.ReportGotten):
     hs.results[report_events.ReportGotten] = report
 
     if report.group.updated_at < report.source.updated_at:
-        group: group_entities.Group = await hs.group_service.get_one(filter_by={"id": report.group.id})
+        group: group_entities.Group = await hs.group_service.get_full_sheet(filter_by={"id": report.group.id})
         hs.queue.append(group_events.ParentUpdated(group_instance=group))
 
     if report.updated_at < report.group.updated_at or report.updated_at < report.source.updated_at:

@@ -9,14 +9,9 @@ from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core_types import OrderBy, DTO
-from src.report import entities
 from src import core_types
 
-Entity = TypeVar(
-    'Entity',
-    entities.Group,
-    entities.Report
-)
+Entity = TypeVar('Entity',)
 
 
 class BaseModel(DeclarativeBase):

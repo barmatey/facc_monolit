@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
+from core_types import DTO
 from src import core_types
 from . import entities, schema, events
 
@@ -12,7 +13,15 @@ class SheetRepo(ABC):
         raise NotImplemented
 
     @abstractmethod
-    async def get_one(self, data: events.SheetGotten) -> entities.Sheet:
+    async def get_sheet_info(self, sheet_id: core_types.Id_) -> entities.SheetInfo:
+        raise NotImplemented
+
+    @abstractmethod
+    async def update_sheet_info(self, data: DTO, filter_by: dict) -> entities.SheetInfo:
+        raise NotImplemented
+
+    @abstractmethod
+    async def get_full_sheet(self, data: events.SheetGotten) -> entities.Sheet:
         raise NotImplemented
 
     @abstractmethod

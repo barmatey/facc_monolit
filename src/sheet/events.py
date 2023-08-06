@@ -57,3 +57,8 @@ class CellsPartialUpdated(Event):
 class RowsDeleted(Event):
     sheet_id: core_types.Id_
     row_ids: list[core_types.Id_]
+
+
+class SheetInfoUpdated(Event):
+    sheet_id: core_types.Id_
+    data: dict

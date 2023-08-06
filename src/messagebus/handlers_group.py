@@ -1,6 +1,5 @@
 import pandas as pd
 
-from src import core_types
 from src.service_finrep import get_finrep
 
 from src.sheet import events as sheet_events
@@ -27,7 +26,7 @@ async def handle_group_created(hs: HS, event: group_events.GroupCreated):
 
 
 async def handle_group_gotten(hs: HS, event: group_events.GroupGotten):
-    group: group_entities.ExpandedGroup = await hs.group_service.get_one({"id": event.group_id})
+    group: group_entities.Group = await hs.group_service.get_one({"id": event.group_id})
     hs.results[group_events.GroupGotten] = group
 
     if group.updated_at < group.source.updated_at:
@@ -39,20 +38,20 @@ async def handle_group_list_gotten(hs: HS, _event: group_events.GroupListGotten)
     hs.results[group_events.GroupListGotten] = groups
 
 
-async def handle_group_partial_updated(hs: HS, event: group_events.GroupListGotten):
+async def handle_group_partial_updated(hs: HS, event: group_events.GroupPartialUpdated):
     data = event.dict()
     filter_by = {"id": data.pop('id')}
     updated = await hs.group_service.update_one(data, filter_by)
-    hs.results[group_events.GroupListGotten] = updated
+    hs.results[group_events.GroupPartialUpdated] = updated
 
 
 async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     old_group_df = await hs.sheet_service.get_one_as_frame(
-        sheet_events.SheetGotten(sheet_id=event.group_instance.sheet_id))
+        sheet_events.SheetGotten(sheet_id=event.group_instance.sheet.id))
 
     # Create new group df
-    wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source_id})
-    finrep = get_finrep(event.group_instance.category)
+    wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})
+    finrep = get_finrep(event.group_instance.category.value)
     new_group_df = finrep.create_group(wire_df, target_columns=event.group_instance.columns)
     if len(event.group_instance.fixed_columns):
         new_group_df = pd.merge(
@@ -63,11 +62,11 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
 
     # Update sheet with new group df
     await hs.sheet_service.overwrite_one(
-        sheet_id=event.group_instance.sheet_id,
+        sheet_id=event.group_instance.sheet.id,
         data=sheet_events.SheetCreated(df=new_group_df, drop_index=True, drop_columns=False)
     )
 
-    group = group_entities.ExpandedGroup(**event.group_instance.dict())
+    group = group_entities.Group(**event.group_instance.dict())
     group.sheet_df = new_group_df
     hs.results[group_events.ParentUpdated] = group
 

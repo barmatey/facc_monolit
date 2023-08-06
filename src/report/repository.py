@@ -40,10 +40,6 @@ class CrudRepo(ABC):
 class GroupRepo(CrudRepo, ABC):
 
     @abstractmethod
-    async def overwrite_linked_sheet(self, instance: entities.Group, data: entities.SheetCreate) -> None:
-        raise NotImplemented
-
-    @abstractmethod
     async def get_linked_dataframe(self, group_id: Id_) -> pd.DataFrame:
         raise NotImplemented
 

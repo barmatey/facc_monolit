@@ -86,24 +86,21 @@ async def update_col_width(sheet_id: core_types.Id_, data: schema.UpdateSindexSi
 async def partial_update_cell(sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema,
                               get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
-        try:
-            event = events.CellsPartialUpdated(sheet_id=sheet_id, cells=[data])
-            await messagebus.handle(event, session)
-            await session.commit()
-            return JSONResponse(content=1)
-        except LookupError:
-            return JSONResponse(status_code=status.HTTP_423_LOCKED, content={})
+        event = events.CellsPartialUpdated(sheet_id=sheet_id, cells=[data])
+        await messagebus.handle(event, session)
+        await session.commit()
+        return JSONResponse(content=1)
 
 
 @router.patch("/{sheet_id}/update-cell-bulk")
 @helpers.async_timeit
 async def partial_update_many_cells(sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema],
-                                    get_asession=Depends(db.get_async_session)) -> int:
+                                    get_asession=Depends(db.get_async_session)) -> JSONResponse:
     async with get_asession as session:
         event = events.CellsPartialUpdated(sheet_id=sheet_id, cells=data)
         await messagebus.handle(event, session)
         await session.commit()
-        return 1
+        return JSONResponse(content=1)
 
 
 @router.patch("/{sheet_id}/delete-rows")

@@ -1,6 +1,3 @@
-import datetime
-
-import loguru
 import pandas as pd
 from sqlalchemy import String, JSON, Integer, ForeignKey, select, TIMESTAMP, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,8 +6,6 @@ from sqlalchemy.orm import mapped_column, Mapped
 from src.core_types import OrderBy
 from src.group.entities import Group, InnerSource, InnerSheet, InnerCategory
 from src.group import events
-from src.report import entities as entities_report
-from src.sheet import entities as entities_sheet
 from src import core_types
 
 from src.report.repository import GroupRepo
@@ -62,7 +57,6 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         return await self.get_one({"id":  group_model.id})
 
     async def get_one(self, filter_by: dict) -> Group:
-        # todo I think this method needs refactoring =)
         reports = await self.get_many(filter_by)
         return reports[0]
 
@@ -91,20 +85,12 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
 
     async def update_one(self, data: core_types.DTO, filter_by: dict) -> Group:
         model = await super().update_one(data, filter_by)
-        return model.to_entity()
+        return await self.get_one(filter_by={"id": model.id})
 
     async def delete_one(self, filter_by: dict) -> core_types.Id_:
         deleted_model: GroupModel = await super().delete_one(filter_by)
         await self.__sheet_repo.delete_one({"id": deleted_model.sheet_id})
         return deleted_model.id
-
-    async def overwrite_linked_sheet(self, instance: entities_report.Group, data: entities_report.SheetCreate) -> None:
-        sheet_create_data = entities_sheet.SheetCreate(
-            df=data.dataframe,
-            drop_index=data.drop_index,
-            drop_columns=data.drop_columns,
-        )
-        await self.__sheet_repo.overwrite_one(instance.sheet_id, sheet_create_data)
 
     async def get_linked_dataframe(self, group_id: core_types.Id_) -> pd.DataFrame:
         group: GroupModel = await super().get_one({"id": group_id})

@@ -5,6 +5,7 @@ from sqlalchemy import insert, select, func, bindparam, update, delete, Integer,
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
+from core_types import DTO
 from src.sheet import events
 from src import core_types
 from src.sheet import entities, schema
@@ -17,8 +18,8 @@ class SheetModel(BaseModel):
     __tablename__ = "sheet"
     updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
-    def to_entity(self, **kwargs) -> entities.Sheet:
-        raise NotImplemented
+    def to_entity(self, **kwargs) -> entities.SheetInfo:
+        return entities.SheetInfo(id=self.id, updated_at=self.updated_at)
 
 
 class RowModel(BaseModel):
@@ -350,6 +351,14 @@ class SheetCrud(BasePostgres):
         cells = await self.__sheet_cell.get_many_as_frame(filter_by)
         return self._merge_into_sheet_entity(data.sheet_id, rows, cols, cells)
 
+    async def get_sheet_info(self, sheet_id: core_types.Id_) -> entities.SheetInfo:
+        model: SheetModel = await super().get_one(filter_by={'id': sheet_id})
+        return model.to_entity()
+
+    async def update_sheet_info(self, data: DTO, filter_by: dict) -> entities.SheetInfo:
+        model: SheetModel = await super().update_one(data, filter_by)
+        return model.to_entity()
+
     async def get_one_as_frame(self, filter_by: dict) -> pd.DataFrame:
         cells = await self.__sheet_cell.get_many_as_frame(filter_by)
         rows = await self.__sheet_row.get_many_as_frame(filter_by)
@@ -416,8 +425,14 @@ class SheetRepoPostgres(SheetRepo):
     async def create_one(self, data: events.SheetCreated) -> core_types.Id_:
         return await self.__sheet_crud.create_one(data)
 
-    async def get_one(self, data: events.SheetGotten) -> entities.Sheet:
+    async def get_full_sheet(self, data: events.SheetGotten) -> entities.Sheet:
         return await self.__sheet_crud.get_one(data)
+
+    async def get_sheet_info(self, sheet_id: core_types.Id_) -> entities.SheetInfo:
+        return await self.__sheet_crud.get_sheet_info(sheet_id)
+
+    async def update_sheet_info(self, data: DTO, filter_by: dict) -> entities.SheetInfo:
+        return await self.__sheet_crud.update_sheet_info(data, filter_by)
 
     async def get_one_as_frame(self, sheet_id: core_types.Id_) -> pd.DataFrame:
         filter_by = {"sheet_id": sheet_id}

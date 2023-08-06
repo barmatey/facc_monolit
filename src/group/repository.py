@@ -32,9 +32,5 @@ class CrudRepository(ABC):
 class GroupRepository(CrudRepository, ABC):
 
     @abstractmethod
-    async def overwrite_linked_sheet(self, instance: Group, data: InnerCreateSheet) -> None:
-        raise NotImplemented
-
-    @abstractmethod
     async def get_linked_dataframe(self, group_id: Id_) -> pd.DataFrame:
         raise NotImplemented

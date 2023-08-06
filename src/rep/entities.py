@@ -35,6 +35,7 @@ class InnerGroup(BaseModel):
 
 class InnerSheet(BaseModel):
     id: core_types.Id_
+    updated_at: typing.Optional[pd.Timestamp]
 
 
 class InnerCategory(BaseModel):
@@ -51,4 +52,3 @@ class Report(BaseModel):
     source: InnerSource
     group: InnerGroup
     sheet: InnerSheet
-

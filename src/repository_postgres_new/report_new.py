@@ -1,4 +1,3 @@
-import loguru
 from sqlalchemy import select, String, Integer, ForeignKey, TIMESTAMP, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
@@ -69,8 +68,9 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
                                       source=event.source, sheet=event.sheet)
 
     async def get_one(self, filter_by: dict) -> entities.Report:
-        # todo i think this method needs refactoring =)
         reports = await self.get_many(filter_by)
+        if len(reports) != 1:
+            raise LookupError(f"filter_by: {filter_by}")
         return reports[0]
 
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
@@ -90,16 +90,13 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
         result = await session.execute(stmt)
         result = result.fetchall()
 
-        if len(result) == 0:
-            raise LookupError(f"filter_by: {filter_by}")
-
         result = [
             x[0].to_entity(
                 category=x[1].to_entity(),
                 source=entities.InnerSource(id=x[2].id, title=x[2].title, updated_at=x[2].updated_at),
                 group=entities.InnerGroup(id=x[3].id, title=x[3].title, updated_at=x[3].updated_at,
                                           sheet_id=x[3].sheet_id),
-                sheet=entities.InnerSheet(id=x[4].id),
+                sheet=entities.InnerSheet(id=x[4].id, updated_at=x[4].updated_at),
                 interval=x[5].to_entity(),
             )
             for x in result

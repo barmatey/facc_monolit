@@ -1,5 +1,6 @@
 import pandas as pd
 
+from core_types import DTO
 from src import core_types
 
 from . import schema, entities, events
@@ -18,18 +19,21 @@ class SheetService:
     async def overwrite_one(self, sheet_id: core_types.Id_, data: events.SheetCreated) -> None:
         await self.sheet_repo.overwrite_one(sheet_id, data)
 
-    async def get_one(self, data: events.SheetGotten) -> entities.Sheet:
-        sheet_schema = await self.sheet_repo.get_one(data=data)
+    async def get_full_sheet(self, data: events.SheetGotten) -> entities.Sheet:
+        sheet_schema = await self.sheet_repo.get_full_sheet(data=data)
         return sheet_schema
+
+    async def get_sheet_info(self, sheet_id: core_types.Id_) -> entities.SheetInfo:
+        sheet_info = await self.sheet_repo.get_sheet_info(sheet_id)
+        return sheet_info
+
+    async def update_sheet_info(self, data: DTO, filter_by: dict) -> entities.SheetInfo:
+        sheet_info = await self.sheet_repo.update_sheet_info(data, filter_by)
+        return sheet_info
 
     async def get_one_as_frame(self, data: events.SheetGotten) -> pd.DataFrame:
         sheet_df = await self.sheet_repo.get_one_as_frame(sheet_id=data.sheet_id)
         return sheet_df
-
-    async def get_scroll_size(self, sheet_id: core_types.Id_) -> entities.ScrollSize:
-        scroll_size = await self.sheet_repo.get_scroll_size(sheet_id=sheet_id)
-        scroll_size = schema.ScrollSizeSchema.from_scroll_size_entity(scroll_size)
-        return scroll_size
 
     async def get_col_filter(self, data: events.ColFilterGotten) -> entities.ColFilter:
         col_filter = await self.sheet_repo.get_col_filter(data)
