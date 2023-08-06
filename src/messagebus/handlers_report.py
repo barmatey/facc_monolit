@@ -32,8 +32,7 @@ async def handle_report_created(hs: HS, event: report_events.ReportCreated):
 
 
 async def handle_report_gotten(hs: HS, event: report_events.ReportGotten):
-    filter_by = {"id": event.report_id}
-    report: report_entities.Report = await hs.report_service.get_one(filter_by)
+    report: report_entities.Report = await hs.report_service.get_one(filter_by={"id": event.report_id})
     group: group_entities.Group = await hs.group_service.get_one(filter_by={"id": report.group.id})
     hs.results[report_events.ReportGotten] = report
 
@@ -62,7 +61,7 @@ async def handle_parent_updated(hs: HS, event: report_events.ParentUpdated):
     )
     hs.results[report_events.ParentUpdated] = report_entities.Report(**event.report_instance.dict())
 
-    # Change report updated_at field
+    # Change sheet updated_at field
     hs.queue.append(sheet_events.SheetInfoUpdated(sheet_id=event.report_instance.sheet.id, data={}))
 
 
