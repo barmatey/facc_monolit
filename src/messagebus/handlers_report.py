@@ -34,13 +34,13 @@ async def handle_report_created(hs: HS, event: report_events.ReportCreated):
 async def handle_report_gotten(hs: HS, event: report_events.ReportGotten):
     filter_by = {"id": event.report_id}
     report: report_entities.Report = await hs.report_service.get_one(filter_by)
+    group: group_entities.Group = await hs.group_service.get_one(filter_by={"id": report.group.id})
     hs.results[report_events.ReportGotten] = report
 
-    if report.group.updated_at < report.source.updated_at:
-        group: group_entities.Group = await hs.group_service.get_full_sheet(filter_by={"id": report.group.id})
+    if group.sheet.updated_at < group.source.updated_at:
         hs.queue.append(group_events.ParentUpdated(group_instance=group))
 
-    if report.updated_at < report.group.updated_at or report.updated_at < report.source.updated_at:
+    if report.sheet.updated_at < group.sheet.updated_at or report.sheet.updated_at < report.source.updated_at:
         hs.queue.append(report_events.ParentUpdated(report_instance=report))
 
 
@@ -63,7 +63,7 @@ async def handle_parent_updated(hs: HS, event: report_events.ParentUpdated):
     hs.results[report_events.ParentUpdated] = report_entities.Report(**event.report_instance.dict())
 
     # Change report updated_at field
-    hs.queue.append(report_events.ReportSheetUpdated(report_instance=event.report_instance))
+    hs.queue.append(sheet_events.SheetInfoUpdated(sheet_id=event.report_instance.sheet.id, data={}))
 
 
 async def handle_report_list_gotten(hs: HS, event: report_events.ReportListGotten):

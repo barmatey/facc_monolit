@@ -29,7 +29,7 @@ async def handle_group_gotten(hs: HS, event: group_events.GroupGotten):
     group: group_entities.Group = await hs.group_service.get_one({"id": event.group_id})
     hs.results[group_events.GroupGotten] = group
 
-    if group.updated_at < group.source.updated_at:
+    if group.sheet.updated_at < group.source.updated_at:
         hs.queue.append(group_events.ParentUpdated(group_instance=group))
 
 
@@ -71,7 +71,7 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     hs.results[group_events.ParentUpdated] = group
 
     # Append next events
-    hs.queue.append(group_events.GroupSheetUpdated(group_filter_by={"id": event.group_instance.id}))
+    hs.queue.append(sheet_events.SheetInfoUpdated(sheet_id=group.sheet.id, data={}))
 
 
 async def handle_group_sheet_updated(hs: HS, event: group_events.GroupSheetUpdated):
