@@ -1,6 +1,6 @@
 import pandas as pd
 
-from core_types import DTO
+from src.core_types import DTO
 from src import core_types
 
 from . import schema, entities, events

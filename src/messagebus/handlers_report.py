@@ -32,6 +32,7 @@ async def handle_report_created(hs: HS, event: report_events.ReportCreated):
 
 
 async def handle_report_gotten(hs: HS, event: report_events.ReportGotten):
+    # todo maybe I have to join the next two lines in one request
     report: report_entities.Report = await hs.report_service.get_one(filter_by={"id": event.report_id})
     group: group_entities.Group = await hs.group_service.get_one(filter_by={"id": report.group.id})
     hs.results[report_events.ReportGotten] = report
