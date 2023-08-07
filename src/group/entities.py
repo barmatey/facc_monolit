@@ -26,7 +26,7 @@ class Group(BaseModel):
     id: core_types.Id_
     title: str
     category: InnerCategory
-    columns: list[str]
+    ccols: list[str]
     fixed_columns: list[str]
     source: InnerSource
     sheet: InnerSheet
@@ -41,7 +41,7 @@ class Group(BaseModel):
             "id": self.id,
             "title": self.title,
             "category": self.category.value,
-            "columns": self.columns,
+            "columns": self.ccols,
             "fixed_columns": self.fixed_columns,
             "source_id": self.source.id,
             "sheet_id": self.sheet.id,

@@ -36,7 +36,7 @@ class GroupModel(BaseModel):
             category=category,
             sheet=sheet,
             source=source,
-            columns=list(self.columns),
+            ccols=list(self.columns),
             fixed_columns=list(self.fixed_columns),
             updated_at=self.updated_at,
         )

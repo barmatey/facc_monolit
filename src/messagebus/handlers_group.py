@@ -49,20 +49,26 @@ async def handle_group_partial_updated(hs: HS, event: group_events.GroupPartialU
 async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     old_group_df = await hs.sheet_service.get_one_as_frame(
         sheet_events.SheetGotten(sheet_id=event.group_instance.sheet.id))
+    old_group_df = old_group_df.head(7)
 
     # Create new group df
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})
     finrep = get_finrep(event.group_instance.category.value)
-    new_group_df = finrep.create_group(wire_df, target_columns=event.group_instance.columns)
+    new_group_df = finrep.create_group(wire_df, target_columns=event.group_instance.ccols)
 
+    # todo Need to move inside services
     if len(event.group_instance.fixed_columns):
         new_group_df = pd.merge(
             old_group_df[event.group_instance.fixed_columns],
             new_group_df,
-            on=event.group_instance.fixed_columns, how='left'
+            on=event.group_instance.fixed_columns,
+            how='left',
         )
-    new_group_df = pd.concat([old_group_df, new_group_df], axis=0, ignore_index=True)
-    new_group_df = new_group_df.drop_duplicates(event.group_instance.columns)
+
+    length = len(event.group_instance.ccols)
+    for ccol, gcol in zip(event.group_instance.ccols, old_group_df.columns[length:length * 2]):
+        mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
+        new_group_df[gcol] = new_group_df[gcol].replace(mapper)
 
     # Update sheet with new group df
     await hs.sheet_service.overwrite_one(
