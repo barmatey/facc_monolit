@@ -85,6 +85,18 @@ class Report:
         df = df.replace(np.nan, 0)
         return df
 
+    @staticmethod
+    def _sort_by_group(report_df: pd.DataFrame, group_df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
+        group_df = group_df[gcols].reset_index().set_index(gcols)
+
+        report_df = (
+            pd.merge(report_df, group_df, left_index=True, right_index=True, how='left', validate='one_to_one')
+            .sort_values('index')
+            .drop('index', axis=1)
+        )
+
+        return report_df
+
 
 class ProfitReport(Report):
     def create_report(self, wire: Wire, group: ProfitGroup, interval: Interval) -> None:
@@ -105,6 +117,7 @@ class ProfitReport(Report):
         report = super()._calculate_saldo_from_grouped_wires(grouped_wires, gcols)
         report = super()._split_df_by_intervals(report)
         report = super()._drop_zero_rows(report)
+        report = super()._sort_by_group(report, group_df, gcols)
 
         report = report.round(2)
         self.report = report
@@ -142,3 +155,15 @@ class BalanceReport(Report):
         side = super()._split_df_by_intervals(side)
         side = side.cumsum(axis=1)
         return side
+
+    @staticmethod
+    def _sort_by_group(report_df: pd.DataFrame, group_df: pd.DataFrame, gcols: list[str]):
+        group_df = group_df[gcols].reset_index().set_index(gcols)
+        report_df = (
+            pd.merge(report_df, group_df, left_index=True, right_index=True, how='left')
+            .sort_values('index')
+            .drop('index', axis=1)
+        )
+        logger.debug(f'\n{report_df}\n')
+        stop
+        return report_df

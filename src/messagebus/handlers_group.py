@@ -59,7 +59,7 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     # todo Need to move inside services
     if len(event.group_instance.fixed_columns):
         new_group_df = pd.merge(
-            old_group_df[event.group_instance.fixed_columns],
+            old_group_df[event.group_instance.fixed_columns].drop_duplicates(),
             new_group_df,
             on=event.group_instance.fixed_columns,
             how='left',
@@ -69,6 +69,8 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     for ccol, gcol in zip(event.group_instance.ccols, old_group_df.columns[length:length * 2]):
         mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
         new_group_df[gcol] = new_group_df[gcol].replace(mapper)
+
+    # END BLOCK
 
     # Update sheet with new group df
     await hs.sheet_service.overwrite_one(
