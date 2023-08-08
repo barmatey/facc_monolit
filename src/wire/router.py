@@ -4,6 +4,7 @@ from loguru import logger
 
 from src import db
 from src import core_types, helpers
+from src.messagebus import messagebus as msgbus
 from src.repository_postgres_new import SourceRepoPostgres, WireRepoPostgres
 
 from . import entities, schema, messagebus, events
@@ -60,10 +61,9 @@ async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,
     df = pd.read_csv(file.file, parse_dates=['date'])
     df['date'] = pd.to_datetime(df['date'], utc=True)
     df['source_id'] = source_id
+    event = events.WireManyCreated(source_id=source_id, wires=df.to_dict(orient='records'))
     async with get_asession as session:
-        wire_repo = WireRepoPostgres(session)
-        wire_service = CrudService(wire_repo)
-        await wire_service.create_many(df.to_dict(orient='records'))
+        _ = await msgbus.handle(event, session)
         await session.commit()
         return 1
 

@@ -8,12 +8,13 @@ from .handler_service import HandlerService
 from .handlers_report import HANDLERS_REPORT
 from .handlers_group import HANDLERS_GROUP
 from .handlers_sheet import HANDLERS_SHEET
-
+from .handlers_wire import HANDLERS_WIRE
 
 HANDLERS = (
         HANDLERS_GROUP
         | HANDLERS_REPORT
         | HANDLERS_SHEET
+        | HANDLERS_WIRE
 )
 
 

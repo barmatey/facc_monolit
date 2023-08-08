@@ -52,7 +52,6 @@ async def handle_group_partial_updated(hs: HS, event: group_events.GroupPartialU
 async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     old_group_df = await hs.sheet_service.get_one_as_frame(
         sheet_events.SheetGotten(sheet_id=event.group_instance.sheet.id))
-    old_group_df = old_group_df.head(7)
 
     # Create new group df
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})

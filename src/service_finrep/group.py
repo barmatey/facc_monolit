@@ -35,6 +35,7 @@ class Group:
         for ccol, gcol in zip(ccols, old_group_df.columns[length:length * 2]):
             mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
             new_group_df[gcol] = new_group_df[gcol].replace(mapper)
+
         return new_group_df
 
 
