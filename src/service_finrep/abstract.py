@@ -11,7 +11,7 @@ from .report import Report, BalanceReport, ProfitReport
 class Finrep(ABC):
 
     @abstractmethod
-    def create_group(self, wire_df: pd.DataFrame, target_columns: list[str]) -> pd.DataFrame:
+    def create_group(self, wire_df: pd.DataFrame, target_columns: list[str]) -> Group:
         raise NotImplemented
 
     @abstractmethod
@@ -36,12 +36,11 @@ class BaseFinrep(Finrep, ABC):
     group: typing.Type[Group] = NotImplemented
     report: typing.Type[Report] = NotImplemented
 
-    def create_group(self, wire_df: pd.DataFrame, target_columns: list[str]) -> pd.DataFrame:
+    def create_group(self, wire_df: pd.DataFrame, target_columns: list[str]) -> Group:
         wire = self.wire(wire_df)
         group = self.group()
         group.create_group(wire, ccols=target_columns)
-        group_df = group.get_group_df()
-        return group_df
+        return group
 
     def create_interval(self,
                         period_year: int,

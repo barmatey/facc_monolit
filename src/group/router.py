@@ -1,3 +1,4 @@
+import loguru
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -54,7 +55,7 @@ async def partial_update_group(group_id: core_types.Id_, data: events.GroupParti
     async with get_asession as session:
         event = data.copy()
         event.id = group_id
-        result = await messagebus.handle(data, session)
+        result = await messagebus.handle(event, session)
         updated: Group = result[events.GroupPartialUpdated]
         await session.commit()
         return JSONResponse(content=updated.to_json())

@@ -1,3 +1,4 @@
+import loguru
 import pandas as pd
 import pandera as pa
 
@@ -15,6 +16,26 @@ class Group:
         if self.group is None:
             raise Exception(f"group is None; you probably miss create_group(wire: Wire, ccols: list[str]) function")
         return self.group
+
+    @staticmethod
+    def merge_groups(old_group_df: pd.DataFrame,
+                     new_group_df: pd.DataFrame,
+                     ccols: list[str],
+                     fixed_ccols: list[str]
+                     ) -> pd.DataFrame:
+        if len(fixed_ccols):
+            new_group_df = pd.merge(
+                old_group_df[fixed_ccols].drop_duplicates(),
+                new_group_df,
+                on=fixed_ccols,
+                how='left',
+            )
+
+        length = len(ccols)
+        for ccol, gcol in zip(ccols, old_group_df.columns[length:length * 2]):
+            mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
+            new_group_df[gcol] = new_group_df[gcol].replace(mapper)
+        return new_group_df
 
 
 # todo need Nans validation
@@ -62,8 +83,23 @@ class BalanceGroup(Group):
 
         self.group = df
 
-    def get_gcols_assets(self, gcols: list[str]) -> list[str]:
-        return [x for x in gcols if self.assets_key in x.lower()]
+    @staticmethod
+    def merge_groups(old_group_df: pd.DataFrame,
+                     new_group_df: pd.DataFrame,
+                     ccols: list[str],
+                     fixed_ccols: list[str]
+                     ) -> pd.DataFrame:
+        if len(fixed_ccols):
+            new_group_df = pd.merge(
+                old_group_df[fixed_ccols].drop_duplicates(),
+                new_group_df,
+                on=fixed_ccols,
+                how='left',
+            )
 
-    def get_gcols_liabs(self, gcols: list[str]) -> list[str]:
-        return [x for x in gcols if self.liabs_key in x.lower()]
+        length = len(ccols)
+        for ccol, gcol in zip(ccols * 2, old_group_df.columns[length:length * 4]):
+            mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
+            new_group_df[gcol] = new_group_df[gcol].replace(mapper)
+
+        return new_group_df

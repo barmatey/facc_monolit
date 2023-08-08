@@ -17,7 +17,7 @@ async def handle_group_created(hs: HS, event: group_events.GroupCreated):
     # Create sheet
     wire_df = await hs.wire_service.get_many_as_frame({"sheet_id": event.sheet_id})
     finrep = get_finrep(event.category)
-    group_df = finrep.create_group(wire_df, target_columns=event.columns)
+    group_df = finrep.create_group(wire_df, target_columns=event.columns).get_group_df()
     event.sheet_id = await hs.sheet_service.create_one(
         sheet_events.SheetCreated(df=group_df, drop_index=True, drop_columns=False))
 
@@ -40,6 +40,9 @@ async def handle_group_list_gotten(hs: HS, _event: group_events.GroupListGotten)
 
 
 async def handle_group_partial_updated(hs: HS, event: group_events.GroupPartialUpdated):
+    loguru.logger.warning(event)
+    if event.id is None:
+        raise ValueError
     data = event.dict()
     filter_by = {"id": data.pop('id')}
     updated = await hs.group_service.update_one(data, filter_by)
@@ -54,23 +57,9 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     # Create new group df
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})
     finrep = get_finrep(event.group_instance.category.value)
-    new_group_df = finrep.create_group(wire_df, target_columns=event.group_instance.ccols)
-
-    # todo Need to move inside services
-    if len(event.group_instance.fixed_columns):
-        new_group_df = pd.merge(
-            old_group_df[event.group_instance.fixed_columns].drop_duplicates(),
-            new_group_df,
-            on=event.group_instance.fixed_columns,
-            how='left',
-        )
-
-    length = len(event.group_instance.ccols)
-    for ccol, gcol in zip(event.group_instance.ccols, old_group_df.columns[length:length * 2]):
-        mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
-        new_group_df[gcol] = new_group_df[gcol].replace(mapper)
-
-    # END BLOCK
+    group = finrep.create_group(wire_df, target_columns=event.group_instance.ccols)
+    new_group_df = group.get_group_df()
+    new_group_df = group.merge_groups(old_group_df, new_group_df, event.group_instance.ccols, event.group_instance.fixed_columns)
 
     # Update sheet with new group df
     await hs.sheet_service.overwrite_one(
