@@ -58,7 +58,8 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     finrep = get_finrep(event.group_instance.category.value)
     group = finrep.create_group(wire_df, target_columns=event.group_instance.ccols)
     new_group_df = group.get_group_df()
-    new_group_df = group.merge_groups(old_group_df, new_group_df, event.group_instance.ccols, event.group_instance.fixed_columns)
+    new_group_df = group.merge_groups(old_group_df, new_group_df, event.group_instance.ccols,
+                                      event.group_instance.fixed_columns)
 
     # Update sheet with new group df
     await hs.sheet_service.overwrite_one(

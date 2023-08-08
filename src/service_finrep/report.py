@@ -88,7 +88,7 @@ class Report:
 
     def _sort_by_group(self, report_df: pd.DataFrame, group_df: pd.DataFrame) -> pd.DataFrame:
         gcols = self._gcols
-        group_df = group_df[gcols].reset_index().set_index(gcols)
+        group_df = group_df[gcols].drop_duplicates(ignore_index=True).reset_index().set_index(gcols)
         report_df = (
             pd.merge(report_df, group_df, left_index=True, right_index=True, how='left', validate='one_to_one')
             .sort_values('index')
@@ -180,8 +180,8 @@ class BalanceReport(Report):
         agcols = self._agcols
         lgcols = self._lgcols
 
-        a_group_df = group_df[agcols].set_index(agcols)
-        l_group_df = group_df[lgcols].set_index(lgcols)
+        a_group_df = group_df[agcols].drop_duplicates(ignore_index=True).set_index(agcols)
+        l_group_df = group_df[lgcols].drop_duplicates(ignore_index=True).set_index(lgcols)
         group_df = pd.concat([a_group_df, l_group_df], keys=['assets', 'liabs'])
         group_df['__sortcol__'] = range(0, len(group_df.index))
 
