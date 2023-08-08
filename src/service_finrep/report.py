@@ -186,7 +186,7 @@ class BalanceReport(Report):
         group_df['__sortcol__'] = range(0, len(group_df.index))
 
         report_df = (
-            pd.merge(report_df, group_df, left_index=True, right_index=True, how='left')
+            pd.merge(report_df, group_df, left_index=True, right_index=True, how='left', validate='one_to_one')
             .sort_values('__sortcol__')
             .drop('__sortcol__', axis=1)
         )
