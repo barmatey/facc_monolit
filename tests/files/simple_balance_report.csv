@@ -1,11 +1,8 @@
 level_0,"assets, level 1",2021-04-30
 assets,0.0,9040.27
 assets,1.0,308736.05
-assets,10.5,5319.09
-assets,10.9,0.0
 assets,2.0,47844.22
-assets,20.1,0.0
-assets,26.0,0.0
+assets,10.5,5319.09
 assets,50.0,2855.62
 assets,51.0,4040.42
 assets,62.1,55835.25
@@ -14,14 +11,9 @@ assets,80.0,4842.91
 assets,82.0,1015.63
 assets,90.2,152055.83
 assets,90.8,6978.53
-liabs,10.3,0.0
-liabs,10.9,0.0
 liabs,20.1,16273.02
 liabs,60.0,202833.63
-liabs,62.1,0.0
 liabs,66.1,108495.9
-liabs,66.2,0.0
-liabs,71.0,0.0
 liabs,75.0,104730.93
 liabs,76.0,7282.5
 liabs,90.1,154191.45

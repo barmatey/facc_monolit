@@ -103,16 +103,6 @@ class BaseReport(Report):
         result = result.drop(['debit', 'credit'], axis=1).set_index(self._gcols)
         return result
 
-    def _sort_by_group(self, report_df: pd.DataFrame, group_df: pd.DataFrame) -> pd.DataFrame:
-        gcols = self._gcols
-        group_df = group_df[gcols].drop_duplicates(ignore_index=True).reset_index().set_index(gcols)
-        report_df = (
-            pd.merge(report_df, group_df, left_index=True, right_index=True, how='left', validate='one_to_one')
-            .sort_values('index')
-            .drop('index', axis=1)
-        )
-        return report_df
-
 
 class BalanceReport(BaseReport):
 
@@ -129,36 +119,48 @@ class BalanceReport(BaseReport):
         self._find_gcols(wire_df.columns, group_df.columns)
 
         merged_wires = self._merge_wire_df_with_group_df(wire_df, group_df)
-        merged_wires["interval"] = pd.cut(merged_wires['date'], interval.get_intervals(), right=True)
+
+        balance_interval = Interval(
+            iyear=interval.years,
+            imonth=interval.months,
+            iday=interval.days,
+            start_date=wire_df['date'].min() - pd.Timedelta(31, unit='D'),
+            end_date=interval.end_date,
+        )
+        merged_wires["interval"] = pd.cut(merged_wires['date'], balance_interval.get_intervals(), right=True)
 
         assets = self._create_balance_side(merged_wires, gcols=self._agcols)
         liabs = -1 * self._create_balance_side(merged_wires, gcols=self._lgcols)
 
         report = pd.concat([assets, liabs], keys=['assets', 'liabs'])
+        report = report.loc[:, report.columns > pd.to_datetime(interval.get_start_date()).date()]
         report[report < 0] = 0
         self._report = report
         return self
 
     def sort_by_group(self, group: Group) -> Self:
+        report_df = self._report
         group_df = group.get_group_df()
         agcols = self._agcols
         lgcols = self._lgcols
 
         a_group_df = group_df[agcols].drop_duplicates(ignore_index=True).set_index(agcols)
         l_group_df = group_df[lgcols].drop_duplicates(ignore_index=True).set_index(lgcols)
-        group_df = pd.concat([a_group_df, l_group_df], keys=['assets', 'liabs'])
+        group_df = pd.concat([a_group_df, l_group_df], keys=['assets', 'liabs']).reset_index()
         group_df['__sortcol__'] = range(0, len(group_df.index))
 
-        loguru.logger.debug(f'\nGROUP_DF:'
-                            f'\n{group_df}\n\n')
+        report_df = report_df.reset_index()
 
-        self._report = (
-            pd.merge(self._report, group_df, left_index=True, right_index=True, how='left', validate='one_to_one')
-            .sort_values('__sortcol__')
-            # .drop('__sortcol__', axis=1)
+        merge_on = ['level_0'] + agcols
+        group_df.loc[:, agcols] = group_df.loc[:, agcols].astype(str)
+        report_df.loc[:, agcols] = report_df.loc[:, agcols].astype(str)
+
+        report_df = (
+            pd.merge(report_df, group_df, on=merge_on, how='left')
+            .sort_values('__sortcol__', ignore_index=True)
+            .drop('__sortcol__', axis=1)
         )
-        loguru.logger.debug(f'\nSORTED_REPORT:'
-                            f'\n{self._report["__sortcol__"]}')
+        self._report = report_df.set_index(merge_on)
         return self
 
     def calculate_saldo(self) -> Self:
