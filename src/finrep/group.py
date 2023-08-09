@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import loguru
 import pandas as pd
 from typing import Self
@@ -18,6 +20,10 @@ class Group(ABC):
 
     @abstractmethod
     def get_group_df(self) -> pd.DataFrame:
+        raise NotImplemented
+
+    @abstractmethod
+    def copy(self) -> Self:
         raise NotImplemented
 
 
@@ -63,6 +69,9 @@ class BaseGroup(Group, ABC):
         for ccol, gcol in zip(ccols, old_group_df.columns[length:length * 2]):
             mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
             group_df[gcol] = group_df[gcol].replace(mapper)
+
+    def copy(self) -> Self:
+        return deepcopy(self)
 
 
 class ProfitGroup(BaseGroup):

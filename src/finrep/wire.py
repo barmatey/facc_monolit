@@ -1,4 +1,5 @@
 import typing
+from copy import deepcopy
 
 import pandas as pd
 import pandera as pa
@@ -22,3 +23,6 @@ class Wire:
 
     def get_wire_df(self) -> pd.DataFrame:
         return self.wire_df
+
+    def copy(self) -> typing.Self:
+        return deepcopy(self)

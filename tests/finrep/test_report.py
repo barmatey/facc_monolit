@@ -49,23 +49,16 @@ def test_create_simple_balance(wire: Wire, simple_balance_group: BalanceGroup, i
     with open(SIMPLE_BALANCE_REPORT) as data:
         expected = (
             pd.read_json(data, encoding='utf8', orient='records')
-            .set_index(['level_0', 'level 1'])
+            .set_index(['level 0', 'level 1'])
             .rename({"1619740800000": datetime.date(2021, 4, 30)}, axis=1)
         )
 
-
     report_df = (
-        BalanceReport()
-        .create_report_df(wire, simple_balance_group, interval)
-        .sort_by_group(simple_balance_group)
+        BalanceReport(wire, simple_balance_group, interval)
+        .create_report_df()
+        .sort_by_group()
         .drop_zero_rows()
         .calculate_saldo()
         .get_report_df()
-        .round(2)
     )
-    loguru.logger.success(f'\n\nEXPECTED:'
-                          f'\n\n{expected}\n\n')
-
-    loguru.logger.success(f'\n\nREAL:'
-                          f'\n\n{report_df}')
-    # pd.testing.assert_frame_equal(expected, report_df)
+    pd.testing.assert_frame_equal(expected, report_df)
