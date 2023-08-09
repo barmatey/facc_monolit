@@ -1,4 +1,3 @@
-import loguru
 import pandas as pd
 import pytest
 from pathlib import Path
@@ -14,12 +13,6 @@ SB_RENAMED = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simpl
 @pytest.fixture(scope='module')
 def wire_df():
     df = pd.read_csv(SARMAT_PATH, encoding='utf-8')
-    return df
-
-
-@pytest.fixture(scope='module')
-def simple_balance_group():
-    df = pd.read_csv(SIMPLE_BALANCE_GROUP_PATH, encoding='utf-8')
     return df
 
 
@@ -53,7 +46,6 @@ def test_update_simple_balance_group_with_fixed_cols(wire_df):
 def test_update_simple_balance_group_with_renaming_items(wire_df):
     wire = Wire(wire_df)
     expected_group_df = pd.read_csv(SB_RENAMED).apply(lambda col: pd.to_numeric(col, errors='ignore'), axis=1)
-
     old_group_df = expected_group_df.head(8)
     real_group_df = BalanceGroup(old_group_df, ccols=['sender']).update_group_df(wire).get_group_df()
     assert expected_group_df.to_json(orient='records') == real_group_df.to_json(orient='records')
