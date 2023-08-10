@@ -1,0 +1,142 @@
+[
+  {
+    "sender": 0.0,
+    "level 1": 0.0,
+    "reverse": false
+  },
+  {
+    "sender": 1.0,
+    "level 1": 1.0,
+    "reverse": false
+  },
+  {
+    "sender": 2.0,
+    "level 1": 2.0,
+    "reverse": false
+  },
+  {
+    "sender": 10.1,
+    "level 1": 10.1,
+    "reverse": false
+  },
+  {
+    "sender": 10.3,
+    "level 1": 10.3,
+    "reverse": false
+  },
+  {
+    "sender": 10.5,
+    "level 1": 10.5,
+    "reverse": false
+  },
+  {
+    "sender": 10.6,
+    "level 1": 10.6,
+    "reverse": false
+  },
+  {
+    "sender": 10.9,
+    "level 1": 10.9,
+    "reverse": false
+  },
+  {
+    "sender": 20.1,
+    "level 1": 20.1,
+    "reverse": false
+  },
+  {
+    "sender": 26.0,
+    "level 1": 26.0,
+    "reverse": false
+  },
+  {
+    "sender": 50.0,
+    "level 1": 50.0,
+    "reverse": false
+  },
+  {
+    "sender": 51.0,
+    "level 1": 51.0,
+    "reverse": false
+  },
+  {
+    "sender": 57.0,
+    "level 1": 57.0,
+    "reverse": false
+  },
+  {
+    "sender": 60.0,
+    "level 1": 60.0,
+    "reverse": false
+  },
+  {
+    "sender": 62.1,
+    "level 1": 62.1,
+    "reverse": false
+  },
+  {
+    "sender": 66.1,
+    "level 1": 66.1,
+    "reverse": false
+  },
+  {
+    "sender": 66.2,
+    "level 1": 66.2,
+    "reverse": false
+  },
+  {
+    "sender": 70.0,
+    "level 1": 70.0,
+    "reverse": false
+  },
+  {
+    "sender": 71.0,
+    "level 1": 71.0,
+    "reverse": false
+  },
+  {
+    "sender": 75.0,
+    "level 1": 75.0,
+    "reverse": false
+  },
+  {
+    "sender": 76.0,
+    "level 1": 76.0,
+    "reverse": false
+  },
+  {
+    "sender": 80.0,
+    "level 1": 80.0,
+    "reverse": false
+  },
+  {
+    "sender": 81.0,
+    "level 1": 81.0,
+    "reverse": false
+  },
+  {
+    "sender": 82.0,
+    "level 1": 82.0,
+    "reverse": false
+  },
+  {
+    "sender": 90.1,
+    "level 1": 90.1,
+    "reverse": false
+  },
+  {
+    "sender": 90.2,
+    "level 1": 90.2,
+    "reverse": false
+  },
+  {
+    "sender": 90.8,
+    "level 1": 90.8,
+    "reverse": false
+  },
+  {
+    "sender": 90.9,
+    "level 1": 90.9,
+    "reverse": false
+  }
+]

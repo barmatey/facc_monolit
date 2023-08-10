@@ -9,6 +9,9 @@ from .wire import Wire
 
 
 class Group(ABC):
+    @classmethod
+    def from_wire(cls, wire: Wire, ccols: list[str], fixed_cols: list[str] = None):
+        raise NotImplemented
 
     @abstractmethod
     def update_group_df(self, wire: Wire) -> Self:
@@ -37,6 +40,7 @@ class BaseGroup(Group, ABC):
         for level in levels:
             name = f"level {level + 1}"
             group_df[name] = group_df.iloc[:, level]
+        group_df['reverse'] = False
         return cls(group_df, ccols, fixed_ccols)
 
     def get_group_df(self) -> pd.DataFrame:
@@ -79,17 +83,12 @@ class BaseGroup(Group, ABC):
 
 
 class ProfitGroup(BaseGroup):
-
-    def create_group_df(self) -> Self:
-        raise NotImplemented
+    pass
 
 
 class BalanceGroup(BaseGroup):
     __assets_key = 'assets'
     __liabs_key = 'liabs'
-
-    def __init__(self, group_df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None):
-        super().__init__(group_df, ccols, fixed_ccols)
 
     @classmethod
     def from_wire(cls, wire: Wire, ccols: list[str], fixed_ccols: list[str] = None) -> Self:
