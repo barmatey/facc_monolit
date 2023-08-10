@@ -11,10 +11,6 @@ from .wire import Wire
 class Group(ABC):
 
     @abstractmethod
-    def create_group_df(self) -> Self:
-        raise NotImplemented
-
-    @abstractmethod
     def update_group_df(self, wire: Wire) -> Self:
         raise NotImplemented
 
@@ -33,10 +29,20 @@ class BaseGroup(Group, ABC):
         self._ccols = ccols.copy()
         self._fixed_ccols = fixed_ccols.copy() if fixed_ccols is not None else []
 
+    @classmethod
+    def from_wire(cls, wire: Wire, ccols: list[str], fixed_ccols: list[str] = None) -> Self:
+        df = wire.get_wire_df()
+        group_df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
+        levels = range(0, len(group_df.columns))
+        for level in levels:
+            name = f"level {level + 1}"
+            group_df[name] = group_df.iloc[:, level]
+        return cls(group_df, ccols, fixed_ccols)
+
     def get_group_df(self) -> pd.DataFrame:
         if self._group_df is None:
             raise Exception(f"group is None; you probably miss create_group(wire: Wire, ccols: list[str]) function")
-        return self._group_df
+        return self._group_df.copy()
 
     def update_group_df(self, wire: Wire) -> Self:
         if self._group_df is None:
@@ -47,11 +53,9 @@ class BaseGroup(Group, ABC):
             raise ValueError
 
         fixed_ccols = self._fixed_ccols
-        ccols = self._ccols
 
         old_group_df = self._group_df.copy()
-        self.create_group_df()
-
+        self._group_df = self.from_wire(wire, self._ccols, self._fixed_ccols).get_group_df()
         if len(fixed_ccols):
             self._group_df = pd.merge(
                 old_group_df[fixed_ccols].drop_duplicates(),
@@ -81,32 +85,24 @@ class ProfitGroup(BaseGroup):
 
 
 class BalanceGroup(BaseGroup):
+    __assets_key = 'assets'
+    __liabs_key = 'liabs'
 
     def __init__(self, group_df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None):
         super().__init__(group_df, ccols, fixed_ccols)
-        self.__assets_key = 'assets'
-        self.__liabs_key = 'liabs'
 
     @classmethod
-    def from_frame(cls, group_df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None):
-        raise NotImplemented
-
-    def create_group_df(self) -> Self:
-        raise NotImplemented
-        df = self._wire.get_wire_df()
-        group_df = df[self._ccols].drop_duplicates().sort_values(self._ccols, ignore_index=True)
-
+    def from_wire(cls, wire: Wire, ccols: list[str], fixed_ccols: list[str] = None) -> Self:
+        df = wire.get_wire_df()
+        group_df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
         levels = range(0, len(group_df.columns))
         for level in levels:
-            name = f"{self.__assets_key}, level {level + 1}"
+            name = f"{cls.__assets_key}, level {level + 1}"
             group_df[name] = group_df.iloc[:, level]
-
         for level in levels:
-            name = f"{self.__liabs_key}, level {level + 1}"
+            name = f"{cls.__liabs_key}, level {level + 1}"
             group_df[name] = group_df.iloc[:, level]
-
-        self._group_df = group_df
-        return self
+        return cls(group_df, ccols, fixed_ccols)
 
     def _rename_items(self, old_group_df: pd.DataFrame):
         ccols = self._ccols

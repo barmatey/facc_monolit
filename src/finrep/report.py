@@ -31,24 +31,6 @@ class Report(ABC):
         raise NotImplemented
 
 
-class BaseReportOld:
-    def __init__(self, df: pd.DataFrame = None, ccols: list[str] = None, gcols: list[str] = None):
-        self._report = df.copy() if df is not None else None
-        self._ccols = ccols.copy() if ccols is not None else None
-        self._gcols = gcols.copy() if gcols is not None else None
-
-    def _group_wires_by_gcols_and_intervals(self, df: pd.DataFrame, interval: Interval) -> DataFrameGroupBy:
-        df["interval"] = pd.cut(df['date'], interval.get_intervals(), right=True)
-        grouped_wires = df.groupby(self._gcols + ['interval'], as_index=False)
-        return grouped_wires
-
-    def _calculate_saldo_from_grouped_wires(self, grouped_wires: DataFrameGroupBy) -> pd.DataFrame:
-        result: pd.DataFrame = grouped_wires[self._gcols + ['debit', 'credit']].sum(numeric_only=True)
-        result['saldo'] = result['debit'] - result['credit']
-        result = result.drop(['debit', 'credit'], axis=1).set_index(self._gcols)
-        return result
-
-
 class BaseReport(Report):
     def __init__(self, wire: Wire, group: Group, interval: Interval):
         self._wire = wire.copy()
@@ -242,12 +224,3 @@ class BalanceReport(BaseReport):
         saldo = self._report_df.loc[('assets',), :].sum() - self._report_df.loc[('liabs',), :].sum()
         self._report_df.loc[('saldo',) * len(self._report_df.index.levels), :] = saldo
         return self
-
-    def _create_balance_side(self, df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
-        group = df.groupby(gcols + ['interval'], as_index=False)
-        side: pd.DataFrame = group[gcols + ['debit', 'credit']].sum(numeric_only=True)
-        side['saldo'] = side['debit'] - side['credit']
-        side = side.drop(['debit', 'credit'], axis=1).set_index(gcols)
-        side = self._split_df_by_intervals(side)
-        side = side.cumsum(axis=1)
-        return side

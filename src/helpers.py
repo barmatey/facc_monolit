@@ -1,5 +1,6 @@
 import typing
 
+import loguru
 import pandas as pd
 from loguru import logger
 from functools import wraps
@@ -53,3 +54,11 @@ def mixed_frame_sort(df: pd.DataFrame, sort_by: list | str) -> pd.DataFrame:
     df.sort_values(sort_pairs, inplace=True, ignore_index=True)
     df.drop(sortcols, axis=1, inplace=True)
     return df
+
+
+def log(*args):
+    s = "\n\n"
+    for arg in args:
+        s += str(arg)
+    s += "\n\n"
+    loguru.logger.debug(s)

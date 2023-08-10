@@ -69,14 +69,14 @@ def test_create_simple_balance(wire: Wire, simple_balance_group: BalanceGroup):
             .rename({"1619740800000": datetime.date(2021, 4, 30)}, axis=1)
         )
 
-    data = {
+    interval = {
         "start_date": pd.Timestamp("2021-04-01T00:00:00.000Z"),
         "end_date": pd.Timestamp("2021-04-30T00:00:00.000Z"),
         "iyear": 0,
         "imonth": 1,
         "iday": 0,
     }
-    interval = Interval(**data)
+    interval = Interval(**interval)
 
     report_df = (
         BalanceReport(wire, simple_balance_group, interval)
