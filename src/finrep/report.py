@@ -166,7 +166,7 @@ class BalanceReport(BaseReport):
         wires['interval'] = pd.cut(wires['date'], balance_interval.get_intervals(), right=True)
         wires['saldo'] = wires['debit'] - wires['credit']
 
-        # Aggregate saldo by interval column and ccols
+        # Aggregate saldo by interval and ccols
         # Example: ['interval', 'sender', 'subconto', ]
         needed_cols = ['interval'] + self._ccols + ['saldo']
         wires = (
@@ -177,7 +177,7 @@ class BalanceReport(BaseReport):
             .reset_index()
         )
 
-        # Merging wire_df and group_df
+        # Create report_df from ccols
         merged_df = pd.merge(wires, self._group.get_group_df(), on=self._ccols, how='inner')
 
         common = ['saldo', 'interval']
@@ -193,6 +193,8 @@ class BalanceReport(BaseReport):
 
         report_df = pd.concat([assets, liabs], keys=["assets", "liabs"])
         report_df = self._split_df_by_intervals(report_df)
+
+        # Change ccols to gcols and recalculating data in the new version of report_df
         report_df = (
             report_df
             .reset_index()
