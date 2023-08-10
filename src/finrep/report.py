@@ -4,7 +4,6 @@ from typing import Self
 import loguru
 import numpy as np
 import pandas as pd
-from pandas.core.groupby import DataFrameGroupBy
 
 from .wire import Wire
 from .group import Group, BalanceGroup
@@ -49,7 +48,25 @@ class BaseReport(Report):
         raise NotImplemented
 
     def sort_by_group(self) -> Self:
-        raise NotImplemented
+        report_df = self._report_df.reset_index()
+        group_df = (
+            self._group.get_splited_group_df()
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+        group_df["__sortcol__"] = range(0, len(group_df.index))
+
+        group_df.loc[:, self._index_names] = group_df.loc[:, self._index_names].astype(str)
+        report_df.loc[:, self._index_names] = report_df.loc[:, self._index_names].astype(str)
+
+        report_df = (
+            pd.merge(report_df, group_df, on=self._index_names, how='left')
+            .sort_values('__sortcol__', ignore_index=True)
+            .drop('__sortcol__', axis=1)
+        )
+
+        self._report_df = report_df.set_index(self._index_names)
+        return self
 
     def drop_zero_rows(self) -> Self:
         self._report_df = self._report_df.replace(0, np.nan)
@@ -82,17 +99,6 @@ class BaseReport(Report):
         return names
 
     @staticmethod
-    def _merge_wire_df_with_group_df(wire_df, group_df, gcols, ccols):
-        wire_df = wire_df.copy()
-        group_df = group_df.copy()
-
-        wire_df.loc[:, ccols] = wire_df.loc[:, ccols].astype(str)
-        group_df.loc[:, ccols + gcols] = group_df.loc[:, ccols + gcols].astype(str)
-
-        merged = pd.merge(wire_df, group_df, on=ccols, how='inner')
-        return merged
-
-    @staticmethod
     def _split_df_by_intervals(df: pd.DataFrame) -> pd.DataFrame:
         if 'interval' not in df.columns:
             raise ValueError('"interval" not in df.columns')
@@ -115,20 +121,23 @@ class BaseReport(Report):
 class BalanceReport(BaseReport):
     def __init__(self, wire: Wire, group: BalanceGroup, interval: Interval):
         super().__init__(wire, group, interval)
-        self._agcols = self._find_agcols()
-        self._lgcols = self._find_lgcols()
-        self._level_gcols = self._create_level_gcols()
+        self._agcols = self._find_agcols(self._gcols)
+        self._lgcols = self._find_lgcols(self._gcols)
+        self._level_gcols = self._create_level_gcols(self._agcols)
 
-    def _find_agcols(self):
-        agcols = [x for x in self._gcols if 'assets' in x.lower()]
+    @staticmethod
+    def _find_agcols(gcols):
+        agcols = [x for x in gcols if 'assets' in x.lower()]
         return agcols
 
-    def _find_lgcols(self):
-        agcols = [x for x in self._gcols if 'liabs' in x.lower()]
+    @staticmethod
+    def _find_lgcols(gcols):
+        agcols = [x for x in gcols if 'liabs' in x.lower()]
         return agcols
 
-    def _create_level_gcols(self):
-        result = [f"gcol_level_{i}" for i in range(0, len(self._agcols))]
+    @staticmethod
+    def _create_level_gcols(agcols):
+        result = [f"gcol_level_{i}" for i in range(0, len(agcols))]
         return result
 
     @staticmethod
@@ -197,27 +206,6 @@ class BalanceReport(BaseReport):
         report_df = report_df.loc[:, report_df.columns > pd.to_datetime(self._interval.get_start_date()).date()]
 
         self._report_df = report_df.round(2)
-        return self
-
-    def sort_by_group(self) -> Self:
-        report_df = self._report_df.reset_index()
-        group_df = (
-            self._group.get_splited_group_df()
-            .drop_duplicates()
-            .reset_index(drop=True)
-        )
-        group_df["__sortcol__"] = range(0, len(group_df.index))
-
-        group_df.loc[:, self._index_names] = group_df.loc[:, self._index_names].astype(str)
-        report_df.loc[:, self._index_names] = report_df.loc[:, self._index_names].astype(str)
-
-        report_df = (
-            pd.merge(report_df, group_df, on=self._index_names, how='left')
-            .sort_values('__sortcol__', ignore_index=True)
-            .drop('__sortcol__', axis=1)
-        )
-
-        self._report_df = report_df.set_index(self._index_names)
         return self
 
     def calculate_saldo(self):
