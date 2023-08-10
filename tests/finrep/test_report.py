@@ -157,4 +157,4 @@ def test_create_complex_balance(wire: Wire, complex_balance_group: BalanceGroup,
         .get_report_df()
     )
     temp = report_df.round(0).astype(int)
-    log(f'\n{temp}')
+    log(f'\n{temp.to_string()}')

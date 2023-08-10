@@ -125,7 +125,6 @@ class BaseReport(Report):
             series = df.loc[df['interval'] == interval].drop('interval', axis=1)
             splited.append(series)
             columns.append(interval.right.date())
-
         splited = pd.concat(splited, axis=1).fillna(0)
         splited.columns = columns
         return splited
@@ -136,6 +135,7 @@ class BalanceReport(BaseReport):
         super().__init__(wire, group, interval)
         self._agcols = self._find_agcols()
         self._lgcols = self._find_lgcols()
+        self._level_gcols = self._create_level_gcols()
 
     def _find_agcols(self):
         agcols = [x for x in self._gcols if 'assets' in x.lower()]
@@ -144,6 +144,10 @@ class BalanceReport(BaseReport):
     def _find_lgcols(self):
         agcols = [x for x in self._gcols if 'liabs' in x.lower()]
         return agcols
+
+    def _create_level_gcols(self):
+        result = [f"gcol_level_{i}" for i in range(0, len(self._agcols))]
+        return result
 
     @staticmethod
     def _create_index_names(gcols):
@@ -173,65 +177,45 @@ class BalanceReport(BaseReport):
             .reset_index()
         )
 
-        assets = self._split_df_by_intervals(wires.loc[wires['saldo'] >= 0].set_index(self._ccols))
-        liabs = self._split_df_by_intervals(wires.loc[wires['saldo'] < 0].set_index(self._ccols))
+        # Merging wire_df and group_df
+        group_df = self._group.get_group_df()
 
-        report_df = pd.concat([assets, liabs], keys=['assets', 'liabs'], names=self._index_names).astype(float).round(2)
-        report_df = report_df.loc[:, report_df.columns > pd.to_datetime(self._interval.get_start_date()).date()]
-
-        # MERGE REPORT WITH GROUP
-        group_df = self._group.get_splited_group_df()
-        gcols = group_df.columns.tolist()
-
-        report_df = (
-            pd.merge(report_df, group_df, how='inner', left_index=True, right_index=True)
-            .reset_index(drop=True)
-            .groupby(gcols)
-            .sum()
-            .reset_index()
+        merged_df = (
+            pd.merge(wires, group_df, on=self._ccols, how='inner')
         )
 
-        log(f'\nSALDO:\n{round(report_df.iloc[:, -1].sum(), 0)}\n\n')
-        log(f'\nREPORT:\n{report_df.to_string()}\n\n')
+        common = ['saldo', 'interval']
+        columns = common + self._level_gcols
 
-        stop
+        assets = merged_df.loc[merged_df['saldo'] >= 0][common + self._agcols]
+        assets.columns = columns
+        assets = assets.groupby(['interval'] + self._level_gcols).sum().reset_index().set_index(self._level_gcols)
+
+        liabs = merged_df.loc[merged_df['saldo'] < 0][common + self._lgcols]
+        liabs.columns = columns
+        liabs = liabs.groupby(['interval'] + self._level_gcols).sum().reset_index().set_index(self._level_gcols)
+
+        report_df = pd.concat([assets, liabs], keys=["assets", "liabs"])
+        report_df = self._split_df_by_intervals(report_df)
+        report_df = (
+            report_df
+            .reset_index()
+            .drop('level_0', axis=1)
+            .groupby(self._level_gcols)
+            .sum()
+        )
+        assets = report_df.copy()
+        for col in assets.columns:
+            assets[col] = np.where(assets[col] <= 0, 0, assets[col])
+
+        liabs = report_df.copy()
+        for col in liabs.columns:
+            liabs[col] = np.where(liabs[col] > 0, 0, -liabs[col])
+
+        report_df = pd.concat([assets, liabs], keys=['assets', 'liabs'])
+
 
         self._report_df = report_df
-        return self
-
-    def create_report_df_old(self) -> Self:
-        merged_wires = self._merge_wire_df_with_group_df(self._wire_df, self._group_df, self._gcols, self._ccols)
-
-        balance_interval = Interval(
-            iyear=self._interval.years,
-            imonth=self._interval.months,
-            iday=self._interval.days,
-            start_date=self._wire_df['date'].min() - pd.Timedelta(31, unit='D'),
-            end_date=self._interval.end_date,
-        )
-        gtemp = ['interval'] + self._gcols + ['saldo']
-        atemp = ['interval'] + self._agcols + ['saldo']
-        ltemp = ['interval'] + self._lgcols + ['saldo']
-
-        merged_wires["interval"] = pd.cut(merged_wires['date'], balance_interval.get_intervals(), right=True)
-        merged_wires['saldo'] = merged_wires['debit'] - merged_wires['credit']
-        merged_wires = merged_wires[gtemp]
-
-        assets = merged_wires.loc[merged_wires['saldo'] >= 0]
-        assets = assets[atemp]
-        assets = assets.groupby(['interval'] + self._agcols).sum().reset_index().set_index(self._agcols)
-        assets = self._split_df_by_intervals(assets)
-
-        liabs = merged_wires.loc[merged_wires['saldo'] < 0]
-        liabs['saldo'] = -1 * liabs['saldo']
-        liabs = liabs[ltemp]
-        liabs = liabs.groupby(['interval'] + self._lgcols).sum().reset_index().set_index(self._lgcols)
-        liabs = self._split_df_by_intervals(liabs)
-
-        report = pd.concat([assets, liabs], keys=['assets', 'liabs'], names=self._index_names).astype(float).round(2)
-        report = report.loc[:, report.columns > pd.to_datetime(self._interval.get_start_date()).date()]
-
-        self._report_df = report
         return self
 
     def sort_by_group(self) -> Self:
