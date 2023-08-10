@@ -31,17 +31,11 @@ class Report(ABC):
         raise NotImplemented
 
 
-class BaseReportOld(Report):
+class BaseReportOld:
     def __init__(self, df: pd.DataFrame = None, ccols: list[str] = None, gcols: list[str] = None):
         self._report = df.copy() if df is not None else None
         self._ccols = ccols.copy() if ccols is not None else None
         self._gcols = gcols.copy() if gcols is not None else None
-
-    def drop_zero_rows(self) -> Self:
-        self._report = self._report.replace(0, np.nan)
-        self._report = self._report.dropna(axis=0, how='all')
-        self._report = self._report.replace(np.nan, 0)
-        return self
 
     def _group_wires_by_gcols_and_intervals(self, df: pd.DataFrame, interval: Interval) -> DataFrameGroupBy:
         df["interval"] = pd.cut(df['date'], interval.get_intervals(), right=True)
@@ -116,9 +110,29 @@ class BaseReport(Report):
         merged = pd.merge(wire_df, group_df, on=ccols, how='inner')
         return merged
 
+    @staticmethod
+    def _split_df_by_intervals(df: pd.DataFrame) -> pd.DataFrame:
+        if 'interval' not in df.columns:
+            raise ValueError('"interval" not in df.columns')
+        if len(df.columns) > 2:
+            raise ValueError(f'function expected df with to columns only (and the first column must be "interval")'
+                             f'real columns are: {df.columns}')
+
+        splited = []
+        columns = []
+
+        for interval in df['interval'].unique():
+            series = df.loc[df['interval'] == interval].drop('interval', axis=1)
+            splited.append(series)
+            columns.append(interval.right.date())
+
+        splited = pd.concat(splited, axis=1).fillna(0)
+        splited.columns = columns
+        return splited
+
 
 class BalanceReport(BaseReport):
-    def __init__(self, wire: Wire, group: Group, interval: Interval):
+    def __init__(self, wire: Wire, group: BalanceGroup, interval: Interval):
         super().__init__(wire, group, interval)
         self._agcols = self._find_agcols()
         self._lgcols = self._find_lgcols()
@@ -131,7 +145,61 @@ class BalanceReport(BaseReport):
         agcols = [x for x in self._gcols if 'liabs' in x.lower()]
         return agcols
 
+    @staticmethod
+    def _create_index_names(gcols):
+        names = [f"level {i}" for i in range(0, int(len(gcols) / 2) + 1)]
+        return names
+
     def create_report_df(self) -> Self:
+        balance_interval = Interval(
+            iyear=self._interval.years,
+            imonth=self._interval.months,
+            iday=self._interval.days,
+            start_date=self._wire_df['date'].min() - pd.Timedelta(31, unit='D'),
+            end_date=self._interval.end_date,
+        )
+        wires = self._wire_df.copy()
+        wires['interval'] = pd.cut(wires['date'], balance_interval.get_intervals(), right=True)
+        wires['saldo'] = wires['debit'] - wires['credit']
+
+        # Aggregate saldo by interval column and ccols
+        # Example: ['interval', 'sender', 'subconto', ]
+        needed_cols = ['interval'] + self._ccols + ['saldo']
+        wires = (
+            wires[needed_cols]
+            .dropna(axis=0, how='any')
+            .groupby(needed_cols[:-1])
+            .sum()
+            .reset_index()
+        )
+
+        assets = self._split_df_by_intervals(wires.loc[wires['saldo'] >= 0].set_index(self._ccols))
+        liabs = self._split_df_by_intervals(wires.loc[wires['saldo'] < 0].set_index(self._ccols))
+
+        report_df = pd.concat([assets, liabs], keys=['assets', 'liabs'], names=self._index_names).astype(float).round(2)
+        report_df = report_df.loc[:, report_df.columns > pd.to_datetime(self._interval.get_start_date()).date()]
+
+        # MERGE REPORT WITH GROUP
+        group_df = self._group.get_splited_group_df()
+        gcols = group_df.columns.tolist()
+
+        report_df = (
+            pd.merge(report_df, group_df, how='inner', left_index=True, right_index=True)
+            .reset_index(drop=True)
+            .groupby(gcols)
+            .sum()
+            .reset_index()
+        )
+
+        log(f'\nSALDO:\n{round(report_df.iloc[:, -1].sum(), 0)}\n\n')
+        log(f'\nREPORT:\n{report_df.to_string()}\n\n')
+
+        stop
+
+        self._report_df = report_df
+        return self
+
+    def create_report_df_old(self) -> Self:
         merged_wires = self._merge_wire_df_with_group_df(self._wire_df, self._group_df, self._gcols, self._ccols)
 
         balance_interval = Interval(
@@ -141,14 +209,27 @@ class BalanceReport(BaseReport):
             start_date=self._wire_df['date'].min() - pd.Timedelta(31, unit='D'),
             end_date=self._interval.end_date,
         )
-        merged_wires["interval"] = pd.cut(merged_wires['date'], balance_interval.get_intervals(), right=True)
+        gtemp = ['interval'] + self._gcols + ['saldo']
+        atemp = ['interval'] + self._agcols + ['saldo']
+        ltemp = ['interval'] + self._lgcols + ['saldo']
 
-        assets = self._create_balance_side(merged_wires, gcols=self._agcols)
-        liabs = -1 * self._create_balance_side(merged_wires, gcols=self._lgcols)
+        merged_wires["interval"] = pd.cut(merged_wires['date'], balance_interval.get_intervals(), right=True)
+        merged_wires['saldo'] = merged_wires['debit'] - merged_wires['credit']
+        merged_wires = merged_wires[gtemp]
+
+        assets = merged_wires.loc[merged_wires['saldo'] >= 0]
+        assets = assets[atemp]
+        assets = assets.groupby(['interval'] + self._agcols).sum().reset_index().set_index(self._agcols)
+        assets = self._split_df_by_intervals(assets)
+
+        liabs = merged_wires.loc[merged_wires['saldo'] < 0]
+        liabs['saldo'] = -1 * liabs['saldo']
+        liabs = liabs[ltemp]
+        liabs = liabs.groupby(['interval'] + self._lgcols).sum().reset_index().set_index(self._lgcols)
+        liabs = self._split_df_by_intervals(liabs)
 
         report = pd.concat([assets, liabs], keys=['assets', 'liabs'], names=self._index_names).astype(float).round(2)
         report = report.loc[:, report.columns > pd.to_datetime(self._interval.get_start_date()).date()]
-        report[report < 0] = 0
 
         self._report_df = report
         return self
@@ -180,7 +261,8 @@ class BalanceReport(BaseReport):
         return self
 
     def calculate_saldo(self):
-        self._report_df.loc[('saldo',) * len(self._report_df.index.levels), :] = [0] * len(self._report_df.columns)
+        saldo = self._report_df.loc[('assets',), :].sum() - self._report_df.loc[('liabs',), :].sum()
+        self._report_df.loc[('saldo',) * len(self._report_df.index.levels), :] = saldo
         return self
 
     def _create_balance_side(self, df: pd.DataFrame, gcols: list[str]) -> pd.DataFrame:
@@ -191,22 +273,3 @@ class BalanceReport(BaseReport):
         side = self._split_df_by_intervals(side)
         side = side.cumsum(axis=1)
         return side
-
-    @staticmethod
-    def _split_df_by_intervals(df: pd.DataFrame) -> pd.DataFrame:
-        if 'interval' not in df.columns:
-            raise ValueError('"interval" not in df.columns')
-        if len(df.columns) > 2:
-            raise ValueError('function expected df with to columns only (and the first column must be "interval")')
-
-        splited = []
-        columns = []
-
-        for interval in df['interval'].unique():
-            series = df.loc[df['interval'] == interval].drop('interval', axis=1)
-            splited.append(series)
-            columns.append(interval.right.date())
-
-        splited = pd.concat(splited, axis=1)
-        splited.columns = columns
-        return splited

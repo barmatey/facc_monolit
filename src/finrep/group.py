@@ -11,7 +11,7 @@ from .wire import Wire
 class Group(ABC):
 
     @abstractmethod
-    def create_group_df(self, wire: Wire, ccols: list[str]) -> Self:
+    def create_group_df(self) -> Self:
         raise NotImplemented
 
     @abstractmethod
@@ -28,9 +28,9 @@ class Group(ABC):
 
 
 class BaseGroup(Group, ABC):
-    def __init__(self, df: pd.DataFrame = None, ccols: list[str] = None, fixed_ccols: list[str] = None):
-        self._group_df = df.copy() if df is not None else None
-        self._ccols = ccols.copy() if ccols is not None else None
+    def __init__(self, group_df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None):
+        self._group_df = group_df.copy()
+        self._ccols = ccols.copy()
         self._fixed_ccols = fixed_ccols.copy() if fixed_ccols is not None else []
 
     def get_group_df(self) -> pd.DataFrame:
@@ -50,7 +50,7 @@ class BaseGroup(Group, ABC):
         ccols = self._ccols
 
         old_group_df = self._group_df.copy()
-        self.create_group_df(wire, ccols)
+        self.create_group_df()
 
         if len(fixed_ccols):
             self._group_df = pd.merge(
@@ -76,20 +76,25 @@ class BaseGroup(Group, ABC):
 
 class ProfitGroup(BaseGroup):
 
-    def create_group_df(self, wire: Wire, ccols: list[str]) -> Self:
+    def create_group_df(self) -> Self:
         raise NotImplemented
 
 
 class BalanceGroup(BaseGroup):
 
-    def __init__(self, df: pd.DataFrame = None, ccols: list[str] = None, fixed_ccols: list[str] = None):
-        super().__init__(df, ccols, fixed_ccols)
+    def __init__(self, group_df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None):
+        super().__init__(group_df, ccols, fixed_ccols)
         self.__assets_key = 'assets'
         self.__liabs_key = 'liabs'
 
-    def create_group_df(self, wire: Wire, ccols: list[str]) -> Self:
-        df = wire.get_wire_df()
-        group_df = df[ccols].drop_duplicates().sort_values(ccols, ignore_index=True)
+    @classmethod
+    def from_frame(cls, group_df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None):
+        raise NotImplemented
+
+    def create_group_df(self) -> Self:
+        raise NotImplemented
+        df = self._wire.get_wire_df()
+        group_df = df[self._ccols].drop_duplicates().sort_values(self._ccols, ignore_index=True)
 
         levels = range(0, len(group_df.columns))
         for level in levels:
@@ -101,7 +106,6 @@ class BalanceGroup(BaseGroup):
             group_df[name] = group_df.iloc[:, level]
 
         self._group_df = group_df
-        self._ccols = ccols.copy()
         return self
 
     def _rename_items(self, old_group_df: pd.DataFrame):
@@ -111,3 +115,19 @@ class BalanceGroup(BaseGroup):
         for ccol, gcol in zip(ccols * 2, old_group_df.columns[length:length * 4]):
             mapper = pd.Series(old_group_df[gcol].tolist(), index=old_group_df[ccol].tolist()).to_dict()
             group_df[gcol] = group_df[gcol].replace(mapper)
+
+    def get_splited_group_df(self) -> pd.DataFrame:
+        names = [f"level {i}" for i in range(0, len(self._ccols) + 1)]
+        agcols = [x for x in self._group_df.columns if self.__assets_key in x]
+        lgcols = [x for x in self._group_df.columns if self.__liabs_key in x]
+
+        assets = self._group_df.copy()
+        assets = assets.set_index(self._ccols)[agcols]
+        assets.columns = names[1:]
+
+        liabs = self._group_df.copy()
+        liabs = liabs.set_index(self._ccols)[lgcols]
+        liabs.columns = names[1:]
+
+        splited = pd.concat([assets, liabs], keys=[self.__assets_key, self.__liabs_key], names=names)
+        return splited
