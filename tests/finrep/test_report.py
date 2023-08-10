@@ -15,8 +15,15 @@ SARMAT_PATH = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarm
 SIMPLE_BALANCE_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_balance_group.csv")
 COMPLEX_BALANCE_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_balance_group.json")
 SIMPLE_BALANCE_REPORT = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_balance_report.json")
+COMPLEX_BALANCE_REPORT = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_balance_report.json")
 
-log = loguru.logger.debug
+
+def log(*args):
+    s = "\n\n"
+    for arg in args:
+        s += str(arg)
+    s += "\n\n"
+    loguru.logger.debug(s)
 
 
 @pytest.fixture(scope='module')
@@ -116,8 +123,8 @@ def complex_balance_group():
 @pytest.fixture(scope='module')
 def interval():
     data = {
-        "start_date": pd.Timestamp("2021-02-01T00:00:00.000Z"),
-        "end_date": pd.Timestamp("2021-06-30T00:00:00.000Z"),
+        "start_date": pd.Timestamp("2021-03-01T00:00:00.000Z"),
+        "end_date": pd.Timestamp("2021-07-30T00:00:00.000Z"),
         "iyear": 0,
         "imonth": 1,
         "iday": 0,
@@ -126,13 +133,22 @@ def interval():
     return interval
 
 
-def test_create_simple_balance(wire: Wire, simple_balance_group: BalanceGroup, interval: Interval):
+def test_create_simple_balance(wire: Wire, simple_balance_group: BalanceGroup):
     with open(SIMPLE_BALANCE_REPORT) as data:
         expected = (
             pd.read_json(data, encoding='utf8', orient='records')
             .set_index(['level 0', 'level 1'])
             .rename({"1619740800000": datetime.date(2021, 4, 30)}, axis=1)
         )
+
+    data = {
+        "start_date": pd.Timestamp("2021-04-01T00:00:00.000Z"),
+        "end_date": pd.Timestamp("2021-04-30T00:00:00.000Z"),
+        "iyear": 0,
+        "imonth": 1,
+        "iday": 0,
+    }
+    interval = Interval(**data)
 
     report_df = (
         BalanceReport(wire, simple_balance_group, interval)
@@ -142,19 +158,23 @@ def test_create_simple_balance(wire: Wire, simple_balance_group: BalanceGroup, i
         .calculate_saldo()
         .get_report_df()
     )
-    temp = report_df.round(0).astype(int)
-    log(f'\n{temp}')
     pd.testing.assert_frame_equal(expected, report_df)
 
 
 def test_create_complex_balance(wire: Wire, complex_balance_group: BalanceGroup, interval: Interval):
+    with open(COMPLEX_BALANCE_REPORT) as json:
+        expected = pd.read_json(json, encoding='utf8', orient='records')
+        expected = expected.set_index(['level 0', 'level 1', 'level 2'])
+        expected.columns = [pd.to_datetime(x).date() for x in expected.columns]
+
     report_df = (
         BalanceReport(wire, complex_balance_group, interval)
         .create_report_df()
-        # .sort_by_group()
+        .sort_by_group()
         .drop_zero_rows()
         .calculate_saldo()
         .get_report_df()
+        .round(2)
     )
-    temp = report_df.round(0).astype(int)
-    log(f'\n{temp.to_string()}')
+
+    pd.testing.assert_frame_equal(expected, report_df)

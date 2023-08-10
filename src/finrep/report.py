@@ -178,11 +178,7 @@ class BalanceReport(BaseReport):
         )
 
         # Merging wire_df and group_df
-        group_df = self._group.get_group_df()
-
-        merged_df = (
-            pd.merge(wires, group_df, on=self._ccols, how='inner')
-        )
+        merged_df = pd.merge(wires, self._group.get_group_df(), on=self._ccols, how='inner')
 
         common = ['saldo', 'interval']
         columns = common + self._level_gcols
@@ -203,6 +199,7 @@ class BalanceReport(BaseReport):
             .drop('level_0', axis=1)
             .groupby(self._level_gcols)
             .sum()
+            .cumsum(axis=1)
         )
         assets = report_df.copy()
         for col in assets.columns:
@@ -212,36 +209,31 @@ class BalanceReport(BaseReport):
         for col in liabs.columns:
             liabs[col] = np.where(liabs[col] > 0, 0, -liabs[col])
 
-        report_df = pd.concat([assets, liabs], keys=['assets', 'liabs'])
+        report_df = pd.concat([assets, liabs], keys=['assets', 'liabs'], names=self._index_names)
+        report_df = report_df.loc[:, report_df.columns > pd.to_datetime(self._interval.get_start_date()).date()]
 
-
-        self._report_df = report_df
+        self._report_df = report_df.round(2)
         return self
 
     def sort_by_group(self) -> Self:
-        report_df = self._report_df
-        group_df = self._group_df
-        agcols = self._agcols
-        lgcols = self._lgcols
-        index_names = self._index_names
+        report_df = self._report_df.reset_index()
+        group_df = (
+            self._group.get_splited_group_df()
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+        group_df["__sortcol__"] = range(0, len(group_df.index))
 
-        a_group_df = group_df[agcols].drop_duplicates(ignore_index=True).set_index(agcols)
-        l_group_df = group_df[lgcols].drop_duplicates(ignore_index=True).set_index(lgcols)
-        group_df = pd.concat([a_group_df, l_group_df], keys=['assets', 'liabs']).reset_index()
-        group_df.columns = index_names
-        group_df['__sortcol__'] = range(0, len(group_df.index))
-        report_df = report_df.reset_index()
-
-        group_df.loc[:, index_names] = group_df.loc[:, index_names].astype(str)
-        report_df.loc[:, index_names] = report_df.loc[:, index_names].astype(str)
+        group_df.loc[:, self._index_names] = group_df.loc[:, self._index_names].astype(str)
+        report_df.loc[:, self._index_names] = report_df.loc[:, self._index_names].astype(str)
 
         report_df = (
-            pd.merge(report_df, group_df, on=index_names, how='left')
+            pd.merge(report_df, group_df, on=self._index_names, how='left')
             .sort_values('__sortcol__', ignore_index=True)
             .drop('__sortcol__', axis=1)
         )
 
-        self._report_df = report_df.set_index(index_names)
+        self._report_df = report_df.set_index(self._index_names)
         return self
 
     def calculate_saldo(self):

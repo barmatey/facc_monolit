@@ -121,13 +121,15 @@ class BalanceGroup(BaseGroup):
         agcols = [x for x in self._group_df.columns if self.__assets_key in x]
         lgcols = [x for x in self._group_df.columns if self.__liabs_key in x]
 
-        assets = self._group_df.copy()
+        assets: pd.DataFrame = self._group_df.copy()
         assets = assets.set_index(self._ccols)[agcols]
-        assets.columns = names[1:]
+        assets.insert(0, names[0], self.__assets_key)
+        assets.columns = names
 
         liabs = self._group_df.copy()
         liabs = liabs.set_index(self._ccols)[lgcols]
-        liabs.columns = names[1:]
+        liabs.insert(0, names[0], self.__liabs_key)
+        liabs.columns = names
 
         splited = pd.concat([assets, liabs], keys=[self.__assets_key, self.__liabs_key], names=names)
         return splited
