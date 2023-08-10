@@ -48,25 +48,7 @@ class BaseReport(Report):
         raise NotImplemented
 
     def sort_by_group(self) -> Self:
-        report_df = self._report_df.reset_index()
-        group_df = (
-            self._group.get_splited_group_df()
-            .drop_duplicates()
-            .reset_index(drop=True)
-        )
-        group_df["__sortcol__"] = range(0, len(group_df.index))
-
-        group_df.loc[:, self._index_names] = group_df.loc[:, self._index_names].astype(str)
-        report_df.loc[:, self._index_names] = report_df.loc[:, self._index_names].astype(str)
-
-        report_df = (
-            pd.merge(report_df, group_df, on=self._index_names, how='left')
-            .sort_values('__sortcol__', ignore_index=True)
-            .drop('__sortcol__', axis=1)
-        )
-
-        self._report_df = report_df.set_index(self._index_names)
-        return self
+        raise NotImplemented
 
     def drop_zero_rows(self) -> Self:
         self._report_df = self._report_df.replace(0, np.nan)
@@ -206,6 +188,27 @@ class BalanceReport(BaseReport):
         report_df = report_df.loc[:, report_df.columns > pd.to_datetime(self._interval.get_start_date()).date()]
 
         self._report_df = report_df.round(2)
+        return self
+
+    def sort_by_group(self) -> Self:
+        report_df = self._report_df.reset_index()
+        group_df = (
+            self._group.get_splited_group_df()
+            .drop_duplicates()
+            .reset_index(drop=True)
+        )
+        group_df["__sortcol__"] = range(0, len(group_df.index))
+
+        group_df.loc[:, self._index_names] = group_df.loc[:, self._index_names].astype(str)
+        report_df.loc[:, self._index_names] = report_df.loc[:, self._index_names].astype(str)
+
+        report_df = (
+            pd.merge(report_df, group_df, on=self._index_names, how='left')
+            .sort_values('__sortcol__', ignore_index=True)
+            .drop('__sortcol__', axis=1)
+        )
+
+        self._report_df = report_df.set_index(self._index_names)
         return self
 
     def calculate_saldo(self):

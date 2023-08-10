@@ -4,13 +4,11 @@ from pathlib import Path
 
 from src.finrep.wire import Wire
 from src.finrep.group import BalanceGroup, ProfitGroup
-from src.helpers import log
 
 SARMAT_PATH = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
 SIMPLE_BALANCE = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_balance_group.csv")
 SB_RENAMED = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_balance_group_with_renamed_items.csv")
 SIMPLE_PROFIT_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_profit_group.json")
-COMPLEX_PROFIT_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_profit_group.json")
 
 
 @pytest.fixture(scope='module')
