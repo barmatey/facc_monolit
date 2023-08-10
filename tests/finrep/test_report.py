@@ -5,7 +5,6 @@ import pandas as pd
 import pytest
 from pathlib import Path
 
-import helpers
 from src.finrep.wire import Wire
 from src.finrep.group import BalanceGroup
 from src.finrep.interval import Interval
