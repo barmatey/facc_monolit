@@ -1,32 +1,12 @@
 from copy import deepcopy
 
-import loguru
 import pandas as pd
 from typing import Self
-from abc import ABC, abstractmethod
 
 from .wire import Wire
 
 
-class Group(ABC):
-    @classmethod
-    def from_wire(cls, wire: Wire, ccols: list[str], fixed_cols: list[str] = None):
-        raise NotImplemented
-
-    @abstractmethod
-    def update_group_df(self, wire: Wire) -> Self:
-        raise NotImplemented
-
-    @abstractmethod
-    def get_group_df(self) -> pd.DataFrame:
-        raise NotImplemented
-
-    @abstractmethod
-    def copy(self) -> Self:
-        raise NotImplemented
-
-
-class BaseGroup(Group, ABC):
+class Group:
     def __init__(self, group_df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None):
         self._group_df = group_df.copy()
         self._ccols = ccols.copy()
@@ -48,7 +28,7 @@ class BaseGroup(Group, ABC):
             raise Exception(f"group is None; you probably miss create_group(wire: Wire, ccols: list[str]) function")
         return self._group_df.copy()
 
-    def update_group_df(self, wire: Wire) -> Self:
+    def update_group(self, wire: Wire) -> Self:
         if self._group_df is None:
             raise ValueError
         if self._ccols is None:
@@ -82,11 +62,11 @@ class BaseGroup(Group, ABC):
         return deepcopy(self)
 
 
-class ProfitGroup(BaseGroup):
+class ProfitGroup(Group):
     pass
 
 
-class BalanceGroup(BaseGroup):
+class BalanceGroup(Group):
     __assets_key = 'assets'
     __liabs_key = 'liabs'
 

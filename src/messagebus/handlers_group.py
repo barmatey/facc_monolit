@@ -1,8 +1,9 @@
+import typing
+
 import loguru
 import pandas as pd
 
-from src.service_finrep import get_finrep
-
+from src.finrep import Wire, Group, ProfitGroup, BalanceGroup
 from src.sheet import events as sheet_events
 
 from src.group import entities as group_entities
@@ -10,14 +11,22 @@ from src.group import events as group_events
 
 from .handler_service import HandlerService as HS
 
+LinkedGroup = {
+    "BALANCE": BalanceGroup
+}
+
 
 async def handle_group_created(hs: HS, event: group_events.GroupCreated):
     event = event.copy()
 
-    # Create sheet
+    # Create group_df
     wire_df = await hs.wire_service.get_many_as_frame({"sheet_id": event.sheet_id})
-    finrep = get_finrep(event.category)
-    group_df = finrep.create_group(wire_df, target_columns=event.columns).get_group_df()
+    wire = Wire(wire_df)
+
+    group: typing.Type[Group] = LinkedGroup[event.category]
+    group_df: pd.DataFrame = group.from_wire(wire, ccols=event.columns, fixed_ccols=event.columns).get_group_df()
+
+    # Create sheet
     event.sheet_id = await hs.sheet_service.create_one(
         sheet_events.SheetCreated(df=group_df, drop_index=True, drop_columns=False))
 
@@ -53,13 +62,16 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     old_group_df = await hs.sheet_service.get_one_as_frame(
         sheet_events.SheetGotten(sheet_id=event.group_instance.sheet.id))
 
-    # Create new group df
+    #  Create new group df
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})
-    finrep = get_finrep(event.group_instance.category.value)
-    group = finrep.create_group(wire_df, target_columns=event.group_instance.ccols)
-    new_group_df = group.get_group_df()
-    new_group_df = group.merge_groups(old_group_df, new_group_df, event.group_instance.ccols,
-                                      event.group_instance.fixed_columns)
+    wire = Wire(wire_df)
+
+    group: typing.Type[Group] = LinkedGroup[event.group_instance.category.value]
+    new_group_df = (
+        group(old_group_df, ccols=event.group_instance.ccols, fixed_ccols=event.group_instance.fixed_columns)
+        .update_group(wire)
+        .get_group_df()
+    )
 
     # Update sheet with new group df
     await hs.sheet_service.overwrite_one(
@@ -67,12 +79,12 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
         data=sheet_events.SheetCreated(df=new_group_df, drop_index=True, drop_columns=False)
     )
 
-    group = group_entities.Group(**event.group_instance.dict())
-    group.sheet_df = new_group_df
-    hs.results[group_events.ParentUpdated] = group
+    group_entity = group_entities.Group(**event.group_instance.dict())
+    group_entity.sheet_df = new_group_df
+    hs.results[group_events.ParentUpdated] = group_entity
 
     # Append next events
-    hs.queue.append(sheet_events.SheetInfoUpdated(sheet_id=group.sheet.id, data={}))
+    hs.queue.append(sheet_events.SheetInfoUpdated(sheet_id=group_entity.sheet.id, data={}))
 
 
 async def handle_group_sheet_updated(hs: HS, event: group_events.GroupSheetUpdated):

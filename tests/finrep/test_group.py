@@ -30,7 +30,7 @@ def test_update_simple_balance_group(wire_df):
     old_group_df = BalanceGroup.from_wire(wire, ccols=['sender']).get_group_df().head(5)
 
     expected_updated_df: pd.DataFrame = pd.read_csv(SIMPLE_BALANCE)
-    real_updated_df: pd.DataFrame = BalanceGroup(old_group_df, ccols=['sender']).update_group_df(wire).get_group_df()
+    real_updated_df: pd.DataFrame = BalanceGroup(old_group_df, ccols=['sender']).update_group(wire).get_group_df()
     pd.testing.assert_frame_equal(expected_updated_df, real_updated_df)
 
 
@@ -39,7 +39,7 @@ def test_update_simple_balance_group_with_fixed_cols(wire_df):
     old_group_df = BalanceGroup.from_wire(wire, ccols=['sender']).get_group_df().head(5)
     expected_updated_df: pd.DataFrame = pd.read_csv(SIMPLE_BALANCE).head(5)
     real_updated_df: pd.DataFrame = (BalanceGroup(old_group_df, ccols=['sender'], fixed_ccols=['sender'])
-                                     .update_group_df(wire)
+                                     .update_group(wire)
                                      .get_group_df()
                                      )
     pd.testing.assert_frame_equal(expected_updated_df, real_updated_df)
@@ -49,7 +49,7 @@ def test_update_simple_balance_group_with_renaming_items(wire_df):
     wire = Wire(wire_df)
     expected_group_df = pd.read_csv(SB_RENAMED).apply(lambda col: pd.to_numeric(col, errors='ignore'), axis=1)
     old_group_df = expected_group_df.head(8)
-    real_group_df = BalanceGroup(old_group_df, ccols=['sender']).update_group_df(wire).get_group_df()
+    real_group_df = BalanceGroup(old_group_df, ccols=['sender']).update_group(wire).get_group_df()
     assert expected_group_df.to_json(orient='records') == real_group_df.to_json(orient='records')
 
 
