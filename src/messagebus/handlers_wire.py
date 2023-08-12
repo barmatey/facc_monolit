@@ -2,7 +2,6 @@ import loguru
 import pandas as pd
 
 from src import core_types
-from src.service_finrep import get_finrep
 
 from src.wire import events as wire_events
 from src.sheet import events as sheet_events

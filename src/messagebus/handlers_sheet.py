@@ -1,7 +1,6 @@
 import loguru
 
 from src import core_types
-from src.service_finrep import get_finrep
 
 from src.sheet import events as sheet_events
 from src.group import events as group_events
