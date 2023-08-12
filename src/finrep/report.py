@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Self
 
-import loguru
+from src.helpers import log
 import numpy as np
 import pandas as pd
 import pandera
@@ -96,6 +96,7 @@ class Report:
             grouped = report_df.groupby(gcols, as_index=False)
             total: pd.DataFrame = grouped[sum_cols].sum()
             sortcol = grouped['index'].aggregate('min')
+            sortcol['index'] = sortcol['index'] - 0.1
             total = pd.merge(total, sortcol, on=gcols)
             report_df = pd.concat([total, report_df], ignore_index=True)
             gcols.pop()
