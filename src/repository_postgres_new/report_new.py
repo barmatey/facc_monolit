@@ -95,7 +95,7 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
                 category=x[1].to_entity(),
                 source=entities.InnerSource(id=x[2].id, title=x[2].title, updated_at=x[2].updated_at),
                 group=entities.InnerGroup(id=x[3].id, title=x[3].title, updated_at=x[3].updated_at,
-                                          sheet_id=x[3].sheet_id),
+                                          sheet_id=x[3].sheet_id, ccols=x[3].columns, fixed_ccols=x[3].fixed_columns),
                 sheet=entities.InnerSheet(id=x[4].id, updated_at=x[4].updated_at),
                 interval=x[5].to_entity(),
             )

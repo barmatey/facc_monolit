@@ -9,13 +9,13 @@ from .handler_service import HandlerService as HS
 
 
 async def handle_group_created(hs: HS, event: group_events.GroupCreated):
-    fn = finrep.FinrepFactory(event.category)
+    frep = finrep.FinrepFactory(event.category)
     event = event.copy()
 
     # Create group_df
     wire_df = await hs.wire_service.get_many_as_frame({"sheet_id": event.sheet_id})
-    wire = fn.create_wire(wire_df)
-    group_df = fn.create_group_from_wire(wire, ccols=event.columns, fixed_ccols=event.columns).get_group_df()
+    wire = frep.create_wire(wire_df)
+    group_df = frep.create_group_from_wire(wire, ccols=event.columns, fixed_ccols=event.columns).get_group_df()
 
     # Create sheet
     event.sheet_id = await hs.sheet_service.create_one(
@@ -50,16 +50,16 @@ async def handle_group_partial_updated(hs: HS, event: group_events.GroupPartialU
 
 
 async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
-    fn = finrep.FinrepFactory(event.group_instance.category.value)
+    frep = finrep.FinrepFactory(event.group_instance.category.value)
 
     old_group_df = await hs.sheet_service.get_one_as_frame(
         sheet_events.SheetGotten(sheet_id=event.group_instance.sheet.id))
 
     #  Create new group df
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})
-    wire = fn.create_wire(wire_df)
+    wire = frep.create_wire(wire_df)
     new_group_df = (
-        fn.create_group_from_frame(old_group_df, event.group_instance.ccols, event.group_instance.fixed_columns)
+        frep.create_group_from_frame(old_group_df, event.group_instance.ccols, event.group_instance.fixed_columns)
         .update_group(wire)
         .get_group_df()
     )

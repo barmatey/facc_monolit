@@ -1,6 +1,6 @@
 import loguru
 
-from src.service_finrep import get_finrep
+from src import finrep
 
 from src.sheet import events as sheet_events
 from src.group import events as group_events
@@ -14,12 +14,25 @@ from .handler_service import HandlerService as HS
 
 async def handle_report_created(hs: HS, event: report_events.ReportCreated):
     event = event.copy()
-    finrep = get_finrep(event.category.value)
+    frep = finrep.FinrepFactory(event.category.value)
 
-    # Get data
+    # Create report_df
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.source.id})
+    wire = frep.create_wire(wire_df)
+
     group_df = await hs.group_service.get_linked_frame(group_id=event.group.id)
-    report_df = finrep.create_report(wire_df, group_df, finrep.create_interval(**event.interval.dict()))
+    group = frep.create_group_from_frame(group_df, ccols=event.group.ccols, fixed_ccols=event.group.fixed_ccols)
+
+    interval = frep.create_interval(**event.interval.dict())
+
+    report_df = (
+        frep.create_report(wire, group, interval)
+        .create_report_df()
+        .sort_by_group()
+        .drop_zero_rows()
+        .calculate_total()
+        .get_report_df()
+    )
 
     # Create sheet
     sheet_id = await hs.sheet_service.create_one(
@@ -46,14 +59,27 @@ async def handle_report_gotten(hs: HS, event: report_events.ReportGotten):
 
 async def handle_parent_updated(hs: HS, event: report_events.ParentUpdated):
     # Create new report df
-    group_df = await hs.sheet_service.get_one_as_frame(
-        sheet_events.SheetGotten(sheet_id=event.report_instance.group.sheet_id))
+    frep = finrep.FinrepFactory(event.report_instance.category.value)
+
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.report_instance.source.id})
+    wire = frep.create_wire(wire_df)
+
+    group_sheet_id = event.report_instance.group.sheet_id
+    group_df = await hs.sheet_service.get_one_as_frame(sheet_events.SheetGotten(sheet_id=group_sheet_id))
+    group = frep.create_group_from_frame(group_df)
+
     interval = event.report_instance.interval.dict()
     interval.pop("id")
-    interval = get_finrep(event.report_instance.category.value).create_interval(**interval)
-    finrep = get_finrep(event.report_instance.category.value)
-    new_report_df = finrep.create_report(wire_df, group_df, interval)
+    interval = frep.create_interval(**interval)
+
+    new_report_df = (
+        frep.create_report(wire, group, interval)
+        .create_report_df()
+        .sort_by_group()
+        .calculate_total()
+        .drop_zero_rows()
+        .get_report_df()
+    )
 
     # Update sheet with new report_df
     await hs.sheet_service.overwrite_one(

@@ -26,6 +26,8 @@ class InnerSource(BaseModel):
 class InnerGroup(BaseModel):
     id: core_types.Id_
     title: str
+    ccols: list[str]
+    fixed_ccols: list[str]
     updated_at: pd.Timestamp
     sheet_id: core_types.Id_
 
