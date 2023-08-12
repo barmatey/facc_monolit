@@ -10,32 +10,8 @@ from .wire import Wire
 from .group import Group, BalanceGroup
 from .interval import Interval
 
-from src.helpers import log
 
-
-class Report(ABC):
-    @abstractmethod
-    def create_report_df(self) -> Self:
-        raise NotImplemented
-
-    @abstractmethod
-    def sort_by_group(self) -> Self:
-        raise NotImplemented
-
-    @abstractmethod
-    def drop_zero_rows(self) -> Self:
-        raise NotImplemented
-
-    @abstractmethod
-    def calculate_total(self) -> Self:
-        raise NotImplemented
-
-    @abstractmethod
-    def get_report_df(self) -> pd.DataFrame:
-        raise NotImplemented
-
-
-class BaseReport(Report):
+class Report:
     def __init__(self, wire: Wire, group: Group, interval: Interval):
         self._wire = wire.copy()
         self._group = group.copy()
@@ -184,11 +160,11 @@ class BaseReport(Report):
         return splited
 
 
-class ProfitReport(BaseReport):
+class ProfitReport(Report):
     pass
 
 
-class BalanceReport(BaseReport):
+class BalanceReport(Report):
     def __init__(self, wire: Wire, group: BalanceGroup, interval: Interval):
         super().__init__(wire, group, interval)
         self._agcols = self._find_agcols(self._gcols)
