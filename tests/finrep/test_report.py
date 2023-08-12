@@ -1,28 +1,26 @@
 import datetime
 
-import loguru
 import pandas as pd
 import pytest
 from pathlib import Path
 
 from src.finrep.wire import Wire
-from src.finrep.group import BalanceGroup
+from src.finrep.group import BalanceGroup, ProfitGroup
 from src.finrep.interval import Interval
-from src.finrep.report import BalanceReport
+from src.finrep.report import BalanceReport, ProfitReport
+
+from src.helpers import log
 
 SARMAT_PATH = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
+
 SIMPLE_BALANCE_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_balance_group.csv")
-COMPLEX_BALANCE_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_balance_group.json")
 SIMPLE_BALANCE_REPORT = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_balance_report.json")
+
+COMPLEX_BALANCE_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_balance_group.json")
 COMPLEX_BALANCE_REPORT = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_balance_report.json")
 
-
-def log(*args):
-    s = "\n\n"
-    for arg in args:
-        s += str(arg)
-    s += "\n\n"
-    loguru.logger.debug(s)
+COMPLEX_PROFIT_GROUP = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_profit_group.json")
+COMPLEX_PROFIT_REPORT = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/complex_profit_report.json")
 
 
 @pytest.fixture(scope='module')
@@ -45,6 +43,14 @@ def complex_balance_group():
     with open(COMPLEX_BALANCE_GROUP) as data:
         group_df = pd.read_json(data, encoding='utf8', orient='records')
     group = BalanceGroup(group_df, ccols=['sender', 'subconto_first'], fixed_ccols=['sender', 'subconto_first'])
+    return group
+
+
+@pytest.fixture(scope='module')
+def complex_profit_group():
+    with open(COMPLEX_PROFIT_GROUP) as data:
+        group_df = pd.read_json(data, encoding='utf8', orient='records')
+    group = ProfitGroup(group_df, ccols=['sender', 'subconto_first'], fixed_ccols=['sender', 'subconto_first'])
     return group
 
 
@@ -106,3 +112,19 @@ def test_create_complex_balance(wire: Wire, complex_balance_group: BalanceGroup,
     )
 
     pd.testing.assert_frame_equal(expected, report_df)
+
+
+def test_create_complex_profit(wire: Wire, complex_profit_group: ProfitGroup, interval: Interval):
+    with open(COMPLEX_PROFIT_REPORT) as data:
+        expected_report_df = pd.read_json(data).set_index(['level 1', 'level 2'])
+        expected_report_df.columns = [pd.to_datetime(x).date() for x in expected_report_df.columns]
+
+    real_report_df = (
+        ProfitReport(wire, complex_profit_group, interval)
+        .create_report_df()
+        .sort_by_group()
+        .calculate_total()
+        .drop_zero_rows()
+        .get_report_df()
+    )
+    pd.testing.assert_frame_equal(expected_report_df, real_report_df)

@@ -4,6 +4,7 @@ from pathlib import Path
 
 from src.finrep.wire import Wire
 from src.finrep.group import BalanceGroup, ProfitGroup
+from src.helpers import log
 
 SARMAT_PATH = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
 SIMPLE_BALANCE = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/simple_balance_group.csv")

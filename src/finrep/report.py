@@ -4,12 +4,13 @@ from typing import Self
 import loguru
 import numpy as np
 import pandas as pd
+import pandera
 
 from .wire import Wire
 from .group import Group, BalanceGroup
 from .interval import Interval
 
-log = loguru.logger.debug
+from src.helpers import log
 
 
 class Report(ABC):
@@ -23,6 +24,10 @@ class Report(ABC):
 
     @abstractmethod
     def drop_zero_rows(self) -> Self:
+        raise NotImplemented
+
+    @abstractmethod
+    def calculate_total(self) -> Self:
         raise NotImplemented
 
     @abstractmethod
@@ -45,10 +50,89 @@ class BaseReport(Report):
         self._report_df = None
 
     def create_report_df(self) -> Self:
-        raise NotImplemented
+        wires = self._wire_df.copy()
+        wires['interval'] = pd.cut(wires['date'], self._interval.get_intervals(), right=True)
+        wires['saldo'] = wires['debit'] - wires['credit']
+
+        needed_cols = ['interval'] + self._ccols + ['saldo']
+        wires = (
+            wires[needed_cols]
+            .dropna(axis=0, how='any')
+            .groupby(needed_cols[:-1])
+            .sum()
+            .reset_index()
+        )
+
+        merged_df = pd.merge(wires, self._group.get_group_df(), on=self._ccols, how='inner')
+        merged_df.loc[merged_df['reverse'], 'saldo'] = -merged_df.loc[merged_df['reverse'], 'saldo']
+        merged_df = merged_df[['saldo', 'interval', ] + self._index_names]
+
+        needed_cols = self._index_names + ['interval']
+        report_df = (
+            merged_df
+            .groupby(needed_cols, observed=True)
+            .sum()
+            .reset_index()
+            .set_index(self._index_names)
+        )
+
+        report_df = self._split_df_by_intervals(report_df)
+
+        self._report_df = report_df
+        return self
 
     def sort_by_group(self) -> Self:
-        raise NotImplemented
+        report_df = self._report_df.reset_index()
+        if isinstance(self._group, BalanceGroup):
+            group_df = (
+                self._group.get_splited_group_df()
+                .drop_duplicates()
+                .reset_index(drop=True)
+            )
+        else:
+            group_df = (
+                self._group.get_group_df()
+                .drop_duplicates()
+                .reset_index(drop=True)
+            )
+
+        group_df["__sortcol__"] = range(0, len(group_df.index))
+        group_df = group_df[self._index_names + ["__sortcol__"]]
+
+        group_df.loc[:, self._index_names] = group_df.loc[:, self._index_names].astype(str)
+        report_df.loc[:, self._index_names] = report_df.loc[:, self._index_names].astype(str)
+
+        report_df = (
+            pd.merge(report_df, group_df, on=self._index_names, how='left')
+            .sort_values('__sortcol__', ignore_index=True)
+            .drop('__sortcol__', axis=1)
+        )
+
+        self._report_df = report_df.set_index(self._index_names)
+        return self
+
+    def calculate_total(self) -> Self:
+        report_df = self._report_df.reset_index().reset_index()
+        gcols = self._index_names[:-1]
+        sum_cols = self._report_df.columns
+
+        while gcols:
+            grouped = report_df.groupby(gcols, as_index=False)
+            total: pd.DataFrame = grouped[sum_cols].sum()
+            sortcol = grouped['index'].aggregate('min')
+            total = pd.merge(total, sortcol, on=gcols)
+            report_df = pd.concat([total, report_df], ignore_index=True)
+            gcols.pop()
+
+        report_df = (
+            report_df
+            .sort_values('index')
+            .drop('index', axis=1)
+            .fillna('TOTAL')
+            .set_index(self._index_names)
+        )
+        self._report_df = report_df
+        return self
 
     def drop_zero_rows(self) -> Self:
         self._report_df = self._report_df.replace(0, np.nan)
@@ -77,7 +161,7 @@ class BaseReport(Report):
 
     @staticmethod
     def _create_index_names(gcols):
-        names = [f"level {i}" for i in range(0, len(gcols))]
+        names = [f"level {i + 1}" for i in range(0, len(gcols) - 1)]
         return names
 
     @staticmethod
@@ -98,6 +182,10 @@ class BaseReport(Report):
         splited = pd.concat(splited, axis=1).fillna(0)
         splited.columns = columns
         return splited
+
+
+class ProfitReport(BaseReport):
+    pass
 
 
 class BalanceReport(BaseReport):
@@ -188,27 +276,6 @@ class BalanceReport(BaseReport):
         report_df = report_df.loc[:, report_df.columns > pd.to_datetime(self._interval.get_start_date()).date()]
 
         self._report_df = report_df.round(2)
-        return self
-
-    def sort_by_group(self) -> Self:
-        report_df = self._report_df.reset_index()
-        group_df = (
-            self._group.get_splited_group_df()
-            .drop_duplicates()
-            .reset_index(drop=True)
-        )
-        group_df["__sortcol__"] = range(0, len(group_df.index))
-
-        group_df.loc[:, self._index_names] = group_df.loc[:, self._index_names].astype(str)
-        report_df.loc[:, self._index_names] = report_df.loc[:, self._index_names].astype(str)
-
-        report_df = (
-            pd.merge(report_df, group_df, on=self._index_names, how='left')
-            .sort_values('__sortcol__', ignore_index=True)
-            .drop('__sortcol__', axis=1)
-        )
-
-        self._report_df = report_df.set_index(self._index_names)
         return self
 
     def calculate_saldo(self):

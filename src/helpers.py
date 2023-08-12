@@ -61,4 +61,4 @@ def log(*args):
     for arg in args:
         s += str(arg)
     s += "\n\n"
-    loguru.logger.debug(s)
+    print(s)
