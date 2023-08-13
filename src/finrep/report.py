@@ -95,7 +95,7 @@ class Report:
         while gcols:
             grouped = report_df.groupby(gcols, as_index=False)
             total: pd.DataFrame = grouped[sum_cols].sum()
-            sortcol = grouped['index'].aggregate('min')
+            sortcol: pd.DataFrame = grouped['index'].aggregate('min')
             sortcol['index'] = sortcol['index'] - 0.1
             total = pd.merge(total, sortcol, on=gcols)
             report_df = pd.concat([total, report_df], ignore_index=True)
