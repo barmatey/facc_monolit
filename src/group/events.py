@@ -9,8 +9,8 @@ class GroupCreated(core_types.Event):
     title: str
     category: enums.GroupCategory
     source_id: core_types.Id_
-    columns: list[str]
-    fixed_columns: list[str]
+    ccols: list[str]
+    fixed_ccols: list[str]
     sheet_id: core_types.Id_ = None
 
 

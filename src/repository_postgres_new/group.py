@@ -52,6 +52,8 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
 
     async def create_one(self, data: events.GroupCreated) -> Group:
         data = data.dict()
+        data['columns'] = data.pop('ccols')
+        data['fixed_columns'] = data.pop('fixed_ccols')
         data['category_id'] = CategoryEnum[data.pop('category')].value
         group_model: GroupModel = await super().create_one(data)
         return await self.get_one({"id":  group_model.id})

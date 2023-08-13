@@ -15,7 +15,7 @@ async def handle_group_created(hs: HS, event: group_events.GroupCreated):
     # Create group_df
     wire_df = await hs.wire_service.get_many_as_frame({"sheet_id": event.sheet_id})
     wire = frep.create_wire(wire_df)
-    group_df = frep.create_group_from_wire(wire, ccols=event.columns, fixed_ccols=event.columns).get_group_df()
+    group_df = frep.create_group_from_wire(wire, ccols=event.ccols, fixed_ccols=event.fixed_ccols).get_group_df()
 
     # Create sheet
     event.sheet_id = await hs.sheet_service.create_one(
