@@ -37,7 +37,7 @@ class GroupModel(BaseModel):
             sheet=sheet,
             source=source,
             ccols=list(self.columns),
-            fixed_columns=list(self.fixed_columns),
+            fixed_ccols=list(self.fixed_columns),
             updated_at=self.updated_at,
         )
         return converted

@@ -27,7 +27,7 @@ class Group(BaseModel):
     title: str
     category: InnerCategory
     ccols: list[str]
-    fixed_columns: list[str]
+    fixed_ccols: list[str]
     source: InnerSource
     sheet: InnerSheet
     updated_at: pd.Timestamp
@@ -41,8 +41,8 @@ class Group(BaseModel):
             "id": self.id,
             "title": self.title,
             "category": self.category.value,
-            "columns": self.ccols,
-            "fixed_columns": self.fixed_columns,
+            "ccols": self.ccols,
+            "fixed_ccols": self.fixed_ccols,
             "source_id": self.source.id,
             "sheet_id": self.sheet.id,
             "updated_at": str(self.updated_at),
