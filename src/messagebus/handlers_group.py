@@ -59,7 +59,7 @@ async def handle_parent_updated(hs: HS, event: group_events.ParentUpdated):
     wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.group_instance.source.id})
     wire = frep.create_wire(wire_df)
     new_group_df = (
-        frep.create_group_from_frame(old_group_df, event.group_instance.ccols, event.group_instance.fixed_columns)
+        frep.create_group_from_frame(old_group_df, event.group_instance.ccols, event.group_instance.fixed_ccols)
         .update_group(wire)
         .get_group_df()
     )
