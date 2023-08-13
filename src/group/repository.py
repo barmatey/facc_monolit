@@ -2,8 +2,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 
 from src.core_types import DTO, OrderBy, Id_
-from .entities import Entity, Group
-from .events import InnerCreateSheet
+from .entities import Entity
 
 
 class CrudRepository(ABC):
