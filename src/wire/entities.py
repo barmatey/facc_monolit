@@ -1,7 +1,9 @@
 import typing
-from typing import TypedDict, Literal
+from typing import Literal
+from typing_extensions import TypedDict
 
 import pandas as pd
+import pydantic
 from pydantic import BaseModel
 
 from src import core_types
@@ -25,6 +27,8 @@ class Source(BaseModel):
     wcols: list[Wcol]
     updated_at: pd.Timestamp
 
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+
 
 class WireCreate(BaseModel):
     source_id: core_types.Id_
@@ -36,6 +40,8 @@ class WireCreate(BaseModel):
     subconto_first: typing.Optional[str]
     subconto_second: typing.Optional[str]
     comment: typing.Optional[str]
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class Wire(WireCreate):

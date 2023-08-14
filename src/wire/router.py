@@ -17,11 +17,10 @@ router_source = APIRouter(
 
 
 @router_source.post("/")
-async def create_source(data: schema.SourceCreateSchema, get_asession=Depends(db.get_async_session)) -> entities.Source:
+async def create_source(data: events.SourceCreated, get_asession=Depends(db.get_async_session)) -> entities.Source:
     async with get_asession as session:
-        source_repo = SourceRepoPostgres(session)
-        source_service = CrudService(source_repo)
-        source: entities.Source = await source_service.create_one(data)
+        result = await msgbus.handle(data, session)
+        source: entities.Source = result[events.SourceCreated]
         await session.commit()
         return source
 
@@ -108,7 +107,7 @@ async def get_one(wire_id: core_types.Id_, get_asession=Depends(db.get_async_ses
 @router_wire.get("/")
 @helpers.async_timeit
 async def get_many(source_id: core_types.Id_,
-                   date: pd.Timestamp = None,
+                   date: str = None,
                    sender: float = None,
                    receiver: float = None,
                    debit: float = None,
@@ -121,7 +120,7 @@ async def get_many(source_id: core_types.Id_,
                    get_asession=Depends(db.get_async_session)) -> list[entities.Wire]:
     filter_by = {
         "source_id": source_id,
-        "date": date,
+        "date": pd.Timestamp(date),
         "sender": sender,
         "receiver": receiver,
         "debit": debit,

@@ -1,4 +1,5 @@
 import pandas as pd
+import pydantic
 from pydantic import BaseModel
 import typing
 
@@ -16,10 +17,14 @@ class InnerSource(BaseModel):
     title: str
     updated_at: pd.Timestamp
 
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+
 
 class InnerSheet(BaseModel):
     id: core_types.Id_
     updated_at: pd.Timestamp
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class Group(BaseModel):
@@ -33,8 +38,7 @@ class Group(BaseModel):
     updated_at: pd.Timestamp
     sheet_df: typing.Optional[pd.DataFrame]
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
     def to_json(self):
         return {

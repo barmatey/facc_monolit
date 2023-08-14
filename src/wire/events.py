@@ -1,9 +1,14 @@
 import typing
 
 import pandas as pd
+import pydantic
 
 from src import core_types
 from src.core_types import Event, Id_
+
+
+class SourceCreated(Event):
+    title: str
 
 
 class WireCreated(Event):

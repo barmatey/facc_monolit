@@ -9,4 +9,4 @@ DTO = typing.Union[pydantic.BaseModel, dict]
 
 
 class Event(pydantic.BaseModel):
-    pass
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)

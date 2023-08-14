@@ -1,5 +1,4 @@
-from websockets import typing
-
+import typing
 from src import core_types
 from . import enums
 from .entities import Group

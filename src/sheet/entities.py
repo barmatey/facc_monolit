@@ -1,6 +1,7 @@
 from typing import TypedDict
 
 import pandas as pd
+import pydantic
 from pydantic import BaseModel
 
 from src import core_types
@@ -14,6 +15,8 @@ Sheet
 class SheetInfo(BaseModel):
     id: core_types.Id_
     updated_at: pd.Timestamp
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class Cell(TypedDict):

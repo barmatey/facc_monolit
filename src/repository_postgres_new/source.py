@@ -38,10 +38,10 @@ class SourceModel(BaseModel):
         result = entities.Source(
             id=self.id,
             title=self.title,
-            total_start_date=self.total_start_date,
-            total_end_date=self.total_end_date,
+            total_start_date=pd.Timestamp(self.total_start_date),
+            total_end_date=pd.Timestamp(self.total_end_date),
             wcols=list(self.wcols),
-            updated_at=self.updated_at,
+            updated_at=pd.Timestamp(self.updated_at),
         )
         return result
 

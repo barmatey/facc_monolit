@@ -1,3 +1,4 @@
+import pydantic
 from pydantic import BaseModel
 import pandas as pd
 import typing
@@ -16,11 +17,15 @@ class Interval(BaseModel):
     total_start_date: typing.Optional[pd.Timestamp]
     total_end_date: typing.Optional[pd.Timestamp]
 
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+
 
 class InnerSource(BaseModel):
     id: core_types.Id_
     title: str
     updated_at: pd.Timestamp
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class InnerGroup(BaseModel):
@@ -31,13 +36,14 @@ class InnerGroup(BaseModel):
     updated_at: pd.Timestamp
     sheet_id: core_types.Id_
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class InnerSheet(BaseModel):
     id: core_types.Id_
     updated_at: typing.Optional[pd.Timestamp]
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class InnerCategory(BaseModel):
@@ -54,3 +60,5 @@ class Report(BaseModel):
     source: InnerSource
     group: InnerGroup
     sheet: InnerSheet
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)

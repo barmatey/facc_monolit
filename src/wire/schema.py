@@ -23,6 +23,8 @@ class WirePartialUpdateSchema(pydantic.BaseModel):
     subconto_second: typing.Optional[str]
     comment: typing.Optional[str]
 
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+
 
 class SourceBulkRetrieveSchema(pydantic.BaseModel):
     filter_by: dict

@@ -16,6 +16,11 @@ from src.wire import entities as wire_entities
 from .handler_service import HandlerService as HS
 
 
+async def handle_source_created(hs: HS, event: wire_events.SourceCreated):
+    source: wire_entities.Source = await hs.source_service.create_one(event)
+    hs.results[wire_events.SourceCreated] = source
+
+
 async def handle_wire_many_created(hs: HS, event: wire_events.WireManyCreated):
     await hs.wire_service.create_many(event.wires)
     hs.results[wire_events.WireManyCreated] = 1
@@ -37,6 +42,7 @@ async def handle_source_info_updated(hs: HS, event: wire_events.SourceDatesInfoU
 
 
 HANDLERS_WIRE = {
+    wire_events.SourceCreated: [handle_source_created],
     wire_events.WireManyCreated: [handle_wire_many_created],
     wire_events.SourceDatesInfoUpdated: [handle_source_info_updated]
 }

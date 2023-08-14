@@ -1,6 +1,7 @@
 import typing
 
 import pandas as pd
+import pydantic
 from pydantic import BaseModel
 
 from src import core_types
@@ -14,8 +15,7 @@ class SheetCreate(BaseModel):
     drop_columns: bool
     readonly_all_cells: bool = False
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class GroupCreate(BaseModel):
@@ -28,8 +28,7 @@ class GroupCreate(BaseModel):
     drop_index: bool
     drop_columns: bool
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class Group(BaseModel):
@@ -45,8 +44,7 @@ class Group(BaseModel):
 class ExpandedGroup(Group):
     sheet_df: pd.DataFrame
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class IntervalCreate(BaseModel):
@@ -57,6 +55,8 @@ class IntervalCreate(BaseModel):
     end_date: pd.Timestamp
     total_start_date: typing.Optional[pd.Timestamp]
     total_end_date: typing.Optional[pd.Timestamp]
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class Interval(IntervalCreate):
@@ -80,6 +80,8 @@ class Report(BaseModel):
     group_id: core_types.Id_
     interval: Interval
     sheet_id: core_types.Id_
+
+    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class ReportCategoryCreate(BaseModel):
