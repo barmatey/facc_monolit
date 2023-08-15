@@ -1,6 +1,7 @@
 import typing
 from typing import Literal
 from typing_extensions import TypedDict
+from datetime import datetime
 
 import pandas as pd
 import pydantic
@@ -22,24 +23,24 @@ class Wcol(TypedDict):
 class Source(BaseModel):
     id: core_types.Id_
     title: str
-    total_start_date: pd.Timestamp
-    total_end_date: pd.Timestamp
+    total_start_date: datetime
+    total_end_date: datetime
     wcols: list[Wcol]
-    updated_at: pd.Timestamp
+    updated_at: datetime
 
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 
 
 class WireCreate(BaseModel):
     source_id: core_types.Id_
-    date: pd.Timestamp
+    date: datetime
     sender: float
     receiver: float
     debit: float
     credit: float
-    subconto_first: typing.Optional[str]
-    subconto_second: typing.Optional[str]
-    comment: typing.Optional[str]
+    subconto_first: typing.Optional[str] = None
+    subconto_second: typing.Optional[str] = None
+    comment: typing.Optional[str] = None
 
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 

@@ -51,7 +51,7 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         self.__sheet_repo = SheetRepoPostgres(session)
 
     async def create_one(self, data: events.GroupCreated) -> Group:
-        data = data.dict()
+        data = data.model_dump()
         data['columns'] = data.pop('ccols')
         data['fixed_columns'] = data.pop('fixed_ccols')
         data['category_id'] = CategoryEnum[data.pop('category')].value
@@ -79,7 +79,7 @@ class GroupRepoPostgres(BasePostgres, GroupRepo, GroupRepository):
         result = result.fetchall()
         result = [
             x[0].to_entity(
-                category=x[1].to_entity(),
+                category=InnerCategory(id=x[1].id, value=x[1].value),
                 source=InnerSource(id=x[2].id, title=x[2].title, updated_at=x[2].updated_at),
                 sheet=InnerSheet(id=x[3].id, updated_at=x[3].updated_at),
             )

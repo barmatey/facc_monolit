@@ -10,7 +10,7 @@ from .handler_service import HandlerService as HS
 
 async def handle_group_created(hs: HS, event: group_events.GroupCreated):
     frep = finrep.FinrepFactory(event.category)
-    event = event.copy()
+    event = event.model_copy()
 
     # Create group_df
     wire_df = await hs.wire_service.get_many_as_frame({"sheet_id": event.sheet_id})

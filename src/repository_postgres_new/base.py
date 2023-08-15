@@ -64,7 +64,7 @@ class BasePostgres:
                 data = [d.__dict__ for d in data]
             return data
         if isinstance(data, PydanticModel):
-            data = data.dict()
+            data = data.model_dump()
             return data
         if isinstance(data, dict):
             return data

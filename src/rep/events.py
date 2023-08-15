@@ -12,11 +12,8 @@ class IntervalCreated(Event):
     period_day: int
     start_date: pd.Timestamp
     end_date: pd.Timestamp
-    total_start_date: typing.Optional[pd.Timestamp]
-    total_end_date: typing.Optional[pd.Timestamp]
-
-    class Config:
-        arbitrary_types_allowed = True
+    total_start_date: typing.Optional[pd.Timestamp] = None
+    total_end_date: typing.Optional[pd.Timestamp] = None
 
 
 class ReportCreated(Event):
@@ -25,7 +22,7 @@ class ReportCreated(Event):
     category: entities.InnerCategory
     source: entities.InnerSource
     group: entities.InnerGroup
-    sheet: typing.Optional[entities.InnerSheet]
+    sheet: typing.Optional[entities.InnerSheet] = None
 
 
 class ReportGotten(Event):

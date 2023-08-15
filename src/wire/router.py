@@ -1,3 +1,5 @@
+import datetime
+
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
 from loguru import logger
@@ -107,7 +109,7 @@ async def get_one(wire_id: core_types.Id_, get_asession=Depends(db.get_async_ses
 @router_wire.get("/")
 @helpers.async_timeit
 async def get_many(source_id: core_types.Id_,
-                   date: str = None,
+                   date: datetime.datetime = None,
                    sender: float = None,
                    receiver: float = None,
                    debit: float = None,
@@ -120,7 +122,7 @@ async def get_many(source_id: core_types.Id_,
                    get_asession=Depends(db.get_async_session)) -> list[entities.Wire]:
     filter_by = {
         "source_id": source_id,
-        "date": pd.Timestamp(date),
+        "date": date,
         "sender": sender,
         "receiver": receiver,
         "debit": debit,
@@ -139,13 +141,12 @@ async def get_many(source_id: core_types.Id_,
 
 @router_wire.patch("/{wire_id}")
 @helpers.async_timeit
-async def partial_update_one(wire_id: core_types.Id_, data: schema.WirePartialUpdateSchema,
+async def partial_update_one(wire_id: core_types.Id_, data: events.WirePartialUpdated,
                              get_asession=Depends(db.get_async_session)) -> schema.WireSchema:
-    filter_by = {"id": wire_id}
+    data.wire_id = wire_id
     async with get_asession as session:
-        wire_repo = WireRepoPostgres(session)
-        wire_service = CrudService(wire_repo)
-        updated = await wire_service.update_one(data, filter_by)
+        result = await msgbus.handle(data, session)
+        updated: entities.Wire = result[events.WirePartialUpdated]
         await session.commit()
         return updated
 

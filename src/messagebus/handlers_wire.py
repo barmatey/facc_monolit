@@ -28,6 +28,14 @@ async def handle_wire_many_created(hs: HS, event: wire_events.WireManyCreated):
     hs.queue.append(wire_events.SourceDatesInfoUpdated(source_id=event.source_id))
 
 
+# todo I need update source total_start_date and total_end_date
+async def handle_wire_partial_updated(hs: HS, event: wire_events.WirePartialUpdated):
+    data = event.model_dump()
+    filter_by = {"id": data.pop("wire_id")}
+    wire: wire_entities.Wire = await hs.wire_service.update_one(data, filter_by)
+    hs.results[wire_events.WirePartialUpdated] = wire
+
+
 async def handle_source_info_updated(hs: HS, event: wire_events.SourceDatesInfoUpdated):
     total_start_date = pd.Timestamp("2020-12-01T09:07:13.363Z")
     total_end_date = pd.Timestamp("2022-11-01T09:07:13.363Z")
@@ -43,6 +51,8 @@ async def handle_source_info_updated(hs: HS, event: wire_events.SourceDatesInfoU
 
 HANDLERS_WIRE = {
     wire_events.SourceCreated: [handle_source_created],
+    wire_events.SourceDatesInfoUpdated: [handle_source_info_updated],
     wire_events.WireManyCreated: [handle_wire_many_created],
-    wire_events.SourceDatesInfoUpdated: [handle_source_info_updated]
+    wire_events.WirePartialUpdated: [handle_wire_partial_updated],
+
 }

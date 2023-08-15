@@ -8,7 +8,7 @@ from sqlalchemy import insert
 
 from src.repository_postgres_new.category import CategoryModel
 
-from .conftest import client, override_get_async_session
+from .conftest import client, override_get_async_session, BASE_FILE_PATH
 
 
 @pytest_asyncio.fixture(autouse=True, scope='module')
@@ -33,7 +33,7 @@ async def source_id():
 
     # Append wires
     url = f"/source-db/{id_}"
-    path = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
+    path = Path(f"{BASE_FILE_PATH}/tests/files/sarmat.csv")
     csv = pd.read_csv(path, encoding="utf8").head(1000).to_csv(index=False)
     client.post(url, files={"file": csv})
 
@@ -47,8 +47,8 @@ async def test_group_create_return_200(source_id):
         "title": "test_group",
         "source_id": source_id,
         "category": "BALANCE",
-        "columns": ["sender", ],
-        "fixed_columns": ["sender"],
+        "ccols": ["sender", ],
+        "fixed_ccols": ["sender"],
     }
     response = client.post(url, json=data)
     assert response.status_code == 200
@@ -62,8 +62,8 @@ async def test_get_group_return_200(source_id):
         "title": "test_group",
         "source_id": source_id,
         "category": "BALANCE",
-        "columns": ["sender", ],
-        "fixed_columns": ["sender"],
+        "ccols": ["sender", ],
+        "fixed_ccols": ["sender"],
     }
     response = client.post(url, json=data)
 

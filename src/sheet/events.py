@@ -14,14 +14,11 @@ class SheetCreated(Event):
     drop_columns: bool
     readonly_all_cells: bool = False
 
-    class Config:
-        arbitrary_types_allowed = True
-
 
 class SheetGotten(Event):
     sheet_id: core_types.Id_
-    from_scroll: typing.Optional[int]
-    to_scroll: typing.Optional[int]
+    from_scroll: typing.Optional[int] = None
+    to_scroll: typing.Optional[int] = None
 
 
 class ColFilterGotten(Event):
@@ -46,7 +43,7 @@ class ColSortedUpdated(Event):
 class ColWidthUpdated(Event):
     sindex_id: core_types.Id_
     new_size: int
-    sheet_id: typing.Optional[core_types.Id_]
+    sheet_id: typing.Optional[core_types.Id_] = None
 
 
 class CellsPartialUpdated(Event):

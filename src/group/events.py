@@ -10,7 +10,7 @@ class GroupCreated(core_types.Event):
     source_id: core_types.Id_
     ccols: list[str]
     fixed_ccols: list[str]
-    sheet_id: core_types.Id_ = None
+    sheet_id: typing.Optional[core_types.Id_] = None
 
 
 class GroupGotten(core_types.Event):
@@ -30,11 +30,11 @@ class GroupSheetUpdated(core_types.Event):
 
 
 class GroupPartialUpdated(core_types.Event):
-    title: typing.Optional[str]
-    category: typing.Optional[enums.GroupCategory]
-    columns: typing.Optional[list[str]]
-    fixed_columns: typing.Optional[list[str]]
-    id: typing.Optional[core_types.Id_]
+    title: typing.Optional[str] = None
+    category: typing.Optional[enums.GroupCategory] = None
+    columns: typing.Optional[list[str]] = None
+    fixed_columns: typing.Optional[list[str]] = None
+    id: typing.Optional[core_types.Id_] = None
 
 
 class GroupDeleted(core_types.Event):

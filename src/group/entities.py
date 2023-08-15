@@ -2,6 +2,7 @@ import pandas as pd
 import pydantic
 from pydantic import BaseModel
 import typing
+from datetime import datetime
 
 from src import core_types
 from . import enums
@@ -15,16 +16,12 @@ class InnerCategory(BaseModel):
 class InnerSource(BaseModel):
     id: core_types.Id_
     title: str
-    updated_at: pd.Timestamp
-
-    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+    updated_at: datetime
 
 
 class InnerSheet(BaseModel):
     id: core_types.Id_
-    updated_at: pd.Timestamp
-
-    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+    updated_at: datetime
 
 
 class Group(BaseModel):
@@ -35,8 +32,8 @@ class Group(BaseModel):
     fixed_ccols: list[str]
     source: InnerSource
     sheet: InnerSheet
-    updated_at: pd.Timestamp
-    sheet_df: typing.Optional[pd.DataFrame]
+    updated_at: datetime
+    sheet_df: typing.Optional[pd.DataFrame] = None
 
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
 

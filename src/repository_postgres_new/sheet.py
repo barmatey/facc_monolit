@@ -140,14 +140,14 @@ class SheetCell(BasePostgres):
         _ = await session.execute(stmt, data)
 
     async def update_one(self, sheet_id: core_types.Id_, data: schema.PartialUpdateCellSchema) -> None:
-        data = {key: value for key, value in data.dict().items() if value is not None}
+        data = {key: value for key, value in data.model_dump().items() if value is not None}
         filter_by = {'id': data.pop('id')} | {'sheet_id': sheet_id, 'is_readonly': False}
         _ = await super().update_one(data, filter_by)
 
     async def update_many(self, sheet_id: core_types.Id_, data: list[schema.PartialUpdateCellSchema]) -> None:
         values = []
         for cell in data:
-            c = cell.dict()
+            c = cell.model_dump()
             c['cell_id'] = c.pop('id')
             if 'value' in c.keys():
                 c['cell_value'] = c.pop('value')
@@ -379,7 +379,7 @@ class SheetCrud(BasePostgres):
 
     async def _create_rows_cols_and_cells(self, sheet_id: core_types.Id_, data: events.SheetCreated) -> None:
         # Create row, col and cell data from denormalized dataframe
-        normalizer = self.normalizer(**data.dict())
+        normalizer = self.normalizer(**data.model_dump())
         normalizer.normalize()
 
         # Create sindexes, save created ids for following create cells
