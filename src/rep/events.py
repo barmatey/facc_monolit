@@ -1,5 +1,6 @@
 import typing
 import pandas as pd
+from datetime import datetime
 
 from src import core_types
 from src.core_types import Event, Id_
@@ -10,10 +11,10 @@ class IntervalCreated(Event):
     period_year: int
     period_month: int
     period_day: int
-    start_date: pd.Timestamp
-    end_date: pd.Timestamp
-    total_start_date: typing.Optional[pd.Timestamp] = None
-    total_end_date: typing.Optional[pd.Timestamp] = None
+    start_date: datetime
+    end_date: datetime
+    total_start_date: typing.Optional[datetime] = None
+    total_end_date: typing.Optional[datetime] = None
 
 
 class ReportCreated(Event):

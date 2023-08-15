@@ -3,7 +3,7 @@ from sqlalchemy import TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column
 from datetime import datetime
 
-from src.report import entities
+from src.rep import entities
 from .base import BasePostgres, BaseModel
 
 

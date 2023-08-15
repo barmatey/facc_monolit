@@ -92,12 +92,15 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
 
         result = [
             x[0].to_entity(
-                category=x[1].to_entity(),
+                category=entities.InnerCategory(id=x[1].id, value=x[1].value),
                 source=entities.InnerSource(id=x[2].id, title=x[2].title, updated_at=x[2].updated_at),
                 group=entities.InnerGroup(id=x[3].id, title=x[3].title, updated_at=x[3].updated_at,
                                           sheet_id=x[3].sheet_id, ccols=x[3].columns, fixed_ccols=x[3].fixed_columns),
                 sheet=entities.InnerSheet(id=x[4].id, updated_at=x[4].updated_at),
-                interval=x[5].to_entity(),
+                interval=entities.Interval(id=x[5].id, period_year=x[5].period_year, period_month=x[5].period_month,
+                                           period_day=x[5].period_day, start_date=x[5].start_date,
+                                           end_date=x[5].end_date, total_start_date=x[5].total_start_date,
+                                           total_end_date=x[5].total_end_date,),
             )
             for x in result
         ]

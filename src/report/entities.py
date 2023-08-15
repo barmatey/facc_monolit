@@ -1,6 +1,7 @@
 import typing
 
 import pandas as pd
+from datetime import datetime
 import pydantic
 from pydantic import BaseModel
 
@@ -51,12 +52,10 @@ class IntervalCreate(BaseModel):
     period_year: int
     period_month: int
     period_day: int
-    start_date: pd.Timestamp
-    end_date: pd.Timestamp
-    total_start_date: typing.Optional[pd.Timestamp]
-    total_end_date: typing.Optional[pd.Timestamp]
-
-    model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
+    start_date: datetime
+    end_date: datetime
+    total_start_date: typing.Optional[datetime] = None
+    total_end_date: typing.Optional[datetime] = None
 
 
 class Interval(IntervalCreate):
