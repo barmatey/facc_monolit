@@ -17,6 +17,9 @@ from main import app
 from src.db import get_async_session
 from src.repository_postgres_new.base import BaseModel
 
+BASE_FILE_PATH = "D:/FedotovAccouting/facc"
+
+
 DATABASE_URL_TEST = {
     'database': "test_monolyt_db",
     'drivername': 'postgresql+asyncpg',

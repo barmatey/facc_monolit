@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import pandas as pd
 
-from .conftest import client
+from .conftest import client, BASE_FILE_PATH
 
 
 @pytest.mark.asyncio
@@ -60,7 +60,7 @@ async def test_append_wires_from_csv():
 
     # Append wires
     url = f"/source-db/{source['id']}"
-    path = Path("C:/Users/barma/PycharmProjects/facc_monolit/tests/files/sarmat.csv")
+    path = Path(f"{BASE_FILE_PATH}/tests/files/sarmat.csv")
     csv = pd.read_csv(path, encoding="utf8").head(10).to_csv(index=False)
     response = client.post(url, files={"file": csv})
     assert response.status_code == 200

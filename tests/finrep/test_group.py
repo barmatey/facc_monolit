@@ -5,13 +5,12 @@ from pathlib import Path
 from src.finrep.wire import Wire
 from src.finrep.group import BalanceGroup, ProfitGroup
 from src.helpers import log
+from tests.conftest import BASE_FILE_PATH
 
-BASE_PATH = "D:/FedotovAccouting/facc"
-
-SARMAT_PATH = Path(f"{BASE_PATH}/tests/files/sarmat.csv")
-SIMPLE_BALANCE = Path(f"{BASE_PATH}/tests/files/simple_balance_group.csv")
-SB_RENAMED = Path(f"{BASE_PATH}/tests/files/simple_balance_group_with_renamed_items.csv")
-SIMPLE_PROFIT_GROUP = Path(f"{BASE_PATH}/tests/files/simple_profit_group.json")
+SARMAT_PATH = Path(f"{BASE_FILE_PATH}/tests/files/sarmat.csv")
+SIMPLE_BALANCE = Path(f"{BASE_FILE_PATH}/tests/files/simple_balance_group.csv")
+SB_RENAMED = Path(f"{BASE_FILE_PATH}/tests/files/simple_balance_group_with_renamed_items.csv")
+SIMPLE_PROFIT_GROUP = Path(f"{BASE_FILE_PATH}/tests/files/simple_profit_group.json")
 
 
 @pytest.fixture(scope='module')

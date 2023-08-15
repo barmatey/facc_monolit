@@ -10,19 +10,18 @@ from src.finrep.interval import Interval
 from src.finrep.report import BalanceReport, ProfitReport
 
 from src.helpers import log
+from tests.conftest import BASE_FILE_PATH
 
-BASE_PATH = "D:/FedotovAccouting/facc"
+SARMAT_PATH = Path(f"{BASE_FILE_PATH}/tests/files/sarmat.csv")
 
-SARMAT_PATH = Path(f"{BASE_PATH}/tests/files/sarmat.csv")
+SIMPLE_BALANCE_GROUP = Path(f"{BASE_FILE_PATH}/tests/files/simple_balance_group.csv")
+SIMPLE_BALANCE_REPORT = Path(f"{BASE_FILE_PATH}/tests/files/simple_balance_report.json")
 
-SIMPLE_BALANCE_GROUP = Path(f"{BASE_PATH}/tests/files/simple_balance_group.csv")
-SIMPLE_BALANCE_REPORT = Path(f"{BASE_PATH}/tests/files/simple_balance_report.json")
+COMPLEX_BALANCE_GROUP = Path(f"{BASE_FILE_PATH}/tests/files/complex_balance_group.json")
+COMPLEX_BALANCE_REPORT = Path(f"{BASE_FILE_PATH}/tests/files/complex_balance_report.json")
 
-COMPLEX_BALANCE_GROUP = Path(f"{BASE_PATH}/tests/files/complex_balance_group.json")
-COMPLEX_BALANCE_REPORT = Path(f"{BASE_PATH}/tests/files/complex_balance_report.json")
-
-COMPLEX_PROFIT_GROUP = Path(f"{BASE_PATH}/tests/files/complex_profit_group.json")
-COMPLEX_PROFIT_REPORT = Path(f"{BASE_PATH}/tests/files/complex_profit_report.json")
+COMPLEX_PROFIT_GROUP = Path(f"{BASE_FILE_PATH}/tests/files/complex_profit_group.json")
+COMPLEX_PROFIT_REPORT = Path(f"{BASE_FILE_PATH}/tests/files/complex_profit_report.json")
 
 
 @pytest.fixture(scope='module')
