@@ -66,9 +66,9 @@ async def handle_parent_updated(hs: HS, event: report_events.ParentUpdated):
 
     group_sheet_id = event.report_instance.group.sheet_id
     group_df = await hs.sheet_service.get_one_as_frame(sheet_events.SheetGotten(sheet_id=group_sheet_id))
-    group = frep.create_group_from_frame(group_df)
+    group = frep.create_group_from_frame(group_df, ccols=event.report_instance.group.ccols)
 
-    interval = event.report_instance.interval.dict()
+    interval = event.report_instance.interval.model_dump()
     interval.pop("id")
     interval = frep.create_interval(**interval)
 

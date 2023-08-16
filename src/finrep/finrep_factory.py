@@ -55,8 +55,7 @@ class FinrepFactory:
     def create_group_from_wire(self, wire: Wire, ccols: list[str] = None, fixed_ccols: list[str] = None) -> Group:
         return self.__group.from_wire(wire, ccols, fixed_ccols)
 
-    def create_group_from_frame(self, df: pd.DataFrame, ccols: list[str] = None,
-                                fixed_ccols: list[str] = None) -> Group:
+    def create_group_from_frame(self, df: pd.DataFrame, ccols: list[str], fixed_ccols: list[str] = None) -> Group:
         return self.__group(df, ccols, fixed_ccols)
 
     def create_report(self, wire: Wire, group: Group, interval: Interval) -> Report:
