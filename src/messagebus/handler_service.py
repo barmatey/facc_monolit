@@ -16,7 +16,7 @@ class HandlerService:
         self.results = {}
         self.wire_service = CrudService(WireRepoPostgres(session))
         self.source_service = CrudService(SourceRepoPostgres(session))
-        self.source_plan_service = CrudService(PlanItemPostgres)
+        self.source_plan_service = CrudService(PlanItemPostgres(session))
         self.sheet_service = SheetService(SheetRepoPostgres(session))
         self.group_service = GroupService(GroupRepoPostgres(session))
         self.report_service = ReportService(ReportRepoPostgres(session))
