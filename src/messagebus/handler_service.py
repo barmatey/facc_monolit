@@ -7,7 +7,7 @@ from src.group.service import GroupService
 from src.rep.service import ReportService
 
 from src.repository_postgres_new import (GroupRepoPostgres, SourceRepoPostgres, WireRepoPostgres, SheetRepoPostgres,
-                                         ReportRepoPostgres)
+                                         ReportRepoPostgres, PlanItemPostgres)
 
 
 class HandlerService:
@@ -16,6 +16,7 @@ class HandlerService:
         self.results = {}
         self.wire_service = CrudService(WireRepoPostgres(session))
         self.source_service = CrudService(SourceRepoPostgres(session))
+        self.source_plan_service = CrudService(PlanItemPostgres)
         self.sheet_service = SheetService(SheetRepoPostgres(session))
         self.group_service = GroupService(GroupRepoPostgres(session))
         self.report_service = ReportService(ReportRepoPostgres(session))

@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.wire.router import router_wire, router_source
+from src.wire.router import router_wire, router_source, router_source_plan
 from src.sheet.router import router as router_sheet
 from src.report.router import router_category
 from src.rep.router import router_report
@@ -23,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(router_source)
+app.include_router(router_source_plan)
 app.include_router(router_wire)
 app.include_router(router_group)
 app.include_router(router_report)

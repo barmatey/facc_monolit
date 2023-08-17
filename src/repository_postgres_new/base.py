@@ -168,3 +168,29 @@ class BasePostgres:
         filters = self._parse_filters(filter_by)
         stmt = delete(self.model).where(*filters)
         _: Result = await session.execute(stmt)
+
+
+class BaseEntityPostgres(BasePostgres):
+
+    async def create_one(self, data: DTO):
+        model = await super().create_one(data)
+        return model.to_entity()
+
+    async def get_one(self, filter_by: dict):
+        model = await super().get_one(filter_by)
+        return model.to_entity()
+
+    async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True, slice_from: int = None,
+                       slice_to: int = None):
+        models = await super().get_many(filter_by, order_by, asc, slice_from, slice_to)
+        sources = [x.to_entity() for x in models]
+        return sources
+
+    async def update_one(self, data: DTO, filter_by: dict):
+        model = await super().update_one(data, filter_by)
+        return model.to_entity()
+
+    async def delete_one(self, filter_by: dict):
+        model = await super().delete_one(filter_by)
+        return model.to_entity()
+

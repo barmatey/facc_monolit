@@ -28,6 +28,13 @@ async def handle_wire_many_created(hs: HS, event: wire_events.WireManyCreated):
     hs.queue.append(wire_events.SourceDatesInfoUpdated(source_id=event.source_id))
 
 
+async def handle_plan_item_list_gotten(hs: HS, event: wire_events.PlanItemListGotten):
+    filter_by = event.model_dump(exclude_none=True)
+    order_by = ['sender', 'receiver', 'sub1', 'sub2', ]
+    result = await hs.source_plan_service.get_many(filter_by, order_by)
+    hs.results[wire_events.PlanItemListGotten] = result
+
+
 # todo I need update source total_start_date and total_end_date
 async def handle_wire_partial_updated(hs: HS, event: wire_events.WirePartialUpdated):
     data = event.model_dump()
@@ -52,6 +59,7 @@ async def handle_source_info_updated(hs: HS, event: wire_events.SourceDatesInfoU
 HANDLERS_WIRE = {
     wire_events.SourceCreated: [handle_source_created],
     wire_events.SourceDatesInfoUpdated: [handle_source_info_updated],
+    wire_events.PlanItemListGotten: [handle_plan_item_list_gotten],
     wire_events.WireManyCreated: [handle_wire_many_created],
     wire_events.WirePartialUpdated: [handle_wire_partial_updated],
 

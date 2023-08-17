@@ -69,6 +69,34 @@ async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,
         return 1
 
 
+router_source_plan = APIRouter(
+    prefix="/source-plan",
+    tags=['SourcePlan']
+)
+
+
+@router_source_plan.post("/")
+async def create_plan_item(data: events.PlanItemCreated,
+                           get_asession=Depends(db.get_async_session)) -> entities.PlanItem:
+    async with get_asession as session:
+        result = await msgbus.handle(data, session)
+        result: entities.PlanItem = result[events.PlanItemCreated]
+        await session.commit()
+        return result
+
+
+@router_source_plan.get("/")
+async def get_many_plan_items(source_id: core_types.Id_, sender: float = None, receiver: float = None,
+                              sub1: str = None, sub2: str = None,
+                              get_asession=Depends(db.get_async_session)) -> list[entities.PlanItem]:
+    event = events.PlanItemListGotten(source_id=source_id, sender=sender, receiver=receiver, sub1=sub1, sub2=sub2)
+    async with get_asession as session:
+        result: dict = await msgbus.handle(event, session)
+        result: list[entities.PlanItem] = result[events.PlanItemListGotten]
+        await session.commit()
+        return result
+
+
 router_wire = APIRouter(
     prefix='/wire',
     tags=['Wire'],

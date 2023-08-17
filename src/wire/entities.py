@@ -50,3 +50,15 @@ class Wire(WireCreate):
 
 
 Entity = typing.Union[Source, Wire]
+
+"""
+Source Plan
+"""
+
+
+class PlanItem(BaseModel):
+    sender: float
+    receiver: float
+    sub1: str
+    sub2: str
+    source_id: core_types.Id_

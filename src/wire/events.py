@@ -11,6 +11,38 @@ class SourceCreated(Event):
     title: str
 
 
+class SourceUpdated(Event):
+    source_id: Id_
+
+
+class SourceDatesInfoUpdated(Event):
+    source_id: core_types.Id_
+
+
+class PlanItemCreated(Event):
+    pass
+
+
+class PlanItemGotten(Event):
+    pass
+
+
+class PlanItemListGotten(Event):
+    source_id: core_types.Id_
+    sender: typing.Optional[float] = None
+    receiver: typing.Optional[float] = None
+    sub1: typing.Optional[str] = None
+    sub2: typing.Optional[str] = None
+
+
+class PlanItemUpdated(Event):
+    pass
+
+
+class PlanItemDeleted(Event):
+    pass
+
+
 class WireCreated(Event):
     source_id: Id_
     date: datetime
@@ -40,13 +72,5 @@ class WirePartialUpdated(Event):
     comment: typing.Optional[str] = None
 
 
-class SourceDatesInfoUpdated(Event):
-    source_id: core_types.Id_
-
-
 class WireDeleted(Event):
     wire_id: Id_
-
-
-class SourceUpdated(Event):
-    source_id: Id_
