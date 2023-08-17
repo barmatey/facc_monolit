@@ -23,6 +23,14 @@ class PlanItemCreated(Event):
     pass
 
 
+class PlanItemManyCreated(Event):
+    pass
+
+
+class PlanItemsCreatedFromSource(Event):
+    source_id: core_types.Id_
+
+
 class PlanItemGotten(Event):
     pass
 
@@ -40,7 +48,7 @@ class PlanItemUpdated(Event):
 
 
 class PlanItemDeleted(Event):
-    pass
+    filter_by: dict
 
 
 class WireCreated(Event):

@@ -1,6 +1,6 @@
 from .wire import WireRepoPostgres
 from .source import SourceRepoPostgres
-from .source_plan import PlanItemPostgres
+from .source_plan import PlanItemRepoPostgres
 from .sheet import SheetRepoPostgres
 from .category import CategoryRepoPostgres
 from .group import GroupRepoPostgres

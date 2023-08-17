@@ -85,6 +85,15 @@ async def create_plan_item(data: events.PlanItemCreated,
         return result
 
 
+@router_source_plan.post("/from-source")
+async def create_plan_items_from_source(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> int:
+    event = events.PlanItemsCreatedFromSource(source_id=source_id)
+    async with get_asession as session:
+        _ = await msgbus.handle(event, session)
+        await session.commit()
+        return 1
+
+
 @router_source_plan.get("/")
 async def get_many_plan_items(source_id: core_types.Id_, sender: float = None, receiver: float = None,
                               sub1: str = None, sub2: str = None,
@@ -95,6 +104,15 @@ async def get_many_plan_items(source_id: core_types.Id_, sender: float = None, r
         result: list[entities.PlanItem] = result[events.PlanItemListGotten]
         await session.commit()
         return result
+
+
+@router_source_plan.delete("/")
+async def delete_many_plan_items(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)):
+    event = events.PlanItemDeleted(filter_by={"source_id": source_id})
+    async with get_asession as session:
+        await msgbus.handle(event, session)
+        await session.commit()
+        return 1
 
 
 router_wire = APIRouter(

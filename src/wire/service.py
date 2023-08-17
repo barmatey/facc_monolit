@@ -1,9 +1,12 @@
 import typing
 from abc import ABC, abstractmethod
 
+from loguru import logger
+
 import pandas as pd
 import pydantic
 
+import core_types
 from src.core_types import OrderBy, Id_, DTO
 from . import repository, entities
 
@@ -35,3 +38,27 @@ class CrudService:
 
     async def delete_one(self, filter_by: dict) -> entities.Entity:
         return await self.__crud_repo.delete_one(filter_by)
+
+    async def delete_many(self, filter_by: dict) -> None:
+        await self.__crud_repo.delete_many(filter_by)
+
+
+class PlanItemService(CrudService):
+
+    async def create_many_from_wire_df(self, source_id: core_types.Id_, wire_df: pd.DataFrame) -> None:
+        columns = ['sender', 'receiver', 'sub1', 'sub2']
+        existed_plan_items = (await self.get_many_as_frame({"source_id": source_id}))[columns]
+
+        new_plan_items = (
+            wire_df
+            .rename({"subconto_first": "sub1", "subconto_second": "sub2"}, axis=1)[columns]
+            .drop_duplicates(ignore_index=True)
+        )
+
+        plan_items = pd.concat([existed_plan_items, new_plan_items])
+        plan_items['source_id'] = source_id
+        duplicated = plan_items.duplicated(keep=False)
+        plan_items = plan_items.loc[~duplicated]
+
+        if not plan_items.empty:
+            await self.create_many(plan_items.to_dict(orient='records'))

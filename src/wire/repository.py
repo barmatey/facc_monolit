@@ -38,3 +38,7 @@ class RepositoryCrud(ABC):
     @abstractmethod
     async def delete_one(self, filter_by: dict) -> entities.Entity:
         pass
+
+    @abstractmethod
+    async def delete_many(self, filter_by: dict) -> None:
+        raise NotImplemented

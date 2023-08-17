@@ -57,8 +57,9 @@ Source Plan
 
 
 class PlanItem(BaseModel):
+    id: core_types.Id_
     sender: float
     receiver: float
-    sub1: str
-    sub2: str
+    sub1: typing.Optional[str]
+    sub2: typing.Optional[str]
     source_id: core_types.Id_

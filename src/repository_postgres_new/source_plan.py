@@ -13,6 +13,7 @@ from .base import BaseEntityPostgres, BaseModel
 from .source import SourceModel
 
 
+# todo I need validation inside one source_id
 class PlanItemModel(BaseModel):
     __tablename__ = "plan_item"
     sender = mapped_column(Float, nullable=False)
@@ -25,6 +26,7 @@ class PlanItemModel(BaseModel):
 
     def to_entity(self, **kwargs) -> entities.PlanItem:
         return entities.PlanItem(
+            id=self.id,
             sender=self.sender,
             receiver=self.receiver,
             sub1=self.sub1,
@@ -33,5 +35,5 @@ class PlanItemModel(BaseModel):
         )
 
 
-class PlanItemPostgres(BaseEntityPostgres, repository.RepositoryCrud):
+class PlanItemRepoPostgres(BaseEntityPostgres, repository.RepositoryCrud):
     model = PlanItemModel
