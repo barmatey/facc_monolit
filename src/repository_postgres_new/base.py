@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core_types import OrderBy, DTO
 from src import core_types
 
-Entity = TypeVar('Entity',)
+Entity = TypeVar('Entity', )
 
 
 class BaseModel(DeclarativeBase):
@@ -40,7 +40,18 @@ class BasePostgres:
         self._session = session
 
     def _parse_filters(self, filter_by: dict) -> list:
-        result = [self.model.__table__.c[key] == value for key, value in filter_by.items() if value is not None]
+        result = []
+
+        for key, value in filter_by.items():
+            if value is None:
+                continue
+            if "__$" in key:
+                key = key.split("__$")[0]
+                result.append(self.model.__table__.c[key].in_(value))
+                continue
+
+            result.append(self.model.__table__.c[key] == value)
+
         return result
 
     def _parse_orders(self, order_by: OrderBy | None, asc: bool = True) -> list:
@@ -194,4 +205,3 @@ class BaseEntityPostgres(BasePostgres):
     async def delete_one(self, filter_by: dict):
         model = await super().delete_one(filter_by)
         return model.to_entity()
-
