@@ -194,8 +194,8 @@ async def get_many(source_id: core_types.Id_,
         "receiver": receiver,
         "debit": debit,
         "credit": credit,
-        "subconto_first": subconto_first,
-        "subconto_second": subconto_second,
+        "sub1": subconto_first,
+        "sub2": subconto_second,
         "comment": comment,
     }
     async with get_asession as session:

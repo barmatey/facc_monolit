@@ -1,7 +1,7 @@
 [
   {
     "sender": 0.0,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "assets, level 1": "Zero",
     "assets, level 2": "first_item",
     "liabs, level 1": "Zero",
@@ -9,7 +9,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "cat320dl\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u04402\u0448\u0442",
+    "sub1": "cat320dl\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u04402\u0448\u0442",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -17,7 +17,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "cat6d6m\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "cat6d6m\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -25,7 +25,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "cat6r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "cat6r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -33,7 +33,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "cat9\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "cat9\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -41,7 +41,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "cat9\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
+    "sub1": "cat9\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -49,7 +49,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "catd8r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "catd8r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -57,7 +57,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044chavalf7\u0442\u0441\u043a\u0440\u0435\u0441\u043e\u043b\u0438\u0437\u0438\u043d\u0433161121",
+    "sub1": "\u0430\u0432\u0442\u043e\u043c\u043e\u0431\u0438\u043b\u044chavalf7\u0442\u0441\u043a\u0440\u0435\u0441\u043e\u043b\u0438\u0437\u0438\u043d\u0433161121",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -65,7 +65,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440caterpillard52\u0435\u0434\u0442\u0441\u043a\u043a\u0430\u0442\u0435\u0440\u043f\u0438\u043b\u043b\u0430\u0440\u0444\u0430\u0439\u043d\u044d\u043d\u0448\u043b221221",
+    "sub1": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440caterpillard52\u0435\u0434\u0442\u0441\u043a\u043a\u0430\u0442\u0435\u0440\u043f\u0438\u043b\u043b\u0430\u0440\u0444\u0430\u0439\u043d\u044d\u043d\u0448\u043b221221",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -73,7 +73,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440sem816d\u0435\u0442\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d170921",
+    "sub1": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440sem816d\u0435\u0442\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d170921",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -81,7 +81,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440\u0442\u0441\u043a\u043c\u043e\u0441\u043a\u043e\u0432\u0438\u044f171121",
+    "sub1": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440\u0442\u0441\u043a\u043c\u043e\u0441\u043a\u043e\u0432\u0438\u044f171121",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -89,7 +89,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0432\u0435\u0441\u043e\u0432\u043e\u0435\u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d\u0438\u0435",
+    "sub1": "\u0432\u0435\u0441\u043e\u0432\u043e\u0435\u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d\u0438\u0435",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -97,7 +97,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0432\u0438\u0431\u0440\u043e\u043a\u0430\u0442\u043e\u043a\u0431\u043e\u043c\u0430\u043a213",
+    "sub1": "\u0432\u0438\u0431\u0440\u043e\u043a\u0430\u0442\u043e\u043a\u0431\u043e\u043c\u0430\u043a213",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -105,7 +105,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0432\u043e\u0434\u043e\u0432\u043e\u0437\u043a\u0430\u043a\u0430\u043c\u0430\u0437\u0430\u043a\u043c10",
+    "sub1": "\u0432\u043e\u0434\u043e\u0432\u043e\u0437\u043a\u0430\u043a\u0430\u043c\u0430\u0437\u0430\u043a\u043c10",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -113,7 +113,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0433\u0430\u0437\u0435\u043b\u044c3\u0435\u0434\u0430\u0440\u043c\u0430\u044d\u043b\u0435\u043c\u0435\u043d\u0442121221",
+    "sub1": "\u0433\u0430\u0437\u0435\u043b\u044c3\u0435\u0434\u0430\u0440\u043c\u0430\u044d\u043b\u0435\u043c\u0435\u043d\u0442121221",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -121,7 +121,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0433\u0438\u0434\u0440\u043e\u0432\u0440\u0430\u0449\u0430\u0442\u0435\u043b\u044c\u0448\u043d\u0435\u043a\u0443\u0434\u043b\u0438\u043d\u0438\u0442\u0435\u043b\u044c\u0442\u0441\u043a\u0431\u0443\u0440\u043e\u0432\u043e\u0435\u043e\u0431\u043e\u0440\u0443\u0434131221",
+    "sub1": "\u0433\u0438\u0434\u0440\u043e\u0432\u0440\u0430\u0449\u0430\u0442\u0435\u043b\u044c\u0448\u043d\u0435\u043a\u0443\u0434\u043b\u0438\u043d\u0438\u0442\u0435\u043b\u044c\u0442\u0441\u043a\u0431\u0443\u0440\u043e\u0432\u043e\u0435\u043e\u0431\u043e\u0440\u0443\u0434131221",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -129,7 +129,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0433\u0438\u0434\u0440\u043e\u043f\u043e\u0441\u0435\u0432\u0430\u0433\u0440\u043e\u0442\u0435\u043a3000",
+    "sub1": "\u0433\u0438\u0434\u0440\u043e\u043f\u043e\u0441\u0435\u0432\u0430\u0433\u0440\u043e\u0442\u0435\u043a3000",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -137,7 +137,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0433\u0440\u0435\u0439\u0434\u0435\u0440\u0434\u043c14",
+    "sub1": "\u0433\u0440\u0435\u0439\u0434\u0435\u0440\u0434\u043c14",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -145,7 +145,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0433\u0440\u0435\u0439\u0434\u0435\u0440\u0441\u043c9223\u0434\u043e\u0431\u043e\u0440",
+    "sub1": "\u0433\u0440\u0435\u0439\u0434\u0435\u0440\u0441\u043c9223\u0434\u043e\u0431\u043e\u0440",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -153,7 +153,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0434\u0430\u0441\u0442\u0435\u0440\u0435\u0442\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d2508213\u0435\u0434",
+    "sub1": "\u0434\u0430\u0441\u0442\u0435\u0440\u0435\u0442\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d2508213\u0435\u0434",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -161,7 +161,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0434\u0440\u043e\u0431\u0438\u043b\u044c\u043d\u043e\u0441\u043e\u0440\u0442\u043a\u0441\u0432\u0441\u0435\u0441\u0435\u0437\u043e\u043d2\u0435\u0434\u0442\u0441\u043a\u0442\u0435\u0445\u043d\u043e\u043f\u0440\u043e\u043c\u043b\u0438\u0437\u0438\u043d\u0433150422",
+    "sub1": "\u0434\u0440\u043e\u0431\u0438\u043b\u044c\u043d\u043e\u0441\u043e\u0440\u0442\u043a\u0441\u0432\u0441\u0435\u0441\u0435\u0437\u043e\u043d2\u0435\u0434\u0442\u0441\u043a\u0442\u0435\u0445\u043d\u043e\u043f\u0440\u043e\u043c\u043b\u0438\u0437\u0438\u043d\u0433150422",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -169,7 +169,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043a\u0430\u0442\u043e\u043a\u0433\u0440\u0443\u043d\u0442\u043e\u0432\u044b\u0439xcmgxs123\u0435\u0442\u0440\u0435\u0441\u043e150921",
+    "sub1": "\u043a\u0430\u0442\u043e\u043a\u0433\u0440\u0443\u043d\u0442\u043e\u0432\u044b\u0439xcmgxs123\u0435\u0442\u0440\u0435\u0441\u043e150921",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -177,7 +177,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043a\u0430\u0442\u043e\u043a\u0440\u0438\u0430\u043b\u0430\u043b\u044c\u0444\u0430\u043c\u043e\u0431\u0438\u043b\u044c280720",
+    "sub1": "\u043a\u0430\u0442\u043e\u043a\u0440\u0438\u0430\u043b\u0430\u043b\u044c\u0444\u0430\u043c\u043e\u0431\u0438\u043b\u044c280720",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -185,7 +185,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043a\u043e\u0440\u0430\u0431\u043b\u044c",
+    "sub1": "\u043a\u043e\u0440\u0430\u0431\u043b\u044c",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -193,7 +193,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043c\u0430\u043d\u0442\u0440\u0430\u043a\u043e\u0431\u0430\u0441\u0430\u0442330\u0432\u043b1529915442",
+    "sub1": "\u043c\u0430\u043d\u0442\u0440\u0430\u043a\u043e\u0431\u0430\u0441\u0430\u0442330\u0432\u043b1529915442",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -201,7 +201,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043c\u0443\u043b\u044c\u0447\u0435\u0440\u0442\u0441\u043a\u0442\u0440\u0430\u043a\u0442\u043e\u0440\u0438\u044f\u0433\u0440\u0443\u043f\u043f201021",
+    "sub1": "\u043c\u0443\u043b\u044c\u0447\u0435\u0440\u0442\u0441\u043a\u0442\u0440\u0430\u043a\u0442\u043e\u0440\u0438\u044f\u0433\u0440\u0443\u043f\u043f201021",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -209,7 +209,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043d\u0435\u0444\u0430\u04374211124\u0442\u0441\u043a\u043a\u0440\u0430\u0441\u043d\u043e\u0432260221",
+    "sub1": "\u043d\u0435\u0444\u0430\u04374211124\u0442\u0441\u043a\u043a\u0440\u0430\u0441\u043d\u043e\u0432260221",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -217,7 +217,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441",
+    "sub1": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -225,7 +225,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441\u0431\u0443\u0445\u0441\u043d",
+    "sub1": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441\u0431\u0443\u0445\u0441\u043d",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -233,7 +233,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043f\u0435\u0440\u0435\u043e\u0446\u0435\u043d\u043a\u0430\u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u0438\u0432\u0441\u0435\u0439\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
+    "sub1": "\u043f\u0435\u0440\u0435\u043e\u0446\u0435\u043d\u043a\u0430\u0441\u0442\u043e\u0438\u043c\u043e\u0441\u0442\u0438\u0432\u0441\u0435\u0439\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -241,7 +241,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043f\u043e",
+    "sub1": "\u043f\u043e",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -249,7 +249,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043f\u043e\u0433\u0440\u0443\u0437\u0447\u0438\u043asem\u0442\u0441\u043a\u0440\u0435\u0441\u043e040821",
+    "sub1": "\u043f\u043e\u0433\u0440\u0443\u0437\u0447\u0438\u043asem\u0442\u0441\u043a\u0440\u0435\u0441\u043e040821",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -257,7 +257,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043f\u043e\u0433\u0440\u0443\u0437\u0447\u0438\u043asem\u0442\u0441\u043a\u0440\u0435\u0441\u043e310821",
+    "sub1": "\u043f\u043e\u0433\u0440\u0443\u0437\u0447\u0438\u043asem\u0442\u0441\u043a\u0440\u0435\u0441\u043e310821",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -265,7 +265,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u043f\u0440\u043c\u0447\u0430\u0439\u043a\u0430\u0441\u0435\u0440\u0432\u0438\u0441\u0442\u0441\u043a\u0440\u0435\u0441\u043e301121",
+    "sub1": "\u043f\u0440\u043c\u0447\u0430\u0439\u043a\u0430\u0441\u0435\u0440\u0432\u0438\u0441\u0442\u0441\u043a\u0440\u0435\u0441\u043e301121",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -273,7 +273,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0440\u0430\u0442\u0440\u0430\u043apb42280dw\u0442\u0441\u043a\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435310821",
+    "sub1": "\u0440\u0430\u0442\u0440\u0430\u043apb42280dw\u0442\u0441\u043a\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435310821",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -281,7 +281,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0440\u044b\u0445\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0435\u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d\u0438\u0435",
+    "sub1": "\u0440\u044b\u0445\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0435\u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d\u0438\u0435",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -289,7 +289,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b4400\u0441\u0430\u0440\u043c\u0430\u0442\u044d\u043b\u0435\u043c\u0435\u043d\u0442\u043b\u0438\u0437\u0438\u043d\u0433240521",
+    "sub1": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b4400\u0441\u0430\u0440\u043c\u0430\u0442\u044d\u043b\u0435\u043c\u0435\u043d\u0442\u043b\u0438\u0437\u0438\u043d\u0433240521",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -297,7 +297,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b5550\u0430\u0440\u043c\u0430\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d190421",
+    "sub1": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b5550\u0430\u0440\u043c\u0430\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d190421",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -305,7 +305,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043bscania\u0431\u04432021\u0433\u04327\u0435\u0434\u0442\u0441\u043a\u044d\u043a\u0441\u043f\u0435\u0440\u0442\u043b\u0438\u0437\u0438\u043d\u0433210622",
+    "sub1": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043bscania\u0431\u04432021\u0433\u04327\u0435\u0434\u0442\u0441\u043a\u044d\u043a\u0441\u043f\u0435\u0440\u0442\u043b\u0438\u0437\u0438\u043d\u0433210622",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -313,7 +313,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0440\u0435\u043d\u043e\u043a8\u044586\u0448\u0442\u0435\u0442\u0430\u043b\u044c\u0444\u0430\u043c\u043e\u0431\u0438\u043b\u044c040621",
+    "sub1": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0440\u0435\u043d\u043e\u043a8\u044586\u0448\u0442\u0435\u0442\u0430\u043b\u044c\u0444\u0430\u043c\u043e\u0431\u0438\u043b\u044c040621",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -321,7 +321,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0440\u0435\u043d\u043e\u043a8\u044586\u0448\u0442\u0435\u0442\u0430\u043b\u044c\u0444\u0430\u043c\u043e\u0431\u0438\u043b\u044c270521",
+    "sub1": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0440\u0435\u043d\u043e\u043a8\u044586\u0448\u0442\u0435\u0442\u0430\u043b\u044c\u0444\u0430\u043c\u043e\u0431\u0438\u043b\u044c270521",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -329,7 +329,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0441\u043a\u0430\u043d\u0438\u044f",
+    "sub1": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0441\u043a\u0430\u043d\u0438\u044f",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -337,7 +337,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0444\u043e\u0440\u043412\u0435\u0434\u0435\u0442\u0433\u043f\u0431\u0430\u0432\u0442\u043e\u043b\u0438\u0437250621",
+    "sub1": "\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u0444\u043e\u0440\u043412\u0435\u0434\u0435\u0442\u0433\u043f\u0431\u0430\u0432\u0442\u043e\u043b\u0438\u0437250621",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -345,7 +345,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u043a\u0430\u043d\u0438\u04388\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
+    "sub1": "\u0441\u043a\u0430\u043d\u0438\u04388\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -353,7 +353,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u043d\u0435\u0433\u043e\u0431\u043e\u043b\u043e\u0442\u043e\u0445\u043e\u0434\u0442\u0441\u043a\u0440\u0435\u0441\u043e121021",
+    "sub1": "\u0441\u043d\u0435\u0433\u043e\u0431\u043e\u043b\u043e\u0442\u043e\u0445\u043e\u0434\u0442\u0441\u043a\u0440\u0435\u0441\u043e121021",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -361,7 +361,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0441\u0440\u043e",
+    "sub1": "\u0441\u0440\u043e",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -369,7 +369,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u0432\u0441\u0447\u0435\u0442\u0437\u043f\u0442\u0441\u043a\u0440\u0435\u0441\u043e231221",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u0432\u0441\u0447\u0435\u0442\u0437\u043f\u0442\u0441\u043a\u0440\u0435\u0441\u043e231221",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -377,7 +377,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u0431\u0435\u0437\u043a\u0430\u0442\u0444\u0438\u043d",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u0431\u0435\u0437\u043a\u0430\u0442\u0444\u0438\u043d",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -385,7 +385,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -393,7 +393,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u0446\u0435\u043c\u043a\u043e\u043c55",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u0446\u0435\u043c\u043a\u043e\u043c55",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -401,7 +401,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0442\u043e\u043f\u043b\u0438\u0432\u043e\u0437\u0430\u043f\u0440\u0430\u0432\u0449\u0438\u043a2\u0435\u0434\u0433\u0430\u0437\u0435\u043b\u044c4\u0435\u0434\u0435\u0442\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d\u043e\u0442120721",
+    "sub1": "\u0442\u043e\u043f\u043b\u0438\u0432\u043e\u0437\u0430\u043f\u0440\u0430\u0432\u0449\u0438\u043a2\u0435\u0434\u0433\u0430\u0437\u0435\u043b\u044c4\u0435\u0434\u0435\u0442\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d\u043e\u0442120721",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -409,7 +409,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0443\u0430\u0437\u043b\u0435\u0433\u043a\u043e\u0432\u043e\u0439",
+    "sub1": "\u0443\u0430\u0437\u043b\u0435\u0433\u043a\u043e\u0432\u043e\u0439",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -417,7 +417,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u0448\u0430\u0445\u043c\u0430\u043d\u044b5\u0448\u0442\u0430\u0440\u043c\u0430\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d280120",
+    "sub1": "\u0448\u0430\u0445\u043c\u0430\u043d\u044b5\u0448\u0442\u0430\u0440\u043c\u0430\u0435\u0432\u0440\u043e\u043f\u043b\u0430\u043d280120",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -425,7 +425,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u04403\u0435\u0434c\u0430\u043c\u043e\u0441\u0432\u0430\u043b1\u0435\u0434\u0435\u0442\u0433\u043f\u0431\u0430\u0432\u0442\u043e\u043b\u0438\u0437020821",
+    "sub1": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u04403\u0435\u0434c\u0430\u043c\u043e\u0441\u0432\u0430\u043b1\u0435\u0434\u0435\u0442\u0433\u043f\u0431\u0430\u0432\u0442\u043e\u043b\u0438\u0437020821",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -433,7 +433,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440caterpillar330gt4\u0435\u0434\u0442\u0441\u043a\u0433\u043f\u0431160522",
+    "sub1": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440caterpillar330gt4\u0435\u0434\u0442\u0441\u043a\u0433\u043f\u0431160522",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -441,7 +441,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440caterpillar349\u0433\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0430\u0440\u043c\u0430\u044d\u043b\u0435\u043c\u0435\u043d\u0442100322",
+    "sub1": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440caterpillar349\u0433\u0438\u0434\u0440\u0430\u0432\u043b\u0438\u0447\u0430\u0440\u043c\u0430\u044d\u043b\u0435\u043c\u0435\u043d\u0442100322",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -449,7 +449,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u0435170",
+    "sub1": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u0435170",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -457,7 +457,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u043c\u0441\u0442544",
+    "sub1": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u043c\u0441\u0442544",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -465,7 +465,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u0445\u0443\u043d\u0434\u0430\u0439290",
+    "sub1": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u0445\u0443\u043d\u0434\u0430\u0439290",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -473,7 +473,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044f\u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0430\u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0438\u0442\u044c",
+    "sub1": "\u044f\u0434\u043e\u0441\u0442\u0430\u0432\u043a\u0430\u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0438\u0442\u044c",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -481,7 +481,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044f\u0436\u0434\u0435\u043c\u0434\u043e\u0433\u043e\u0432\u043e\u0440\u0430\u0432\u0430\u043d\u0441\u043e\u0432\u043f\u043b",
+    "sub1": "\u044f\u0436\u0434\u0435\u043c\u0434\u043e\u0433\u043e\u0432\u043e\u0440\u0430\u0432\u0430\u043d\u0441\u043e\u0432\u043f\u043b",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "first_item",
     "liabs, level 1": "No opinion",
@@ -489,7 +489,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044f\u043e\u0442\u043c\u0435\u043d\u0435\u043d\u043d\u044b\u0439\u0434\u043e\u0433\u043e\u0432\u043e\u0440",
+    "sub1": "\u044f\u043e\u0442\u043c\u0435\u043d\u0435\u043d\u043d\u044b\u0439\u0434\u043e\u0433\u043e\u0432\u043e\u0440",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "second_item",
     "liabs, level 1": "No opinion",
@@ -497,7 +497,7 @@
   },
   {
     "sender": 1.0,
-    "subconto_first": "\u044f\u0441\u043e\u0447\u043b\u0435\u043d\u0435\u043d\u043d\u044b\u0439\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b7\u0435\u0434",
+    "sub1": "\u044f\u0441\u043e\u0447\u043b\u0435\u043d\u0435\u043d\u043d\u044b\u0439\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b7\u0435\u0434",
     "assets, level 1": "Capital Assets",
     "assets, level 2": "third_item",
     "liabs, level 1": "No opinion",
@@ -505,7 +505,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "cat320dl\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u04402\u0448\u0442",
+    "sub1": "cat320dl\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u04402\u0448\u0442",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -513,7 +513,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "cat6r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "cat6r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -521,7 +521,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "cat9\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "cat9\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Amortization",
     "assets, level 2": "third_item",
     "liabs, level 1": "Amortization",
@@ -529,7 +529,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "cat9\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
+    "sub1": "cat9\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -537,7 +537,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "catd8r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "catd8r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -545,7 +545,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440\u0442\u0441\u043a\u043c\u043e\u0441\u043a\u043e\u0432\u0438\u044f171121",
+    "sub1": "\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440\u0442\u0441\u043a\u043c\u043e\u0441\u043a\u043e\u0432\u0438\u044f171121",
     "assets, level 1": "Amortization",
     "assets, level 2": "third_item",
     "liabs, level 1": "Amortization",
@@ -553,7 +553,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u043c\u0430\u043d\u0442\u0440\u0430\u043a\u043e\u0431\u0430\u0441\u0430\u0442330\u0432\u043b1529915442",
+    "sub1": "\u043c\u0430\u043d\u0442\u0440\u0430\u043a\u043e\u0431\u0430\u0441\u0430\u0442330\u0432\u043b1529915442",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -561,7 +561,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u043c\u0443\u043b\u044c\u0447\u0435\u0440\u0442\u0441\u043a\u0442\u0440\u0430\u043a\u0442\u043e\u0440\u0438\u044f\u0433\u0440\u0443\u043f\u043f201021",
+    "sub1": "\u043c\u0443\u043b\u044c\u0447\u0435\u0440\u0442\u0441\u043a\u0442\u0440\u0430\u043a\u0442\u043e\u0440\u0438\u044f\u0433\u0440\u0443\u043f\u043f201021",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -569,7 +569,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u043d\u0435\u0444\u0430\u04374211124\u0442\u0441\u043a\u043a\u0440\u0430\u0441\u043d\u043e\u0432260221",
+    "sub1": "\u043d\u0435\u0444\u0430\u04374211124\u0442\u0441\u043a\u043a\u0440\u0430\u0441\u043d\u043e\u0432260221",
     "assets, level 1": "Amortization",
     "assets, level 2": "third_item",
     "liabs, level 1": "Amortization",
@@ -577,7 +577,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441",
+    "sub1": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -585,7 +585,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441\u0431\u0443\u0445\u0441\u043d",
+    "sub1": "\u043f\u0430\u0437\u0430\u0432\u0442\u043e\u0431\u0443\u0441\u0431\u0443\u0445\u0441\u043d",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -593,7 +593,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u043f\u043e",
+    "sub1": "\u043f\u043e",
     "assets, level 1": "Amortization",
     "assets, level 2": "third_item",
     "liabs, level 1": "Amortization",
@@ -601,7 +601,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0440\u0430\u0442\u0440\u0430\u043apb42280dw\u0442\u0441\u043a\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435310821",
+    "sub1": "\u0440\u0430\u0442\u0440\u0430\u043apb42280dw\u0442\u0441\u043a\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435310821",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -609,7 +609,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0441\u043a\u0430\u043d\u0438\u04388\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
+    "sub1": "\u0441\u043a\u0430\u043d\u0438\u04388\u0448\u0442\u0446\u0435\u043c\u043a\u043e\u043c\u0434\u043e0102",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -617,7 +617,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0441\u0440\u043e",
+    "sub1": "\u0441\u0440\u043e",
     "assets, level 1": "Amortization",
     "assets, level 2": "third_item",
     "liabs, level 1": "Amortization",
@@ -625,7 +625,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442mnural8851l20ufbedoc\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440cat330",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442mnural8851l20ufbedoc\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440cat330",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -633,7 +633,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442mnural8852l20ufbedoc\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440cat330",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442mnural8852l20ufbedoc\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440cat330",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -641,7 +641,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442mnural8853l20ufbedoc\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440cat330",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442mnural8853l20ufbedoc\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440cat330",
     "assets, level 1": "Amortization",
     "assets, level 2": "third_item",
     "liabs, level 1": "Amortization",
@@ -649,7 +649,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442tg3222001ufbedoc\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440sem",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442tg3222001ufbedoc\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440sem",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -657,7 +657,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442tg3222002ufbedoc\u0433\u0440\u0435\u0439\u0434\u0435\u0440",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u043a\u0430\u0442\u0444\u0438\u043d\u043e\u0441\u0442tg3222002ufbedoc\u0433\u0440\u0435\u0439\u0434\u0435\u0440",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -665,7 +665,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u0446\u0435\u043c\u043a\u043e\u043c",
+    "sub1": "\u0442\u0435\u0445\u043d\u0438\u043a\u0430\u043d\u0430\u043d\u0430\u0441\u0446\u0435\u043c\u043a\u043e\u043c",
     "assets, level 1": "Amortization",
     "assets, level 2": "third_item",
     "liabs, level 1": "Amortization",
@@ -673,7 +673,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u0443\u0430\u0437\u043b\u0435\u0433\u043a\u043e\u0432\u043e\u0439",
+    "sub1": "\u0443\u0430\u0437\u043b\u0435\u0433\u043a\u043e\u0432\u043e\u0439",
     "assets, level 1": "Amortization",
     "assets, level 2": "first_item",
     "liabs, level 1": "Amortization",
@@ -681,7 +681,7 @@
   },
   {
     "sender": 2.0,
-    "subconto_first": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u043c\u0441\u0442544",
+    "sub1": "\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440\u043c\u0441\u0442544",
     "assets, level 1": "Amortization",
     "assets, level 2": "second_item",
     "liabs, level 1": "Amortization",
@@ -689,7 +689,7 @@
   },
   {
     "sender": 10.1,
-    "subconto_first": "\u0441\u043f\u0435\u0446\u043e\u0434\u0435\u0436\u0434\u0430",
+    "sub1": "\u0441\u043f\u0435\u0446\u043e\u0434\u0435\u0436\u0434\u0430",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -697,7 +697,7 @@
   },
   {
     "sender": 10.3,
-    "subconto_first": "\u0433\u0441\u043c",
+    "sub1": "\u0433\u0441\u043c",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -705,7 +705,7 @@
   },
   {
     "sender": 10.3,
-    "subconto_first": "\u0433\u0441\u043c\u0442\u0443\u043d\u0434\u0440\u0430",
+    "sub1": "\u0433\u0441\u043c\u0442\u0443\u043d\u0434\u0440\u0430",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -713,7 +713,7 @@
   },
   {
     "sender": 10.5,
-    "subconto_first": "\u0437\u0430\u043f\u0447\u0430\u0441\u0442\u0438",
+    "sub1": "\u0437\u0430\u043f\u0447\u0430\u0441\u0442\u0438",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -721,7 +721,7 @@
   },
   {
     "sender": 10.5,
-    "subconto_first": "\u0437\u0430\u043f\u0447\u0430\u0441\u0442\u0438\u0442\u0443\u043d\u0434\u0440\u0430",
+    "sub1": "\u0437\u0430\u043f\u0447\u0430\u0441\u0442\u0438\u0442\u0443\u043d\u0434\u0440\u0430",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -729,7 +729,7 @@
   },
   {
     "sender": 10.5,
-    "subconto_first": "\u0440\u0435\u0437\u0438\u043d\u0430\u0434\u0438\u0441\u043a\u0438",
+    "sub1": "\u0440\u0435\u0437\u0438\u043d\u0430\u0434\u0438\u0441\u043a\u0438",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -737,7 +737,7 @@
   },
   {
     "sender": 10.5,
-    "subconto_first": "\u0440\u0435\u0441\u0441\u043e\u0440\u0430",
+    "sub1": "\u0440\u0435\u0441\u0441\u043e\u0440\u0430",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -745,7 +745,7 @@
   },
   {
     "sender": 10.6,
-    "subconto_first": "\u043b\u0430\u043a\u043e\u043a\u0440\u0430\u0441\u043e\u0447\u043d\u044b\u0435",
+    "sub1": "\u043b\u0430\u043a\u043e\u043a\u0440\u0430\u0441\u043e\u0447\u043d\u044b\u0435",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -753,7 +753,7 @@
   },
   {
     "sender": 10.6,
-    "subconto_first": "\u043f\u0440\u043e\u0447\u0438\u0435\u0440\u0430\u0441\u0445\u043e\u0434\u043d\u044b\u0435",
+    "sub1": "\u043f\u0440\u043e\u0447\u0438\u0435\u0440\u0430\u0441\u0445\u043e\u0434\u043d\u044b\u0435",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -761,7 +761,7 @@
   },
   {
     "sender": 10.9,
-    "subconto_first": "\u0438\u043d\u0432\u0435\u043d\u0442\u0430\u0440\u044c\u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442",
+    "sub1": "\u0438\u043d\u0432\u0435\u043d\u0442\u0430\u0440\u044c\u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -769,7 +769,7 @@
   },
   {
     "sender": 10.9,
-    "subconto_first": "\u0438\u043d\u0432\u0435\u043d\u0442\u0430\u0440\u044c\u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442\u0442\u0443\u043d\u0434\u0440\u0430",
+    "sub1": "\u0438\u043d\u0432\u0435\u043d\u0442\u0430\u0440\u044c\u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442\u0442\u0443\u043d\u0434\u0440\u0430",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -777,7 +777,7 @@
   },
   {
     "sender": 10.9,
-    "subconto_first": "\u043a\u043e\u043c\u043f\u044b\u043e\u0440\u0433\u0442\u0435\u0445\u043d\u0438\u043a\u0430",
+    "sub1": "\u043a\u043e\u043c\u043f\u044b\u043e\u0440\u0433\u0442\u0435\u0445\u043d\u0438\u043a\u0430",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -785,7 +785,7 @@
   },
   {
     "sender": 10.9,
-    "subconto_first": "\u043f\u0440\u043e\u0447\u0438\u0435\u0440\u0430\u0441\u0445\u043e\u0434\u043d\u044b\u0435",
+    "sub1": "\u043f\u0440\u043e\u0447\u0438\u0435\u0440\u0430\u0441\u0445\u043e\u0434\u043d\u044b\u0435",
     "assets, level 1": "Raw Materials",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -793,7 +793,7 @@
   },
   {
     "sender": 20.1,
-    "subconto_first": "\u043b\u0435\u0441\u043e\u0440\u0443\u0431\u044b",
+    "sub1": "\u043b\u0435\u0441\u043e\u0440\u0443\u0431\u044b",
     "assets, level 1": "Expenses",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -801,7 +801,7 @@
   },
   {
     "sender": 20.1,
-    "subconto_first": "\u043d\u0435\u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u043d\u044b\u0435\u043f\u043e\u043f\u0440\u043e\u0435\u043a\u0442\u0430\u043c",
+    "sub1": "\u043d\u0435\u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u043d\u044b\u0435\u043f\u043e\u043f\u0440\u043e\u0435\u043a\u0442\u0430\u043c",
     "assets, level 1": "Expenses",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -809,7 +809,7 @@
   },
   {
     "sender": 20.1,
-    "subconto_first": "\u043f\u0440\u043e\u0435\u043a\u0442\u043f\u0443\u043b\u044c\u043f\u0430",
+    "sub1": "\u043f\u0440\u043e\u0435\u043a\u0442\u043f\u0443\u043b\u044c\u043f\u0430",
     "assets, level 1": "Expenses",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -817,7 +817,7 @@
   },
   {
     "sender": 20.1,
-    "subconto_first": "\u0442\u0443\u043d\u0434\u0440\u0430",
+    "sub1": "\u0442\u0443\u043d\u0434\u0440\u0430",
     "assets, level 1": "Expenses",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -825,7 +825,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u0430\u0440\u0435\u043d\u0434\u0430\u043a\u0430\u0437\u0430\u043d\u044c",
+    "sub1": "\u0430\u0440\u0435\u043d\u0434\u0430\u043a\u0430\u0437\u0430\u043d\u044c",
     "assets, level 1": "Expenses",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -833,7 +833,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u0433\u0441\u043c\u043a\u0430\u0437\u0430\u043d\u044c\u043e\u0444\u0438\u0441",
+    "sub1": "\u0433\u0441\u043c\u043a\u0430\u0437\u0430\u043d\u044c\u043e\u0444\u0438\u0441",
     "assets, level 1": "Expenses",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -841,7 +841,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u0437\u043f",
+    "sub1": "\u0437\u043f",
     "assets, level 1": "Expenses",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -849,7 +849,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043a\u043e\u043c\u0430\u043d\u0430\u043b",
+    "sub1": "\u043a\u043e\u043c\u0430\u043d\u0430\u043b",
     "assets, level 1": "Expenses",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -857,7 +857,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043a\u043e\u043c\u0430\u043d\u0430\u0441\u0447\u0435\u0442\u0430\u0444\u043b",
+    "sub1": "\u043a\u043e\u043c\u0430\u043d\u0430\u0441\u0447\u0435\u0442\u0430\u0444\u043b",
     "assets, level 1": "Expenses",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -865,7 +865,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043a\u043e\u043c\u0430\u043d\u0434\u0438\u0440\u043e\u0432\u043e\u0447\u043d\u044b\u0435",
+    "sub1": "\u043a\u043e\u043c\u0430\u043d\u0434\u0438\u0440\u043e\u0432\u043e\u0447\u043d\u044b\u0435",
     "assets, level 1": "Expenses",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -873,7 +873,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043a\u0443\u0440\u0441\u043e\u0432\u044b\u0435\u0440\u0430\u0437\u043d\u0438\u0446\u044b",
+    "sub1": "\u043a\u0443\u0440\u0441\u043e\u0432\u044b\u0435\u0440\u0430\u0437\u043d\u0438\u0446\u044b",
     "assets, level 1": "Expenses",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -881,7 +881,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043d\u0430\u043b\u043e\u0433\u0438\u043d\u0434\u0441\u043f\u0440\u0438\u0431\u044b\u043b\u044c\u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u043d\u044b\u0439",
+    "sub1": "\u043d\u0430\u043b\u043e\u0433\u0438\u043d\u0434\u0441\u043f\u0440\u0438\u0431\u044b\u043b\u044c\u0442\u0440\u0430\u043d\u0441\u043f\u043e\u0440\u0442\u043d\u044b\u0439",
     "assets, level 1": "Expenses",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -889,7 +889,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043d\u0430\u043b\u043e\u0433\u0438\u0441\u0442\u0430\u0440\u044b\u0435",
+    "sub1": "\u043d\u0430\u043b\u043e\u0433\u0438\u0441\u0442\u0430\u0440\u044b\u0435",
     "assets, level 1": "Expenses",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -897,7 +897,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043d\u0430\u0447\u0438\u0441\u043b\u0435\u043d\u0438\u0435\u043f\u043e\u0437\u0430\u0439\u043c\u0430\u043c",
+    "sub1": "\u043d\u0430\u0447\u0438\u0441\u043b\u0435\u043d\u0438\u0435\u043f\u043e\u0437\u0430\u0439\u043c\u0430\u043c",
     "assets, level 1": "Expenses",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -905,7 +905,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u043f\u0440\u043e\u0447\u0435\u0435\u043a\u0430\u0437\u0430\u043d\u044c",
+    "sub1": "\u043f\u0440\u043e\u0447\u0435\u0435\u043a\u0430\u0437\u0430\u043d\u044c",
     "assets, level 1": "Expenses",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -913,7 +913,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u0440\u043a\u043e",
+    "sub1": "\u0440\u043a\u043e",
     "assets, level 1": "Expenses",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -921,7 +921,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u0441\u0432\u044f\u0437\u044c",
+    "sub1": "\u0441\u0432\u044f\u0437\u044c",
     "assets, level 1": "Expenses",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -929,7 +929,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u0442\u0430\u043a\u0441\u0438",
+    "sub1": "\u0442\u0430\u043a\u0441\u0438",
     "assets, level 1": "Expenses",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -937,7 +937,7 @@
   },
   {
     "sender": 26.0,
-    "subconto_first": "\u0443\u0442\u043e\u043d\u0447\u0435\u043d\u0438\u0435\u043d\u0434\u0441",
+    "sub1": "\u0443\u0442\u043e\u043d\u0447\u0435\u043d\u0438\u0435\u043d\u0434\u0441",
     "assets, level 1": "Expenses",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -945,31 +945,7 @@
   },
   {
     "sender": 50.0,
-    "subconto_first": "\u043a\u0430\u0441\u0441\u0430",
-    "assets, level 1": "Money",
-    "assets, level 2": "second_item",
-    "liabs, level 1": "Payable",
-    "liabs, level 2": "second_item"
-  },
-  {
-    "sender": 50.0,
-    "subconto_first": "\u043a\u0430\u0441\u0441\u0430\u0431\u0430\u0431\u0430\u0439\u043a\u0430",
-    "assets, level 1": "Money",
-    "assets, level 2": "third_item",
-    "liabs, level 1": "Payable",
-    "liabs, level 2": "third_item"
-  },
-  {
-    "sender": 50.0,
-    "subconto_first": "\u043a\u0430\u0441\u0441\u0430\u0438\u043b\u044c\u0448\u0430\u0442",
-    "assets, level 1": "Money",
-    "assets, level 2": "first_item",
-    "liabs, level 1": "Payable",
-    "liabs, level 2": "first_item"
-  },
-  {
-    "sender": 50.0,
-    "subconto_first": "\u043a\u0430\u0441\u0441\u0430\u0440\u0430\u043c\u0430\u0437\u0430\u043d",
+    "sub1": "\u043a\u0430\u0441\u0441\u0430",
     "assets, level 1": "Money",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -977,7 +953,31 @@
   },
   {
     "sender": 50.0,
-    "subconto_first": "\u043a\u0430\u0441\u0441\u0430\u0442\u0440\u0430\u043d\u0437\u0438\u0442",
+    "sub1": "\u043a\u0430\u0441\u0441\u0430\u0431\u0430\u0431\u0430\u0439\u043a\u0430",
+    "assets, level 1": "Money",
+    "assets, level 2": "third_item",
+    "liabs, level 1": "Payable",
+    "liabs, level 2": "third_item"
+  },
+  {
+    "sender": 50.0,
+    "sub1": "\u043a\u0430\u0441\u0441\u0430\u0438\u043b\u044c\u0448\u0430\u0442",
+    "assets, level 1": "Money",
+    "assets, level 2": "first_item",
+    "liabs, level 1": "Payable",
+    "liabs, level 2": "first_item"
+  },
+  {
+    "sender": 50.0,
+    "sub1": "\u043a\u0430\u0441\u0441\u0430\u0440\u0430\u043c\u0430\u0437\u0430\u043d",
+    "assets, level 1": "Money",
+    "assets, level 2": "second_item",
+    "liabs, level 1": "Payable",
+    "liabs, level 2": "second_item"
+  },
+  {
+    "sender": 50.0,
+    "sub1": "\u043a\u0430\u0441\u0441\u0430\u0442\u0440\u0430\u043d\u0437\u0438\u0442",
     "assets, level 1": "Money",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -985,7 +985,7 @@
   },
   {
     "sender": 51.0,
-    "subconto_first": "\u0432\u0437\u0430\u0438\u043c\u043e\u0437\u0430\u0447\u0435\u0442\u0441\u043f\u0441\u043c\u043a",
+    "sub1": "\u0432\u0437\u0430\u0438\u043c\u043e\u0437\u0430\u0447\u0435\u0442\u0441\u043f\u0441\u043c\u043a",
     "assets, level 1": "Money",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -993,7 +993,7 @@
   },
   {
     "sender": 51.0,
-    "subconto_first": "\u0442\u0441\u043a\u0430\u0432\u0430\u043d\u0433\u0430\u0440\u0434",
+    "sub1": "\u0442\u0441\u043a\u0430\u0432\u0430\u043d\u0433\u0430\u0440\u0434",
     "assets, level 1": "Money",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1001,7 +1001,7 @@
   },
   {
     "sender": 51.0,
-    "subconto_first": "\u0442\u0441\u043a\u0430\u043b\u044c\u0444\u0430",
+    "sub1": "\u0442\u0441\u043a\u0430\u043b\u044c\u0444\u0430",
     "assets, level 1": "Money",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1009,7 +1009,7 @@
   },
   {
     "sender": 51.0,
-    "subconto_first": "\u0442\u0441\u043a\u043e\u0442\u043a\u0440\u044b\u0442\u0438\u0435",
+    "sub1": "\u0442\u0441\u043a\u043e\u0442\u043a\u0440\u044b\u0442\u0438\u0435",
     "assets, level 1": "Money",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1017,7 +1017,7 @@
   },
   {
     "sender": 51.0,
-    "subconto_first": "\u0442\u0441\u043a\u043e\u0442\u043a\u0440\u044b\u0442\u0438\u0435\u043a\u0430\u0440\u0442\u04301637",
+    "sub1": "\u0442\u0441\u043a\u043e\u0442\u043a\u0440\u044b\u0442\u0438\u0435\u043a\u0430\u0440\u0442\u04301637",
     "assets, level 1": "Money",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1025,7 +1025,7 @@
   },
   {
     "sender": 51.0,
-    "subconto_first": "\u0442\u0441\u043a\u043e\u0442\u043a\u0440\u044b\u0442\u0438\u0435\u043a\u0430\u0440\u0442\u04306887",
+    "sub1": "\u0442\u0441\u043a\u043e\u0442\u043a\u0440\u044b\u0442\u0438\u0435\u043a\u0430\u0440\u0442\u04306887",
     "assets, level 1": "Money",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1033,7 +1033,7 @@
   },
   {
     "sender": 51.0,
-    "subconto_first": "\u0442\u0441\u043a\u0440\u0430\u0444\u0444",
+    "sub1": "\u0442\u0441\u043a\u0440\u0430\u0444\u0444",
     "assets, level 1": "Money",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1041,7 +1041,7 @@
   },
   {
     "sender": 57.0,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "assets, level 1": "Money",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1049,7 +1049,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "catd8r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
+    "sub1": "catd8r\u0431\u0443\u043b\u044c\u0434\u043e\u0437\u0435\u0440",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1057,7 +1057,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1065,7 +1065,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0430\u0432\u0442\u043e\u0441\u0438\u043b\u0430",
+    "sub1": "\u0430\u0432\u0442\u043e\u0441\u0438\u043b\u0430",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1073,7 +1073,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0430\u0439\u0440\u0430\u0442\u043d\u0430",
+    "sub1": "\u0430\u0439\u0440\u0430\u0442\u043d\u0430",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1081,7 +1081,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0430\u0439\u0441\u0431\u0435\u0440\u0433",
+    "sub1": "\u0430\u0439\u0441\u0431\u0435\u0440\u0433",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1089,7 +1089,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0431\u043a\u043a\u0430\u043f\u0438\u0442\u0430\u043b",
+    "sub1": "\u0431\u043a\u043a\u0430\u043f\u0438\u0442\u0430\u043b",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1097,7 +1097,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0434\u0430\u0437\u0432\u043e\u043b\u0436\u0441\u043a\u0438\u0439\u044d\u043a\u0441\u043f\u0440\u0435\u0441\u0441",
+    "sub1": "\u0434\u0430\u0437\u0432\u043e\u043b\u0436\u0441\u043a\u0438\u0439\u044d\u043a\u0441\u043f\u0440\u0435\u0441\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1105,7 +1105,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435\u0438\u043d\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u044f\u0432\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0443",
+    "sub1": "\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435\u0438\u043d\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u044f\u0432\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0443",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1113,7 +1113,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0434\u0432\u0441",
+    "sub1": "\u0434\u0432\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1121,7 +1121,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0434\u0435\u0432\u043e\u043d\u0442\u0434",
+    "sub1": "\u0434\u0435\u0432\u043e\u043d\u0442\u0434",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1129,7 +1129,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0437\u0430\u0432\u0433\u043e\u0440\u043e\u0434\u043d\u0438\u0439",
+    "sub1": "\u0437\u0430\u0432\u0433\u043e\u0440\u043e\u0434\u043d\u0438\u0439",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1137,7 +1137,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0437\u0430\u043a\u0440\u0432\u0430\u0448\u043a\u04381\u043a\u0432",
+    "sub1": "\u0437\u0430\u043a\u0440\u0432\u0430\u0448\u043a\u04381\u043a\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1145,7 +1145,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0437\u0430\u043b\u043e\u0433\u0437\u0430\u0442\u0440\u0430\u043b",
+    "sub1": "\u0437\u0430\u043b\u043e\u0433\u0437\u0430\u0442\u0440\u0430\u043b",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1153,7 +1153,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0438\u043b\u044c\u0438\u043d\u0438\u043f",
+    "sub1": "\u0438\u043b\u044c\u0438\u043d\u0438\u043f",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1161,7 +1161,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u043a\u0430\u0440\u043d\u0430\u0443\u0445\u043e\u0432",
+    "sub1": "\u043a\u0430\u0440\u043d\u0430\u0443\u0445\u043e\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1169,7 +1169,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u043a\u043d\u044f\u0437\u044c\u043a\u043e\u0432",
+    "sub1": "\u043a\u043d\u044f\u0437\u044c\u043a\u043e\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1177,7 +1177,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u043a\u043e\u043c\u0430\u0440\u043e\u0432",
+    "sub1": "\u043a\u043e\u043c\u0430\u0440\u043e\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1185,7 +1185,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u043b\u043e\u0433\u0438\u0441\u0442\u0438\u043a\u0446\u0435\u043d\u0442\u0440",
+    "sub1": "\u043b\u043e\u0433\u0438\u0441\u0442\u0438\u043a\u0446\u0435\u043d\u0442\u0440",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1193,7 +1193,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u043c\u0430\u043c\u0435\u0434\u043e\u0432",
+    "sub1": "\u043c\u0430\u043c\u0435\u0434\u043e\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1201,7 +1201,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u043c\u0430\u043d\u0442\u0440\u0430\u043a",
+    "sub1": "\u043c\u0430\u043d\u0442\u0440\u0430\u043a",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1209,7 +1209,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u043f\u0440\u043e\u043c\u0441\u0442\u0440\u043e\u0439",
+    "sub1": "\u043f\u0440\u043e\u043c\u0441\u0442\u0440\u043e\u0439",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1217,7 +1217,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0440\u0443\u043c\u044f\u043d\u0446\u0435\u0432",
+    "sub1": "\u0440\u0443\u043c\u044f\u043d\u0446\u0435\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1225,7 +1225,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0440\u0443\u0441\u0442\u0430\u043c\u043e\u0432\u0430\u0438\u043f",
+    "sub1": "\u0440\u0443\u0441\u0442\u0430\u043c\u043e\u0432\u0430\u0438\u043f",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1233,7 +1233,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u0435\u0432\u0435\u0440\u0441\u043f\u0435\u0446\u0442\u0440\u0430\u043d\u0441",
+    "sub1": "\u0441\u0435\u0432\u0435\u0440\u0441\u043f\u0435\u0446\u0442\u0440\u0430\u043d\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1241,7 +1241,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u0435\u0432\u0435\u0440\u0442\u0440\u0430\u043d\u0441",
+    "sub1": "\u0441\u0435\u0432\u0435\u0440\u0442\u0440\u0430\u043d\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1249,7 +1249,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u0435\u043a\u0442\u043e\u0440",
+    "sub1": "\u0441\u0435\u043a\u0442\u043e\u0440",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1257,7 +1257,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u0435\u043c\u0435\u043d\u043a\u043e",
+    "sub1": "\u0441\u0435\u043c\u0435\u043d\u043a\u043e",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1265,7 +1265,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u043c\u043e\u0442\u0440\u0438\u043a\u0438\u043f",
+    "sub1": "\u0441\u043c\u043e\u0442\u0440\u0438\u043a\u0438\u043f",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1273,7 +1273,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u0442\u0440\u043e\u0439\u0430\u0437\u0438\u044f\u0438\u043d\u0432\u0435\u0441\u0442",
+    "sub1": "\u0441\u0442\u0440\u043e\u0439\u0430\u0437\u0438\u044f\u0438\u043d\u0432\u0435\u0441\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1281,7 +1281,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u0442\u0440\u043e\u0439\u0430\u043b\u044c\u044f\u043d\u0441",
+    "sub1": "\u0441\u0442\u0440\u043e\u0439\u0430\u043b\u044c\u044f\u043d\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1289,7 +1289,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0441\u0442\u0440\u043e\u0439\u0442\u0435\u0445\u0438\u043c\u043f\u043e\u0440\u0442",
+    "sub1": "\u0441\u0442\u0440\u043e\u0439\u0442\u0435\u0445\u0438\u043c\u043f\u043e\u0440\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1297,7 +1297,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0442\u0440\u0430\u043a\u0442\u0435\u0445\u043d\u0438\u043a\u0442\u044e\u043c\u0435\u043d\u044c",
+    "sub1": "\u0442\u0440\u0430\u043a\u0442\u0435\u0445\u043d\u0438\u043a\u0442\u044e\u043c\u0435\u043d\u044c",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1305,7 +1305,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0442\u0441\u043a8911008023",
+    "sub1": "\u0442\u0441\u043a8911008023",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1313,7 +1313,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0442\u0441\u043a\u0437\u0430\u0441\u043a\u0430\u043d\u0438\u0438",
+    "sub1": "\u0442\u0441\u043a\u0437\u0430\u0441\u043a\u0430\u043d\u0438\u0438",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1321,7 +1321,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0443\u043c\u04402\u0442\u0441\u043c",
+    "sub1": "\u0443\u043c\u04402\u0442\u0441\u043c",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1329,7 +1329,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0446\u0435\u043c\u043a\u043e\u043c",
+    "sub1": "\u0446\u0435\u043c\u043a\u043e\u043c",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1337,7 +1337,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0446\u0435\u043c\u043a\u043e\u043c67\u0431\u043d",
+    "sub1": "\u0446\u0435\u043c\u043a\u043e\u043c67\u0431\u043d",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1345,7 +1345,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u0446\u0435\u043c\u043a\u043e\u043c67\u0432\u043a\u0435\u0448\u0435",
+    "sub1": "\u0446\u0435\u043c\u043a\u043e\u043c67\u0432\u043a\u0435\u0448\u0435",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1353,31 +1353,7 @@
   },
   {
     "sender": 60.0,
-    "subconto_first": "\u044d\u043b\u0438\u0437\u0431\u0430\u0440\u044f\u043d\u0441\u0430\u0440\u044f\u043d",
-    "assets, level 1": "Receivable",
-    "assets, level 2": "second_item",
-    "liabs, level 1": "Payable",
-    "liabs, level 2": "second_item"
-  },
-  {
-    "sender": 62.1,
-    "subconto_first": "\u0434\u043e\u043b\u0433\u0430\u0432\u0430\u043d\u0441\u0437\u0430\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u044b\u043d\u0430\u0435\u0442",
-    "assets, level 1": "Receivable",
-    "assets, level 2": "third_item",
-    "liabs, level 1": "Payable",
-    "liabs, level 2": "third_item"
-  },
-  {
-    "sender": 62.1,
-    "subconto_first": "\u0434\u043e\u043b\u0433\u0437\u0430\u0440\u0435\u043c\u043e\u043d\u0442\u043a\u043e\u0440\u0430\u0431\u043b\u044f",
-    "assets, level 1": "Receivable",
-    "assets, level 2": "first_item",
-    "liabs, level 1": "Payable",
-    "liabs, level 2": "first_item"
-  },
-  {
-    "sender": 62.1,
-    "subconto_first": "\u043c\u0435\u0434\u0432\u0435\u0434\u044c",
+    "sub1": "\u044d\u043b\u0438\u0437\u0431\u0430\u0440\u044f\u043d\u0441\u0430\u0440\u044f\u043d",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1385,7 +1361,7 @@
   },
   {
     "sender": 62.1,
-    "subconto_first": "\u043f\u0441\u043c\u043a",
+    "sub1": "\u0434\u043e\u043b\u0433\u0430\u0432\u0430\u043d\u0441\u0437\u0430\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b\u044b\u043d\u0430\u0435\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1393,7 +1369,7 @@
   },
   {
     "sender": 62.1,
-    "subconto_first": "\u0441\u0442\u043d\u0433",
+    "sub1": "\u0434\u043e\u043b\u0433\u0437\u0430\u0440\u0435\u043c\u043e\u043d\u0442\u043a\u043e\u0440\u0430\u0431\u043b\u044f",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1401,7 +1377,31 @@
   },
   {
     "sender": 62.1,
-    "subconto_first": "\u0442\u043a\u043b\u0446\u043a\u043b\u0438\u0435\u043d\u0442",
+    "sub1": "\u043c\u0435\u0434\u0432\u0435\u0434\u044c",
+    "assets, level 1": "Receivable",
+    "assets, level 2": "second_item",
+    "liabs, level 1": "Payable",
+    "liabs, level 2": "second_item"
+  },
+  {
+    "sender": 62.1,
+    "sub1": "\u043f\u0441\u043c\u043a",
+    "assets, level 1": "Receivable",
+    "assets, level 2": "third_item",
+    "liabs, level 1": "Payable",
+    "liabs, level 2": "third_item"
+  },
+  {
+    "sender": 62.1,
+    "sub1": "\u0441\u0442\u043d\u0433",
+    "assets, level 1": "Receivable",
+    "assets, level 2": "first_item",
+    "liabs, level 1": "Payable",
+    "liabs, level 2": "first_item"
+  },
+  {
+    "sender": 62.1,
+    "sub1": "\u0442\u043a\u043b\u0446\u043a\u043b\u0438\u0435\u043d\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1409,7 +1409,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "28701\u043f\u0435\u0440\u0435\u0432\u0435\u043b\u0438\u043f\u043e\u0434",
+    "sub1": "28701\u043f\u0435\u0440\u0435\u0432\u0435\u043b\u0438\u043f\u043e\u0434",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1417,7 +1417,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0433\u0443\u043c",
+    "sub1": "\u0433\u0443\u043c",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1425,7 +1425,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0434\u043c\u0438\u0442\u0440\u0438\u0435\u0432\u0430\u0438\u0437\u0441\u0432\u043e\u0438\u0445\u043e\u043f\u043b\u0430\u0447\u0438\u0432\u0430\u0435\u0442",
+    "sub1": "\u0434\u043c\u0438\u0442\u0440\u0438\u0435\u0432\u0430\u0438\u0437\u0441\u0432\u043e\u0438\u0445\u043e\u043f\u043b\u0430\u0447\u0438\u0432\u0430\u0435\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1433,7 +1433,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0437\u0430\u0439\u043c\u043e\u043a\u0431\u043a\u043f\u043c\u0430\u0440\u044222",
+    "sub1": "\u0437\u0430\u0439\u043c\u043e\u043a\u0431\u043a\u043f\u043c\u0430\u0440\u044222",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1441,7 +1441,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0437\u0430\u0439\u043c\u0443\u0437\u0438\u043d\u043d\u0443\u0440\u0430",
+    "sub1": "\u0437\u0430\u0439\u043c\u0443\u0437\u0438\u043d\u043d\u0443\u0440\u0430",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1449,7 +1449,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0435\u0440\u0435\u043e\u0446\u0435\u043d\u043a\u0430\u043d\u0430\u043b\u0432\u0431\u043d\u043f\u043e66\u0441\u0447\u0435\u0442\u0443\u043d\u04303006",
+    "sub1": "\u043f\u0435\u0440\u0435\u043e\u0446\u0435\u043d\u043a\u0430\u043d\u0430\u043b\u0432\u0431\u043d\u043f\u043e66\u0441\u0447\u0435\u0442\u0443\u043d\u04303006",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1457,7 +1457,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u043105\u0432\u0434\u0435\u043d\u044c\u0432\u0440\u0443\u0447\u043d\u0443\u044e",
+    "sub1": "\u043f\u0442\u043105\u0432\u0434\u0435\u043d\u044c\u0432\u0440\u0443\u0447\u043d\u0443\u044e",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1465,7 +1465,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1473,7 +1473,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f1100\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u0432\u0431\u0435\u0437",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f1100\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u0432\u0431\u0435\u0437",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1481,7 +1481,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f250\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u04324",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f250\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u04324",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1489,7 +1489,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f95\u043a\u0435\u0432\u0440\u043e\u0431\u0435\u0437",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f95\u043a\u0435\u0432\u0440\u043e\u0431\u0435\u0437",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1497,7 +1497,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u0447\u0435\u0440\u0435\u0437\u0435\u0442",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u0447\u0435\u0440\u0435\u0437\u0435\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1505,7 +1505,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f\u0446\u0435\u043c\u043a\u043e\u043c",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f\u0446\u0435\u043c\u043a\u043e\u043c",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1513,7 +1513,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04313\u043a\u0430\u043f8000\u0441\u043a\u0438\u043b\u043b",
+    "sub1": "\u043f\u0442\u04313\u043a\u0430\u043f8000\u0441\u043a\u0438\u043b\u043b",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1521,7 +1521,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u043f\u0442\u04314\u043a\u0430\u043f",
+    "sub1": "\u043f\u0442\u04314\u043a\u0430\u043f",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1529,7 +1529,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0441\u0430\u0440\u043c\u0430\u0442\u0432\u044b\u0432\u043e\u0434\u0434\u043b\u044f\u0446\u0435\u043c\u043a\u043e\u043c",
+    "sub1": "\u0441\u0430\u0440\u043c\u0430\u0442\u0432\u044b\u0432\u043e\u0434\u0434\u043b\u044f\u0446\u0435\u043c\u043a\u043e\u043c",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1537,7 +1537,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0441\u0430\u0440\u043c\u0430\u0442\u0442\u0435\u043a\u0443\u0449\u0438\u0439",
+    "sub1": "\u0441\u0430\u0440\u043c\u0430\u0442\u0442\u0435\u043a\u0443\u0449\u0438\u0439",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1545,7 +1545,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0441\u0430\u0440\u043c\u0430\u0442\u0443\u043a\u0430\u043a\u043a\u043b\u0438\u0435\u043d\u0442\u0443",
+    "sub1": "\u0441\u0430\u0440\u043c\u0430\u0442\u0443\u043a\u0430\u043a\u043a\u043b\u0438\u0435\u043d\u0442\u0443",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1553,7 +1553,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0442\u043a\u043b\u0446",
+    "sub1": "\u0442\u043a\u043b\u0446",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1561,7 +1561,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0442\u0441\u043a\u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u04431000\u0437\u0430\u0439\u043c",
+    "sub1": "\u0442\u0441\u043a\u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u04431000\u0437\u0430\u0439\u043c",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1569,7 +1569,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u04424",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u04424",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1577,7 +1577,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u04428000",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u04428000",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1585,7 +1585,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0446\u0435\u043c\u043a\u043e\u043c2",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0446\u0435\u043c\u043a\u043e\u043c2",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1593,7 +1593,7 @@
   },
   {
     "sender": 66.1,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0447\u0435\u0440\u0435\u0437\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u043d\u0430\u0435\u0442",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0447\u0435\u0440\u0435\u0437\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u043d\u0430\u0435\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1601,7 +1601,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "28701\u043f\u0435\u0440\u0435\u0432\u0435\u043b\u0438\u043f\u043e\u0434",
+    "sub1": "28701\u043f\u0435\u0440\u0435\u0432\u0435\u043b\u0438\u043f\u043e\u0434",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1609,7 +1609,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u043105\u0432\u0434\u0435\u043d\u044c\u0432\u0440\u0443\u0447\u043d\u0443\u044e",
+    "sub1": "\u043f\u0442\u043105\u0432\u0434\u0435\u043d\u044c\u0432\u0440\u0443\u0447\u043d\u0443\u044e",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1617,7 +1617,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1625,7 +1625,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f1100\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u0432\u0431\u0435\u0437",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f1100\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u0432\u0431\u0435\u0437",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1633,7 +1633,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f250\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u04324",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f250\u043a\u0434\u043e\u043b\u043b\u0430\u0440\u043e\u04324",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1641,7 +1641,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f95\u043a\u0435\u0432\u0440\u043e\u0431\u0435\u0437",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f95\u043a\u0435\u0432\u0440\u043e\u0431\u0435\u0437",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1649,7 +1649,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u0447\u0435\u0440\u0435\u0437\u0435\u0442",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u0447\u0435\u0440\u0435\u0437\u0435\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1657,7 +1657,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04312\u043a\u0430\u043f\u0446\u0435\u043c\u043a\u043e\u043c",
+    "sub1": "\u043f\u0442\u04312\u043a\u0430\u043f\u0446\u0435\u043c\u043a\u043e\u043c",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1665,7 +1665,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04313\u043a\u0430\u043f8000\u0441\u043a\u0438\u043b\u043b",
+    "sub1": "\u043f\u0442\u04313\u043a\u0430\u043f8000\u0441\u043a\u0438\u043b\u043b",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1673,7 +1673,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u043f\u0442\u04314\u043a\u0430\u043f",
+    "sub1": "\u043f\u0442\u04314\u043a\u0430\u043f",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1681,7 +1681,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u04424",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u04424",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1689,7 +1689,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u04428000",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u04428000",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1697,7 +1697,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0446\u0435\u043c\u043a\u043e\u043c2",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0446\u0435\u043c\u043a\u043e\u043c2",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1705,7 +1705,7 @@
   },
   {
     "sender": 66.2,
-    "subconto_first": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0447\u0435\u0440\u0435\u0437\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u043d\u0430\u0435\u0442",
+    "sub1": "\u0444\u0430\u0441\u0442\u0431\u0438\u0442\u0447\u0435\u0440\u0435\u0437\u0431\u043d\u043f\u0435\u0440\u0435\u0432\u043e\u0434\u043d\u0430\u0435\u0442",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1713,7 +1713,7 @@
   },
   {
     "sender": 70.0,
-    "subconto_first": "\u0441\u0447",
+    "sub1": "\u0441\u0447",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1721,7 +1721,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u0430\u0440\u0445\u0438\u043f\u043e\u0432",
+    "sub1": "\u0430\u0440\u0445\u0438\u043f\u043e\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1729,7 +1729,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u0432\u043d\u0435\u0441\u0435\u043d\u0438\u0435\u043d\u0430\u0440\u0441",
+    "sub1": "\u0432\u043d\u0435\u0441\u0435\u043d\u0438\u0435\u043d\u0430\u0440\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1737,7 +1737,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u0433\u043b\u0443\u0448\u043a\u043e\u0432",
+    "sub1": "\u0433\u043b\u0443\u0448\u043a\u043e\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1745,7 +1745,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u043a\u0440\u0443\u0441",
+    "sub1": "\u043a\u0440\u0443\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1753,7 +1753,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u043c\u0435\u0445\u0430\u043d\u0438\u043a\u0436\u0435\u043d\u044f",
+    "sub1": "\u043c\u0435\u0445\u0430\u043d\u0438\u043a\u0436\u0435\u043d\u044f",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1761,7 +1761,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u043c\u0435\u0445\u0430\u043d\u0438\u043a\u043d\u0438\u043a\u043e\u043b\u0430\u0439",
+    "sub1": "\u043c\u0435\u0445\u0430\u043d\u0438\u043a\u043d\u0438\u043a\u043e\u043b\u0430\u0439",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1769,7 +1769,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u0441\u043a\u0438\u0434\u0430\u043d\u043e\u0432",
+    "sub1": "\u0441\u043a\u0438\u0434\u0430\u043d\u043e\u0432",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1777,7 +1777,7 @@
   },
   {
     "sender": 71.0,
-    "subconto_first": "\u0441\u0447",
+    "sub1": "\u0441\u0447",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1785,7 +1785,7 @@
   },
   {
     "sender": 75.0,
-    "subconto_first": "\u0432\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u0438\u0437\u043a\u043e\u043d\u0442\u043e\u0440\u044b\u043d\u0430010221",
+    "sub1": "\u0432\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u0438\u0437\u043a\u043e\u043d\u0442\u043e\u0440\u044b\u043d\u0430010221",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1793,7 +1793,7 @@
   },
   {
     "sender": 75.0,
-    "subconto_first": "\u043f\u0440\u043e\u0435\u043a\u0442\u0442\u0440\u0430\u043a\u0442\u043e\u0440\u0438\u0441\u0442\u0434\u043b\u044f75\u0441\u0447",
+    "sub1": "\u043f\u0440\u043e\u0435\u043a\u0442\u0442\u0440\u0430\u043a\u0442\u043e\u0440\u0438\u0441\u0442\u0434\u043b\u044f75\u0441\u0447",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1801,7 +1801,7 @@
   },
   {
     "sender": 76.0,
-    "subconto_first": "\u0437\u0430\u0434\u0430\u0442\u043e\u043a\u0430\u0443\u043a\u0446\u0438\u043e\u043d",
+    "sub1": "\u0437\u0430\u0434\u0430\u0442\u043e\u043a\u0430\u0443\u043a\u0446\u0438\u043e\u043d",
     "assets, level 1": "Receivable",
     "assets, level 2": "first_item",
     "liabs, level 1": "Payable",
@@ -1809,7 +1809,7 @@
   },
   {
     "sender": 76.0,
-    "subconto_first": "\u043d\u0430\u043b\u043e\u0433\u0438",
+    "sub1": "\u043d\u0430\u043b\u043e\u0433\u0438",
     "assets, level 1": "Receivable",
     "assets, level 2": "second_item",
     "liabs, level 1": "Payable",
@@ -1817,7 +1817,7 @@
   },
   {
     "sender": 76.0,
-    "subconto_first": "\u0443\u0442\u043e\u0447\u043d\u0435\u043d\u0438\u0435\u043d\u0434\u0441",
+    "sub1": "\u0443\u0442\u043e\u0447\u043d\u0435\u043d\u0438\u0435\u043d\u0434\u0441",
     "assets, level 1": "Receivable",
     "assets, level 2": "third_item",
     "liabs, level 1": "Payable",
@@ -1825,7 +1825,7 @@
   },
   {
     "sender": 80.0,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "assets, level 1": "Eighteen",
     "assets, level 2": "first_item",
     "liabs, level 1": "Eighteen",
@@ -1833,7 +1833,7 @@
   },
   {
     "sender": 81.0,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "assets, level 1": "Eighteen",
     "assets, level 2": "second_item",
     "liabs, level 1": "Eighteen",
@@ -1841,7 +1841,7 @@
   },
   {
     "sender": 82.0,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "assets, level 1": "Eighteen",
     "assets, level 2": "third_item",
     "liabs, level 1": "Eighteen",

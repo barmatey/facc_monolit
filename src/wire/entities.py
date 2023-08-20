@@ -38,8 +38,8 @@ class WireCreate(BaseModel):
     receiver: float
     debit: float
     credit: float
-    subconto_first: typing.Optional[str] = None
-    subconto_second: typing.Optional[str] = None
+    sub1: typing.Optional[str] = None
+    sub2: typing.Optional[str] = None
     comment: typing.Optional[str] = None
 
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)

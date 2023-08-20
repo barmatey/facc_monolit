@@ -81,8 +81,8 @@ async def test_create_one_wire_with_correct_data():
         "receiver": 1,
         "debit": 100,
         "credit": 0,
-        "subconto_first": None,
-        "subconto_second": None,
+        "sub1": None,
+        "sub2": None,
         "comment": "hello!",
     }
     response = client.post(url, json=data)
@@ -104,8 +104,8 @@ async def test_create_many_wires_with_correct_data():
             "receiver": x,
             "debit": x*13,
             "credit": 0,
-            "subconto_first": None,
-            "subconto_second": None,
+            "sub1": None,
+            "sub2": None,
             "comment": "hello!",
         }
         for x in range(1, 51)
@@ -156,8 +156,8 @@ async def test_delete_one_wire():
         "receiver": 1,
         "debit": 100,
         "credit": 0,
-        "subconto_first": None,
-        "subconto_second": None,
+        "sub1": None,
+        "sub2": None,
         "comment": "hello!",
     }
     wire: dict = client.post(url, json=data).json()

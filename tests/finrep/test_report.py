@@ -43,7 +43,7 @@ def simple_balance_group():
 def complex_balance_group():
     with open(COMPLEX_BALANCE_GROUP) as data:
         group_df = pd.read_json(data, encoding='utf8', orient='records')
-    group = BalanceGroup(group_df, ccols=['sender', 'subconto_first'], fixed_ccols=['sender', 'subconto_first'])
+    group = BalanceGroup(group_df, ccols=['sender', 'sub1'], fixed_ccols=['sender', 'sub2'])
     return group
 
 

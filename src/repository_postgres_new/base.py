@@ -126,7 +126,6 @@ class BasePostgres:
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
                        slice_from: int = None, slice_to: int = None) -> list[Model]:
         session = self._session
-
         filters = self._parse_filters(filter_by)
         orders = self._parse_orders(order_by, asc)
         stmt = select(self.model).where(*filters).order_by(*orders)

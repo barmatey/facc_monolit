@@ -63,8 +63,8 @@ class WireCreated(Event):
     receiver: float
     debit: float
     credit: float
-    subconto_first: typing.Optional[str] = None
-    subconto_second: typing.Optional[str] = None
+    sub1: typing.Optional[str] = None
+    sub2: typing.Optional[str] = None
     comment: typing.Optional[str] = None
 
 
@@ -80,8 +80,8 @@ class WirePartialUpdated(Event):
     receiver: typing.Optional[float] = None
     debit: typing.Optional[float] = None
     credit: typing.Optional[float] = None
-    subconto_first: typing.Optional[str] = None
-    subconto_second: typing.Optional[str] = None
+    sub1: typing.Optional[str] = None
+    sub2: typing.Optional[str] = None
     comment: typing.Optional[str] = None
 
 

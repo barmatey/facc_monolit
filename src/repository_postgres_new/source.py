@@ -18,8 +18,8 @@ def get_wcols():
         {'title': 'receiver', 'label': 'Receiver', 'dtype': 'float', },
         {'title': 'debit', 'label': 'Debit', 'dtype': 'float', },
         {'title': 'credit', 'label': 'Credit', 'dtype': 'float', },
-        {'title': 'subconto_first', 'label': 'First subconto', 'dtype': 'str', },
-        {'title': 'subconto_second', 'label': 'Second subconto', 'dtype': 'str', },
+        {'title': 'sub1', 'label': 'First subconto', 'dtype': 'str', },
+        {'title': 'sub2', 'label': 'Second subconto', 'dtype': 'str', },
         {'title': 'comment', 'label': 'Comment', 'dtype': 'str', },
     ]
 

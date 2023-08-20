@@ -1,147 +1,147 @@
 [
   {
     "sender": 90.1,
-    "subconto_first": "\u0437\u0430\u043a\u044d\u0448",
+    "sub1": "\u0437\u0430\u043a\u044d\u0448",
     "level 1": "Revenue",
     "level 2": "\u0437\u0430\u043a\u044d\u0448",
     "reverse": true
   },
   {
     "sender": 90.1,
-    "subconto_first": "\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438",
+    "sub1": "\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438",
     "level 1": "Revenue",
     "level 2": "\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438",
     "reverse": true
   },
   {
     "sender": 90.1,
-    "subconto_first": "\u0441\u043c\u0440",
+    "sub1": "\u0441\u043c\u0440",
     "level 1": "Revenue",
     "level 2": "\u0441\u043c\u0440",
     "reverse": true
   },
   {
     "sender": 90.1,
-    "subconto_first": "\u0441\u043e\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u0435\u0434\u043e\u0440\u043e\u0433\u0438",
+    "sub1": "\u0441\u043e\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u0435\u0434\u043e\u0440\u043e\u0433\u0438",
     "level 1": "Revenue",
     "level 2": "\u0441\u043e\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u0435\u0434\u043e\u0440\u043e\u0433\u0438",
     "reverse": true
   },
   {
     "sender": 90.1,
-    "subconto_first": "\u0442\u043a\u043b\u0446",
+    "sub1": "\u0442\u043a\u043b\u0446",
     "level 1": "Revenue",
     "level 2": "\u0442\u043a\u043b\u0446",
     "reverse": true
   },
   {
     "sender": 90.1,
-    "subconto_first": "\u0442\u043c\u0446",
+    "sub1": "\u0442\u043c\u0446",
     "level 1": "Revenue",
     "level 2": "\u0442\u043c\u0446",
     "reverse": true
   },
   {
     "sender": 90.1,
-    "subconto_first": "\u0443\u0441\u043b\u0443\u0433\u0438\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
+    "sub1": "\u0443\u0441\u043b\u0443\u0433\u0438\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
     "level 1": "Revenue",
     "level 2": "\u0443\u0441\u043b\u0443\u0433\u0438\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u0433\u0441\u043c",
+    "sub1": "\u0433\u0441\u043c",
     "level 1": "Expenses",
     "level 2": "\u0433\u0441\u043c",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u0437\u0430\u043a\u044d\u0448",
+    "sub1": "\u0437\u0430\u043a\u044d\u0448",
     "level 1": "Expenses",
     "level 2": "\u0437\u0430\u043a\u044d\u0448",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u043a\u043e\u043c\u0438\u0441\u0441\u0438\u0438\u0441\u0430\u0440\u043c\u0430\u0442\u0443",
+    "sub1": "\u043a\u043e\u043c\u0438\u0441\u0441\u0438\u0438\u0441\u0430\u0440\u043c\u0430\u0442\u0443",
     "level 1": "Expenses",
     "level 2": "\u043a\u043e\u043c\u0438\u0441\u0441\u0438\u0438\u0441\u0430\u0440\u043c\u0430\u0442\u0443",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u043a\u043e\u043c\u043c\u0435\u0440\u0447\u0435\u0441\u043a\u0438\u0435\u0440\u0430\u0441\u0445\u043e\u0434\u044b",
+    "sub1": "\u043a\u043e\u043c\u043c\u0435\u0440\u0447\u0435\u0441\u043a\u0438\u0435\u0440\u0430\u0441\u0445\u043e\u0434\u044b",
     "level 1": "Expenses",
     "level 2": "\u043a\u043e\u043c\u043c\u0435\u0440\u0447\u0435\u0441\u043a\u0438\u0435\u0440\u0430\u0441\u0445\u043e\u0434\u044b",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u043d\u0430\u043b\u043e\u0433\u0438\u043e\u043f\u0442\u0438\u043c\u0438\u0437\u0430\u0446\u0438\u044f",
+    "sub1": "\u043d\u0430\u043b\u043e\u0433\u0438\u043e\u043f\u0442\u0438\u043c\u0438\u0437\u0430\u0446\u0438\u044f",
     "level 1": "Expenses",
     "level 2": "\u043d\u0430\u043b\u043e\u0433\u0438\u043e\u043f\u0442\u0438\u043c\u0438\u0437\u0430\u0446\u0438\u044f",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u043d\u0435\u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u043d\u044b\u0435\u043f\u043e\u043f\u0440\u043e\u0435\u043a\u0442\u0430\u043c",
+    "sub1": "\u043d\u0435\u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u043d\u044b\u0435\u043f\u043e\u043f\u0440\u043e\u0435\u043a\u0442\u0430\u043c",
     "level 1": "Expenses",
     "level 2": "\u043d\u0435\u0440\u0430\u0441\u043f\u0440\u0435\u0434\u0435\u043b\u0435\u043d\u043d\u044b\u0435\u043f\u043e\u043f\u0440\u043e\u0435\u043a\u0442\u0430\u043c",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438",
+    "sub1": "\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438",
     "level 1": "Expenses",
     "level 2": "\u043f\u0435\u0440\u0435\u0432\u043e\u0437\u043a\u0438",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u0441\u043c\u0440",
+    "sub1": "\u0441\u043c\u0440",
     "level 1": "Expenses",
     "level 2": "\u0441\u043c\u0440",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u0442\u043c\u0446",
+    "sub1": "\u0442\u043c\u0446",
     "level 1": "Expenses",
     "level 2": "\u0442\u043c\u0446",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u0442\u0443\u043d\u0434\u0440\u0430",
+    "sub1": "\u0442\u0443\u043d\u0434\u0440\u0430",
     "level 1": "Expenses",
     "level 2": "\u0442\u0443\u043d\u0434\u0440\u0430",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u0443\u0441\u043b\u0443\u0433\u0438\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
+    "sub1": "\u0443\u0441\u043b\u0443\u0433\u0438\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
     "level 1": "Expenses",
     "level 2": "\u0443\u0441\u043b\u0443\u0433\u0438\u0442\u0435\u0445\u043d\u0438\u043a\u0438",
     "reverse": true
   },
   {
     "sender": 90.2,
-    "subconto_first": "\u0446\u0435\u043c\u043a\u043e\u043c",
+    "sub1": "\u0446\u0435\u043c\u043a\u043e\u043c",
     "level 1": "Expenses",
     "level 2": "\u0446\u0435\u043c\u043a\u043e\u043c",
     "reverse": true
   },
   {
     "sender": 90.8,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "level 1": "Expenses",
     "level 2": "noinfo",
     "reverse": true
   },
   {
     "sender": 90.9,
-    "subconto_first": "noinfo",
+    "sub1": "noinfo",
     "level 1": "Profit",
     "level 2": "noinfo",
     "reverse": false
