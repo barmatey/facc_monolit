@@ -4,7 +4,7 @@ from typing import TypeVar
 import loguru
 import pandas as pd
 from pydantic import BaseModel as PydanticModel
-from sqlalchemy import insert, Result, delete, update, GenerativeSelect, TIMESTAMP, func
+from sqlalchemy import insert, Result, delete, update, GenerativeSelect, TIMESTAMP, func, bindparam
 from sqlalchemy import select
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -166,6 +166,22 @@ class BasePostgres:
         filters = self._parse_filters(filter_by)
         stmt = update(self.model).where(*filters).values(**data).returning(self.model)
         _: Result = await self._session.execute(stmt)
+
+    async def update_many_via_id(self, data: list[DTO]) -> None:
+        data = self._parse_dto(data)
+
+        values = []
+        for record in data:
+            record['record_id'] = record.pop("id")
+            values.append(record)
+
+        if len(values) == 0:
+            raise ValueError
+        mapper = {key: bindparam(key) for key in values[0].keys() if key != "record_id"}
+
+        # Update
+        stmt = self.model.__table__.update().where(self.model.id == bindparam('record_id')).values(mapper)
+        _ = await self._session.execute(stmt, values)
 
     async def delete_one(self, filter_by: dict) -> Model:
         session = self._session

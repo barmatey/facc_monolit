@@ -1,10 +1,11 @@
 import typing
 
-import pandas as pd
 from datetime import datetime
 
 from src import core_types
 from src.core_types import Event, Id_
+
+from . import schema
 
 
 class SourceCreated(Event):
@@ -21,6 +22,10 @@ class SourceDatesInfoUpdated(Event):
 
 class PlanItemCreated(Event):
     pass
+
+
+class PlanItemManyUpdated(Event):
+    data: list[schema.PlanItemPartialUpdateSchema]
 
 
 class PlanItemManyCreated(Event):

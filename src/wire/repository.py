@@ -36,6 +36,10 @@ class RepositoryCrud(ABC):
         pass
 
     @abstractmethod
+    async def update_many_via_id(self, data: list[DTO]) -> None:
+        raise NotImplemented
+
+    @abstractmethod
     async def delete_one(self, filter_by: dict) -> entities.Entity:
         pass
 

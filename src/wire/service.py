@@ -6,7 +6,7 @@ from loguru import logger
 import pandas as pd
 import pydantic
 
-import core_types
+from src import core_types
 from src.core_types import OrderBy, Id_, DTO
 from . import repository, entities
 
@@ -35,6 +35,9 @@ class CrudService:
 
     async def update_one(self, data: DTO, filter_by: dict, ) -> entities.Entity:
         return await self.__crud_repo.update_one(data, filter_by)
+
+    async def update_many_via_id(self, data: list[DTO]) -> None:
+        await self.__crud_repo.update_many_via_id(data)
 
     async def delete_one(self, filter_by: dict) -> entities.Entity:
         return await self.__crud_repo.delete_one(filter_by)

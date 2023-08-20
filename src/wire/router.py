@@ -1,4 +1,5 @@
 import datetime
+import typing
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
@@ -106,9 +107,29 @@ async def get_many_plan_items(source_id: core_types.Id_, sender: float = None, r
         return result
 
 
+@router_source_plan.patch("/update-many")
+async def update_many_plan_items(data: list[schema.PlanItemPartialUpdateSchema],
+                                 get_asession=Depends(db.get_async_session)) -> int:
+    event = events.PlanItemManyUpdated(data=data)
+    async with get_asession as session:
+        result = await msgbus.handle(event, session)
+        result = result[events.PlanItemManyUpdated]
+        await session.commit()
+        return result
+
+
 @router_source_plan.delete("/")
-async def delete_many_plan_items(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)):
+async def delete_all_plan_items(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)):
     event = events.PlanItemDeleted(filter_by={"source_id": source_id})
+    async with get_asession as session:
+        await msgbus.handle(event, session)
+        await session.commit()
+        return 1
+
+
+@router_source_plan.patch("/delete-many")
+async def delete_many_plan_items(data: schema.DeleteManyRecordsSchema, get_asession=Depends(db.get_async_session)):
+    event = events.PlanItemDeleted(filter_by={"id__$in": data.record_ids})
     async with get_asession as session:
         await msgbus.handle(event, session)
         await session.commit()

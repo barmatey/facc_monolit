@@ -41,6 +41,11 @@ async def handle_plan_item_list_gotten(hs: HS, event: wire_events.PlanItemListGo
     hs.results[wire_events.PlanItemListGotten] = result
 
 
+async def handle_plan_item_many_updated(hs: HS, event: wire_events.PlanItemManyUpdated):
+    await hs.source_plan_service.update_many_via_id(event.model_dump(exclude_none=True).pop("data"))
+    hs.results[wire_events.PlanItemManyUpdated] = 1
+
+
 async def handle_plan_item_deleted(hs: HS, event: wire_events.PlanItemDeleted):
     await hs.source_plan_service.delete_many(event.filter_by)
     hs.results[wire_events.PlanItemDeleted] = None
@@ -71,9 +76,12 @@ async def handle_source_info_updated(hs: HS, event: wire_events.SourceDatesInfoU
 HANDLERS_WIRE = {
     wire_events.SourceCreated: [handle_source_created],
     wire_events.SourceDatesInfoUpdated: [handle_source_info_updated],
+
     wire_events.PlanItemsCreatedFromSource: [handle_plan_items_created_from_source],
     wire_events.PlanItemListGotten: [handle_plan_item_list_gotten],
     wire_events.PlanItemDeleted: [handle_plan_item_deleted],
+    wire_events.PlanItemManyUpdated: [handle_plan_item_many_updated],
+
     wire_events.WireManyCreated: [handle_wire_many_created],
     wire_events.WirePartialUpdated: [handle_wire_partial_updated],
 
