@@ -17,7 +17,6 @@ from .base import BasePostgres, BaseModel
 from .source import SourceModel
 
 
-
 class WireModel(BaseModel):
     __tablename__ = "wire"
     date: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False)

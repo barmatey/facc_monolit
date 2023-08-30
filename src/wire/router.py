@@ -186,6 +186,8 @@ async def get_many(source_id: core_types.Id_,
                    comment: str = None,
                    paginate_from: int = None,
                    paginate_to: int = None,
+                   order_by: str = 'date',
+                   asc: bool = False,
                    get_asession=Depends(db.get_async_session)) -> list[entities.Wire]:
     filter_by = {
         "source_id": source_id,
@@ -201,7 +203,7 @@ async def get_many(source_id: core_types.Id_,
     async with get_asession as session:
         wire_repo = WireRepoPostgres(session)
         wire_service = CrudService(wire_repo)
-        wires: list[entities.Wire] = await wire_service.get_many(filter_by,
+        wires: list[entities.Wire] = await wire_service.get_many(filter_by, order_by=order_by, asc=asc,
                                                                  slice_from=paginate_from, slice_to=paginate_to)
         return wires
 
