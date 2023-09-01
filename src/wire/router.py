@@ -64,8 +64,6 @@ async def get_plan_items(source_id: core_types.Id_, get_asession=Depends(db.get_
         result: dict = await msgbus.handle(event, session)
         result: list[dict] = result[events.PlanItemListGotten]
         await session.commit()
-        print(result[0:22])
-        raise NotImplemented
         return JSONResponse(content=result)
 
 

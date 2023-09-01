@@ -158,7 +158,6 @@ class BasePostgres:
         stmt = select(*cols).where(*filters).distinct().order_by(*orders)
         result: Result = await session.execute(stmt)
         result: pd.DataFrame = pd.DataFrame.from_records(list(result), columns=columns_by)
-        print(result)
         return result
 
     async def update_one(self, data: core_types.DTO, filter_by: dict) -> Model:
