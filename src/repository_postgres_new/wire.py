@@ -96,5 +96,9 @@ class WireRepoPostgres(BasePostgres, WireRepo, RepositoryCrud):
         wire_df = wire_df[['date', 'sender', 'receiver', 'debit', 'credit', 'sub1', 'sub2', 'comment']]
         return wire_df
 
+    async def get_uniques(self, columns_by: list[str], filter_by: dict,
+                          order_by: OrderBy = None, asc=True, ) -> list[dict]:
+        return (await self.get_uniques_as_frame(columns_by, filter_by, order_by, asc)).to_dict(orient='records')
+
     async def get_wire_dataframe(self, filter_by: dict, order_by: core_types.OrderBy = None) -> pd.DataFrame:
         return await self.get_many_as_frame(filter_by, order_by)

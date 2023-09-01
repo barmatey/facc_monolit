@@ -148,6 +148,19 @@ class BasePostgres:
         result = pd.DataFrame.from_records(result.fetchall(), columns=self.model.get_columns())
         return result
 
+    async def get_uniques_as_frame(self, columns_by: list[str], filter_by: dict,
+                                   order_by: OrderBy = None, asc=True) -> pd.DataFrame:
+        session = self._session
+
+        filters = self._parse_filters(filter_by)
+        orders = self._parse_orders(order_by, asc)
+        cols = [self.model.__table__.c[col] for col in columns_by]
+        stmt = select(*cols).where(*filters).distinct().order_by(*orders)
+        result: Result = await session.execute(stmt)
+        result: pd.DataFrame = pd.DataFrame.from_records(list(result), columns=columns_by)
+        print(result)
+        return result
+
     async def update_one(self, data: core_types.DTO, filter_by: dict) -> Model:
         session = self._session
         filters = self._parse_filters(filter_by)
@@ -212,6 +225,12 @@ class BaseEntityPostgres(BasePostgres):
         models = await super().get_many(filter_by, order_by, asc, slice_from, slice_to)
         sources = [x.to_entity() for x in models]
         return sources
+
+    async def get_uniques_as_frame(self, columns_by: list[str], filter_by: dict,
+                                   order_by: OrderBy = None, asc=True) -> list[Model]:
+        models = await super().get_uniques_as_frame(columns_by, filter_by, order_by, asc)
+        entities = [model.to_entity() for model in models]
+        return entities
 
     async def update_one(self, data: DTO, filter_by: dict):
         model = await super().update_one(data, filter_by)

@@ -1,13 +1,8 @@
-import typing
-from abc import ABC, abstractmethod
-
-from loguru import logger
-
 import pandas as pd
 import pydantic
 
 from src import core_types
-from src.core_types import OrderBy, Id_, DTO
+from src.core_types import OrderBy, DTO
 from . import repository, entities
 
 
@@ -28,6 +23,10 @@ class CrudService:
     async def get_many(self, filter_by: dict, order_by: OrderBy = None, asc=True,
                        slice_from: int = None, slice_to: int = None) -> list[entities.Entity]:
         return await self.__crud_repo.get_many(filter_by, order_by, asc, slice_from, slice_to)
+
+    async def get_uniques(self, columns_by: list[str], filter_by: dict,
+                          order_by: OrderBy = None, asc=True,) -> list[dict]:
+        return await self.__crud_repo.get_uniques(columns_by, filter_by, order_by, asc)
 
     async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy = None, asc=True,
                                 slice_from: int = None, slice_to: int = None) -> pd.DataFrame:

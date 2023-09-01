@@ -5,8 +5,6 @@ from datetime import datetime
 from src import core_types
 from src.core_types import Event, Id_
 
-from . import schema
-
 
 class SourceCreated(Event):
     title: str
@@ -18,26 +16,6 @@ class SourceUpdated(Event):
 
 class SourceDatesInfoUpdated(Event):
     source_id: core_types.Id_
-
-
-class PlanItemCreated(Event):
-    pass
-
-
-class PlanItemManyUpdated(Event):
-    data: list[schema.PlanItemPartialUpdateSchema]
-
-
-class PlanItemManyCreated(Event):
-    pass
-
-
-class PlanItemsCreatedFromSource(Event):
-    source_id: core_types.Id_
-
-
-class PlanItemGotten(Event):
-    pass
 
 
 class PlanItemListGotten(Event):

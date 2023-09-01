@@ -5,7 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from sqlalchemy import String, JSON, TIMESTAMP, func
 
-from src import core_types
 from src.core_types import DTO, OrderBy
 from src.wire import entities, repository
 from .base import BasePostgres, BaseModel
@@ -62,6 +61,10 @@ class SourceRepoPostgres(BasePostgres, repository.RepositoryCrud):
         models: list[SourceModel] = await super().get_many(filter_by, order_by, asc, slice_from, slice_to)
         sources = [x.to_entity() for x in models]
         return sources
+
+    async def get_uniques(self, columns_by: list[str], filter_by: dict,
+                          order_by: OrderBy = None, asc=True, ) -> list[dict]:
+        raise NotImplemented
 
     async def update_one(self, data: DTO, filter_by: dict,) -> entities.Source:
         model: SourceModel = await super().update_one(data, filter_by)

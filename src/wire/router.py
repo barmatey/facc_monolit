@@ -3,6 +3,7 @@ import typing
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Depends
+from fastapi.responses import JSONResponse
 from loguru import logger
 
 from src import db
@@ -56,6 +57,18 @@ async def delete_source(source_id: core_types.Id_, get_asession=Depends(db.get_a
         return deleted.id
 
 
+@router_source.get("/{source_id}/plan-items")
+async def get_plan_items(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> JSONResponse:
+    event = events.PlanItemListGotten(source_id=source_id)
+    async with get_asession as session:
+        result: dict = await msgbus.handle(event, session)
+        result: list[dict] = result[events.PlanItemListGotten]
+        await session.commit()
+        print(result[0:22])
+        raise NotImplemented
+        return JSONResponse(content=result)
+
+
 @router_source.post("/{source_id}")
 @helpers.async_timeit
 async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,
@@ -66,72 +79,6 @@ async def bulk_append_wire_from_csv(source_id: core_types.Id_, file: UploadFile,
     event = events.WireManyCreated(source_id=source_id, wires=df.to_dict(orient='records'))
     async with get_asession as session:
         _ = await msgbus.handle(event, session)
-        await session.commit()
-        return 1
-
-
-router_source_plan = APIRouter(
-    prefix="/source-plan",
-    tags=['SourcePlan']
-)
-
-
-@router_source_plan.post("/")
-async def create_plan_item(data: events.PlanItemCreated,
-                           get_asession=Depends(db.get_async_session)) -> entities.PlanItem:
-    async with get_asession as session:
-        result = await msgbus.handle(data, session)
-        result: entities.PlanItem = result[events.PlanItemCreated]
-        await session.commit()
-        return result
-
-
-@router_source_plan.post("/from-source")
-async def create_plan_items_from_source(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> int:
-    event = events.PlanItemsCreatedFromSource(source_id=source_id)
-    async with get_asession as session:
-        _ = await msgbus.handle(event, session)
-        await session.commit()
-        return 1
-
-
-@router_source_plan.get("/")
-async def get_many_plan_items(source_id: core_types.Id_, sender: float = None, receiver: float = None,
-                              sub1: str = None, sub2: str = None,
-                              get_asession=Depends(db.get_async_session)) -> list[entities.PlanItem]:
-    event = events.PlanItemListGotten(source_id=source_id, sender=sender, receiver=receiver, sub1=sub1, sub2=sub2)
-    async with get_asession as session:
-        result: dict = await msgbus.handle(event, session)
-        result: list[entities.PlanItem] = result[events.PlanItemListGotten]
-        await session.commit()
-        return result
-
-
-@router_source_plan.patch("/update-many")
-async def update_many_plan_items(data: list[schema.PlanItemPartialUpdateSchema],
-                                 get_asession=Depends(db.get_async_session)) -> int:
-    event = events.PlanItemManyUpdated(data=data)
-    async with get_asession as session:
-        result = await msgbus.handle(event, session)
-        result = result[events.PlanItemManyUpdated]
-        await session.commit()
-        return result
-
-
-@router_source_plan.delete("/")
-async def delete_all_plan_items(source_id: core_types.Id_, get_asession=Depends(db.get_async_session)):
-    event = events.PlanItemDeleted(filter_by={"source_id": source_id})
-    async with get_asession as session:
-        await msgbus.handle(event, session)
-        await session.commit()
-        return 1
-
-
-@router_source_plan.patch("/delete-many")
-async def delete_many_plan_items(data: schema.DeleteManyRecordsSchema, get_asession=Depends(db.get_async_session)):
-    event = events.PlanItemDeleted(filter_by={"id__$in": data.record_ids})
-    async with get_asession as session:
-        await msgbus.handle(event, session)
         await session.commit()
         return 1
 

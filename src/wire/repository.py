@@ -27,6 +27,11 @@ class RepositoryCrud(ABC):
         pass
 
     @abstractmethod
+    async def get_uniques(self, columns_by: list[str], filter_by: dict,
+                          order_by: OrderBy = None, asc=True, ) -> list[dict]:
+        raise NotImplemented
+
+    @abstractmethod
     async def get_many_as_frame(self, filter_by: dict, order_by: OrderBy = None, asc=True,
                                 slice_from: int = None, slice_to: int = None) -> pd.DataFrame:
         pass

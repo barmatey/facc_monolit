@@ -1,16 +1,6 @@
-import loguru
 import pandas as pd
 
-from src import core_types
-
 from src.wire import events as wire_events
-from src.sheet import events as sheet_events
-from src.group import events as group_events
-from src.rep import events as report_events
-
-from src.rep import entities as report_entities
-from src.group import entities as group_entities
-from src.sheet import entities as sheet_entities
 from src.wire import entities as wire_entities
 
 from .handler_service import HandlerService as HS
@@ -28,27 +18,12 @@ async def handle_wire_many_created(hs: HS, event: wire_events.WireManyCreated):
     hs.queue.append(wire_events.SourceDatesInfoUpdated(source_id=event.source_id))
 
 
-async def handle_plan_items_created_from_source(hs: HS, event: wire_events.PlanItemsCreatedFromSource):
-    wire_df = await hs.wire_service.get_many_as_frame({"source_id": event.source_id})
-    await hs.source_plan_service.create_many_from_wire_df(event.source_id, wire_df)
-    hs.results[wire_events.PlanItemsCreatedFromSource] = 1
-
-
 async def handle_plan_item_list_gotten(hs: HS, event: wire_events.PlanItemListGotten):
+    columns_by = ['sender', 'receiver', 'sub1', 'sub2']
     filter_by = event.model_dump(exclude_none=True)
-    order_by = ['sender', 'receiver', 'sub1', 'sub2', ]
-    result = await hs.source_plan_service.get_many(filter_by, order_by)
+    order_by = ['sender', 'receiver', 'sub1', 'sub2']
+    result = await hs.wire_service.get_uniques(columns_by, filter_by, order_by)
     hs.results[wire_events.PlanItemListGotten] = result
-
-
-async def handle_plan_item_many_updated(hs: HS, event: wire_events.PlanItemManyUpdated):
-    await hs.source_plan_service.update_many_via_id(event.model_dump(exclude_none=True).pop("data"))
-    hs.results[wire_events.PlanItemManyUpdated] = 1
-
-
-async def handle_plan_item_deleted(hs: HS, event: wire_events.PlanItemDeleted):
-    await hs.source_plan_service.delete_many(event.filter_by)
-    hs.results[wire_events.PlanItemDeleted] = None
 
 
 # todo I need update source total_start_date and total_end_date
@@ -77,10 +52,7 @@ HANDLERS_WIRE = {
     wire_events.SourceCreated: [handle_source_created],
     wire_events.SourceDatesInfoUpdated: [handle_source_info_updated],
 
-    wire_events.PlanItemsCreatedFromSource: [handle_plan_items_created_from_source],
     wire_events.PlanItemListGotten: [handle_plan_item_list_gotten],
-    wire_events.PlanItemDeleted: [handle_plan_item_deleted],
-    wire_events.PlanItemManyUpdated: [handle_plan_item_many_updated],
 
     wire_events.WireManyCreated: [handle_wire_many_created],
     wire_events.WirePartialUpdated: [handle_wire_partial_updated],

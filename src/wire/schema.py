@@ -14,13 +14,5 @@ WireSchema = entities.Wire
 WireCreateSchema = entities.WireCreate
 
 
-class PlanItemPartialUpdateSchema(BaseModel):
-    id: core_types.Id_
-    sender: typing.Optional[float] = None
-    receiver: typing.Optional[float] = None
-    sub1: typing.Optional[str] = None
-    sub2: typing.Optional[str] = None
-
-
 class DeleteManyRecordsSchema(BaseModel):
     record_ids: list[core_types.Id_]
