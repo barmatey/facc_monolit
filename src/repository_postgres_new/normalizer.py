@@ -143,10 +143,16 @@ class Denormalizer:
         table = helpers.array_split(values_list, count_cols)
         table = pd.DataFrame(table)
 
-        # todo I need processing left index
         if top_index > 0:
             table.columns = self._create_index(table.head(top_index))
             table = table[:][top_index:].reset_index(drop=True)
+
+        # todo I am not sure that this code is correct
+        if left_index > 0:
+            table_cols = list(table.columns[left_index:])
+            index_cols = [f"__lvl_{i}" for i in range(0, left_index)]
+            table.columns = index_cols + table_cols
+            table = table.set_index(index_cols)
 
         if 'reverse' in table.columns:
             table['reverse'] = table['reverse'].astype(bool)

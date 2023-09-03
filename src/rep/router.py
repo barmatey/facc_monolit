@@ -29,6 +29,13 @@ async def create_report(event: events.ReportCreated, get_asession=Depends(db.get
         return report
 
 
+@router_report.post("/checker")
+async def create_report_checker(event: events.ReportCheckerCreated, get_asession=Depends(db.get_async_session)):
+    async with get_asession as session:
+        result = await messagebus.handle(event, session)
+        # await session.commit()
+
+
 @router_report.get("/{report_id}")
 @helpers.async_timeit
 async def get_report(report_id: core_types.Id_, get_asession=Depends(db.get_async_session)) -> entities.Report:

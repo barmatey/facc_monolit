@@ -44,3 +44,7 @@ class ParentUpdated(Event):
 
 class ReportSheetUpdated(Event):
     report_instance: entities.Report
+
+
+class ReportCheckerCreated(Event):
+    report_instance: entities.Report

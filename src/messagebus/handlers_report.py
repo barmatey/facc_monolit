@@ -13,7 +13,7 @@ from .handler_service import HandlerService as HS
 
 
 async def handle_report_created(hs: HS, event: report_events.ReportCreated):
-    event = event.copy()
+    event = event.model_copy()
     frep = finrep.FinrepFactory(event.category.value)
 
     # Create report_df
@@ -108,6 +108,18 @@ async def handle_report_deleted(hs: HS, event: report_events.ReportDeleted):
     hs.results[report_events.ReportDeleted] = deleted_id
 
 
+async def handle_report_checker_created(hs: HS, event: report_events.ReportCheckerCreated):
+    report_df = await hs.sheet_service.sheet_repo.get_one_as_frame(sheet_id=event.report_instance.sheet.id)
+    checker_df = report_df
+    for col in checker_df.columns:
+        checker_df[col] = 0
+
+    sheet_created = sheet_events.SheetCreated(df=checker_df, drop_index=False, drop_columns=False)
+    sheet_id = await hs.sheet_service.create_one(data=sheet_created)
+    print(report_df)
+    stop
+
+
 HANDLERS_REPORT = {
     report_events.ReportCreated: [handle_report_created],
     report_events.ReportGotten: [handle_report_gotten],
@@ -115,4 +127,5 @@ HANDLERS_REPORT = {
     report_events.ParentUpdated: [handle_parent_updated],
     report_events.ReportSheetUpdated: [handle_report_sheet_updated],
     report_events.ReportDeleted: [handle_report_deleted],
+    report_events.ReportCheckerCreated: [handle_report_checker_created],
 }
