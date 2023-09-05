@@ -1,3 +1,4 @@
+from src import core_types
 from src.core_types import DTO, OrderBy, Id_
 from .repository import ReportRepository
 from .entities import Report
@@ -22,3 +23,6 @@ class ReportService:
 
     async def delete_one(self, filter_by: dict) -> Id_:
         return await self.repo.delete_one(filter_by)
+
+    async def add_linked_sheet(self, report: Report, sheet_id: core_types.Id_) -> Report:
+        return await self.repo.add_linked_sheet(report, sheet_id)

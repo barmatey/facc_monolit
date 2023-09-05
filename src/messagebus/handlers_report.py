@@ -116,8 +116,8 @@ async def handle_report_checker_created(hs: HS, event: report_events.ReportCheck
 
     sheet_created = sheet_events.SheetCreated(df=checker_df, drop_index=False, drop_columns=False)
     sheet_id = await hs.sheet_service.create_one(data=sheet_created)
-    print(report_df)
-    stop
+    updated_report = await hs.report_service.add_linked_sheet(event.report_instance, sheet_id)
+    hs.results[report_events.ReportCheckerCreated] = updated_report
 
 
 HANDLERS_REPORT = {

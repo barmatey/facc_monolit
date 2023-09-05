@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from src import core_types
 from src.core_types import DTO, OrderBy, Id_
 from .entities import Report, Interval
 
@@ -24,4 +25,8 @@ class ReportRepository(ABC):
 
     @abstractmethod
     async def delete_one(self, filter_by: dict) -> Id_:
+        raise NotImplemented
+
+    @abstractmethod
+    async def add_linked_sheet(self, report: Report, sheet_id: core_types.Id_) -> Report:
         raise NotImplemented

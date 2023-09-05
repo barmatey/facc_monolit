@@ -1,7 +1,11 @@
+import datetime
+import typing
+
 from sqlalchemy import select, String, Integer, ForeignKey, TIMESTAMP, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column
 
+from src import core_types
 from src.core_types import Id_, OrderBy, DTO
 from src.rep.repository import ReportRepository
 from src.rep import events, entities
@@ -22,10 +26,13 @@ class ReportModel(BaseModel):
     source_id: Mapped[int] = mapped_column(Integer, ForeignKey(SourceModel.id, ondelete='CASCADE'), nullable=False)
     sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='CASCADE'), nullable=False,
                                           unique=True)
+    checker_sheet_id: Mapped[int] = mapped_column(Integer, ForeignKey(SheetModel.id, ondelete='RESTRICT'),
+                                                  nullable=True)
     interval_id: Mapped[int] = mapped_column(Integer, ForeignKey(IntervalModel.id, ondelete='RESTRICT'), nullable=False,
                                              unique=True)
     updated_at: Mapped[TIMESTAMP] = mapped_column(TIMESTAMP(timezone=True), default=func.now(), onupdate=func.now())
 
+    # todo linked_sheets is temporary fix solution!
     def to_entity(self,
                   interval: entities.Interval,
                   category: entities.InnerCategory,
@@ -42,6 +49,8 @@ class ReportModel(BaseModel):
             interval=interval,
             sheet=sheet,
             updated_at=self.updated_at,
+            linked_sheets=[entities.InnerSheet(id=self.checker_sheet_id, updated_at=self.updated_at)
+                           ] if self.checker_sheet_id is not None else [],
         )
 
 
@@ -113,3 +122,16 @@ class ReportRepoPostgres(BasePostgres, ReportRepository):
     async def delete_one(self, filter_by: dict) -> Id_:
         deleted_model = await super().delete_one(filter_by)
         return deleted_model.id
+
+    async def add_linked_sheet(self, report: entities.Report, sheet_id: core_types.Id_) -> entities.Report:
+        model: typing.Type[ReportModel] = await self._session.get(self.model, report.id)
+
+        if model.checker_sheet_id is not None:
+            raise Exception("checker sheet already exist")
+
+        model.checker_sheet_id = sheet_id
+        await self._session.flush()
+
+        result = report.model_copy()
+        result.linked_sheets = [entities.InnerSheet(id=sheet_id, updated_at=datetime.datetime.now())]
+        return result

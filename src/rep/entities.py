@@ -60,5 +60,6 @@ class Report(BaseModel):
     source: InnerSource
     group: InnerGroup
     sheet: InnerSheet
+    linked_sheets: list[InnerSheet]
 
     model_config = pydantic.ConfigDict(arbitrary_types_allowed=True)
