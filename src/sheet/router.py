@@ -1,3 +1,4 @@
+import loguru
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 

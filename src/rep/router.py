@@ -34,7 +34,9 @@ async def create_report_checker(event: events.ReportCheckerCreated,
                                 get_asession=Depends(db.get_async_session)) -> entities.Report:
     async with get_asession as session:
         result = await messagebus.handle(event, session)
+        report: entities.Report = result[events.ReportCheckerCreated]
         await session.commit()
+        return report
 
 
 @router_report.get("/{report_id}")
